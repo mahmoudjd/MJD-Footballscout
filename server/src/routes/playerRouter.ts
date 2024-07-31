@@ -22,7 +22,7 @@ router.get("/players/:id", async function (req: Request, res: Response) {
   const playerId = req.params.id;
   try {
     const player = await getPlayerById(playerId);
-    if (!player) throw new Error("not found player");
+    if (!player) return res.status(404).json("not found player");
 
     res.status(201).json(player);
   } catch (error) {
@@ -36,7 +36,7 @@ router.put("/players/:id", async (req: Request, res: Response) => {
     const playerId = req.params.id;
     console.log("---start update");
     const player = await updatePlayerFromWebSites(playerId);
-    if (!player) throw new Error("not found Player");
+    if (!player) return res.status(404).json("not found player");
     res.status(202).json(player);
   } catch (error) {
     console.error(error);
@@ -63,7 +63,7 @@ router.delete("/players/:id", async (req: Request, res: Response) => {
   try {
     const playerId = req.params.id;
     const player = await deletePlayerById(playerId);
-    if (!player) throw new Error("not fount player");
+    if (!player) return res.status(404).json("not found player");
     res.status(204).json(player);
   } catch (error) {
     console.error(error);
