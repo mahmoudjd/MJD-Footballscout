@@ -1,0 +1,27 @@
+/* Player Image */
+.player img {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+}
+
+/* Player Details */
+.player .infos {
+  padding: 10px;
+  color: var(--txt-2);
+}
+
+.player .infos .list-item {
+  color: var(--txt-1);
+}
+
+/* Player Name */
+.player .infos > div:first-child {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Other Player Information */
+.player .infos > div:not(:first-child) {
+  font-size: 14px;
+  margin-bottom: 3px;
+}

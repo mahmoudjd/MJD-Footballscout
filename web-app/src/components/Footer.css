@@ -1,0 +1,15 @@
+.footer {
+  box-shadow: 0 0 5px var(--bo-c);
+  background-color: var(--bg-2);
+  padding: 10px 0;
+  text-align: center;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.footer p {
+  margin: 0;
+  color: var(--txt-2);
+  font-size: 12px;
+}

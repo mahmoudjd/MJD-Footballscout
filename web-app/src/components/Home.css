@@ -1,0 +1,87 @@
+.main {
+  background-color: inherit;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.heading-home {
+  font-size: 1.7rem;
+  padding: 7px 10px;
+  font-weight: bold;
+  border-radius: 10px;
+  color: var(--txt-1);
+  backdrop-filter: blur(20px);
+}
+
+.heading-home h2 {
+  font-size: 1.8rem;
+}
+.mjd-name {
+  color: var(--primary-color);
+}
+
+.heading-home .descreption-home {
+  text-align: center;
+  font-size: 1rem;
+}
+
+.list-home {
+  margin-top: 3rem;
+  list-style: none;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+
+.link-home {
+  display: block;
+  width: 300px;
+  text-decoration: none;
+  text-align: center;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  color: var(--btn-color);
+  background-color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  text-transform: uppercase;
+  font-size: 1.3rem;
+  letter-spacing: 0.1rem;
+}
+
+.link-home:hover {
+  background-color: var(--bg-1);
+  color: var(--primary-color);
+  font-weight: bold;
+  box-shadow: 2px 2px 10px var(--bo-c);
+  transition: all 0.4s ease-in;
+}
+
+.link-home:hover > .icon-home {
+  transform: translateX(-9px);
+  transition: all 0.4s ease-in;
+}
+
+.link-home .icon-home {
+  font-size: 1.3rem;
+  margin-right: 0.4rem;
+}
+
+@media (max-width: 610px) {
+  .link-home {
+    width: 240px;
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+    letter-spacing: 0.08rem;
+    z-index: 1;
+  }
+  .heading-home h2 {
+    font-size: 1.4rem;
+  }
+  .heading-home .descreption-home {
+    font-size: 0.7rem;
+  }
+}
