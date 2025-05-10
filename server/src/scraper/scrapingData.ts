@@ -39,7 +39,7 @@ export async function extractPlayerData(name: string, one = false) {
 
     return players;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     return [];
   }
 }
@@ -76,7 +76,7 @@ export async function extractWithName(
     if (player1 && !player2) return player1;
     if (player2 && !player1) return player2;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 }
 
@@ -176,7 +176,7 @@ export async function extractWithBesoccerURL(
     }
     if (player2 && !player1) return player2;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 }
 
