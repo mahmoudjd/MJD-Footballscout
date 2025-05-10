@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import axios from "axios";
 import PlayerType, { Award, Title, Transfer } from "../types";
+// @ts-ignore
 import iconv from "iconv-lite";
 
 const cheerioConfig = {
@@ -30,7 +31,7 @@ export const getLinkPlaymakerstats = async (name: string): Promise<string> => {
     // console.log("URL of Player:", urlOfPlayer);
     return urlOfPlayer;
   } catch (err) {
-    console.error("Error:", err);
+    console.error("Error:", err.message);
     return "";
   }
 };
@@ -236,6 +237,6 @@ export const extractDataPlaymakerstats = async (
 
     return objPlayer;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 };

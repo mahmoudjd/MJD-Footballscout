@@ -26,7 +26,7 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
     });
     return urlLinks;
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     return [];
   }
 };
@@ -45,7 +45,7 @@ export const getSingleLinkBesoccer = async (name: string) => {
     console.log("url1 ---> ", urlOfPlayer);
     return urlOfPlayer;
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error("Error fetching data:", error.message);
     return "";
   }
 };
@@ -213,7 +213,7 @@ export const extractDataBesoccer = async (
     // console.log("-- obj1: ", objPlayer);
     return objPlayer;
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
   }
 };
 
@@ -235,7 +235,7 @@ const extractTitles = async (url: string): Promise<Title[]> => {
 
     return honors;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     return [];
   }
 };
@@ -277,7 +277,7 @@ const extractTransfers = async (url: string): Promise<Transfer[]> => {
     });
     return transfers;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     return [];
   }
 };
