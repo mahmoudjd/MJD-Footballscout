@@ -141,7 +141,7 @@ export async function getPlayers() {
 export async function initializePlayers() {
   try {
     const playerCount = await Player.countDocuments();
-    if (playerCount <= 10) {
+    if (playerCount <= 0) {
       console.log("➕ [server]: Initializing famous players...");
       const playersToAdd = [
         "Cristiano Ronaldo",
@@ -158,8 +158,15 @@ export async function initializePlayers() {
       ];
       for (const playerName of playersToAdd) {
         const players = await extractPlayerData(playerName, true);
-        for (const player of players) {
-          if (player) await createPlayer(player);
+        if (players.length !== 0) {
+          for (const player of players) {
+            const createdPlayer = await createPlayer(player);
+            if (createdPlayer) {
+              console.log(createdPlayer.fullName, " created successfully.");
+            }
+          }
+        } else {
+          throw new Error("Player not found");
         }
       }
       console.log("✅ [server]: Famous players initialized successfully.");
