@@ -1,23 +1,33 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors";
-import { PlayersRouter } from "./routes/playerRouter";
-import { connectDB } from "./config/connect";
+import helmet from "helmet"
+import cors from 'cors'
+import compression from "compression"
+import cookieParser from "cookie-parser"
+import {PlayersRouter} from "./routes/playerRouter";
+import {connectDB} from "./config/connect";
 
-const server = express();
-dotenv.config();
+async function startServer() {
+    const server = express();
+    if (process.env.NODE_ENV !== "production") dotenv.config();
 
-const PORT = process.env.PORT;
-const MONGOURI = process.env.MONGOURI;
+    const PORT = process.env.PORT ?? 8080
+    const MONGOURI = process.env.MONGOURI;
 
-connectDB(MONGOURI!);
+    await connectDB(MONGOURI!);
 
-server.use(cors());
-server.use(express.json());
+    server.use(cors());
+    server.use(helmet())
+    server.use(cookieParser())
+    server.use(compression())
+    server.use(express.json());
 
 // Route zum aller Spieler
-server.use("/", PlayersRouter);
+    server.use("/", PlayersRouter);
 
-server.listen(PORT, () => {
-  console.log(`✅ [server]: Server is running at http://localhost:${PORT}`);
-});
+    server.listen(PORT, () => {
+        console.log(`✅ [server]: Server is running at http://localhost:${PORT}`);
+    });
+}
+
+startServer()
