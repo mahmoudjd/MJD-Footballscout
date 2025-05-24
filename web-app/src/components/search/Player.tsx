@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { PlayerType } from "../../data/Types";
+import type {PlayerType} from "../../data/Types";
 import "./Player.css";
 interface Props {
   player: PlayerType;

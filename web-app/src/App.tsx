@@ -8,21 +8,21 @@ import ProfilePage from "./pages/ProfilePage";
 import SearchPage from "./pages/SearchPage";
 
 function App() {
-  return (
-    <>
-      <Header />
-      <div className="app">
-        <Routes>
-          <Route index path="/" element={<HomePage />} />
-          <Route path="/players" element={<PlayersPage />} />
-          <Route path="/gallery" element={<GalleryPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/profiles/:id" element={<ProfilePage />} />
-        </Routes>
-      </div>
-      <Footer />
-    </>
-  );
+    return (
+        <>
+            <Header />
+            <div className="app">
+                <Routes>
+                    <Route index path="/" element={<HomePage />} />
+                    <Route path="/players" element={<PlayersPage />} />
+                    <Route path="/gallery" element={<GalleryPage />} />
+                    <Route path="/search" element={<SearchPage />} />
+                    <Route path="/profiles/:id" element={<ProfilePage />} />
+                </Routes>
+            </div>
+            <Footer />
+        </>
+    );
 }
 
-export default App;
+export default App

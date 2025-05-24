@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { PlayerType } from "../../data/Types";
+import type { PlayerType } from "../../data/Types";
 import "./Profile.css";
 import ProfileHeader from "./profileComponents/ProfileHeader";
 import ProfileInfo from "./profileComponents/ProfileInfo";

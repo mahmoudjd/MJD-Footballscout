@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, type ChangeEvent } from "react";
 import { FaArrowRightToBracket } from "react-icons/fa6";
-import { PlayerType } from "../../data/Types";
+import type {PlayerType} from "../../data/Types";
 import Filter from "./Filter";
 import "./Gallery.css";
 
