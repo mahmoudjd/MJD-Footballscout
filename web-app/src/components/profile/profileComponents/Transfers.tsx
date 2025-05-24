@@ -1,4 +1,4 @@
-import { Transfer } from "../../../data/Types";
+import type {Transfer} from "../../../data/Types";
 interface Props {
   transfers: Array<Transfer>;
 }

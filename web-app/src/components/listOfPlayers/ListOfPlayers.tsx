@@ -3,7 +3,7 @@ import ColorsOfPositions from "./ColorOfPosition";
 import Pagination from "./Pagination";
 import "./ListOfPlayers.css";
 import TableOfPlayers from "./TableOfPlayers";
-import { PlayerType } from "../../data/Types";
+import type {PlayerType} from "../../data/Types";
 import { deletePlayer } from "../../apiService";
 
 interface Props {

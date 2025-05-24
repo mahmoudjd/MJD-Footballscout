@@ -1,4 +1,4 @@
-import { Attribute } from "../../../data/Types";
+import type {Attribute} from "../../../data/Types";
 
 interface Props {
   attributes: Array<Attribute>;

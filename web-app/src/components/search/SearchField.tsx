@@ -1,8 +1,8 @@
 import "./SearchField.css";
 import Player from "./Player";
-import { useState, KeyboardEvent, ChangeEvent, useEffect } from "react";
+import { useState, type KeyboardEvent, type ChangeEvent, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { PlayerType } from "../../data/Types";
+import type { PlayerType } from "../../data/Types";
 import { convert } from "../../convert";
 import { searchPlayers, fetchPlayers } from "../../apiService";
 

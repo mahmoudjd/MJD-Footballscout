@@ -1,8 +1,7 @@
-import { PlayerType } from "./data/Types";
-import { API_URL } from "./apiURLs";
+import type { PlayerType } from "./data/Types";
+import { API_URL, SEARCH_API } from "./apiURLs";
 
 const URL = `${API_URL}/players`;
-const SEARCH_API = `${API_URL}/search?name`;
 
 export async function fetchPlayers(): Promise<PlayerType[]> {
   try {

@@ -1,4 +1,4 @@
-import { Title } from "../../../data/Types";
+import type {Title} from "../../../data/Types";
 
 interface Props {
   titles: Array<Title>;

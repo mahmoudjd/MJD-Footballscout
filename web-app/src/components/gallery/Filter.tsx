@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
 import SelectElement from "./SelectElement";
 import { FaFilter } from "react-icons/fa";
 import "./Filter.css";

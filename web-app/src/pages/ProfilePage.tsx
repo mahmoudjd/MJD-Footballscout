@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import Profile from "../components/profile/Profile";
-import { PlayerType } from "../data/Types";
+import type { PlayerType } from "../data/Types";
 import { useEffect, useState } from "react";
 import { getPlayer } from "../apiService";
 

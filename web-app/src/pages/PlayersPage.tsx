@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchPlayers } from "../apiService";
-import { PlayerType } from "../data/Types";
+import type { PlayerType } from "../data/Types";
 import ListOfPlayers from "../components/listOfPlayers/ListOfPlayers";
 
 const PlayersPage = () => {

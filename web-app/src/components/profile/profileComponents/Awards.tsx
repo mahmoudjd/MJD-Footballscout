@@ -1,4 +1,4 @@
-import { Award } from "../../../data/Types";
+import type {Award} from "../../../data/Types";
 
 interface Props {
   awards: Array<Award>;

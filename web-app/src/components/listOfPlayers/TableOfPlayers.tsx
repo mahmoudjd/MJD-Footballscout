@@ -1,4 +1,4 @@
-import { PlayerType } from "../../data/Types";
+import type {PlayerType} from "../../data/Types";
 import RowItem from "./RowItem";
 
 interface Props {

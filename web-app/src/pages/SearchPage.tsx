@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import SearchField from "../components/search/SearchField";
-import { PlayerType } from "../data/Types";
+import type { PlayerType } from "../data/Types";
 import { fetchPlayers } from "../apiService";
 
 const SearchPage = () => {

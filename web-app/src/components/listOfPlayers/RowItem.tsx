@@ -1,6 +1,6 @@
 import { FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { PlayerType } from "../../data/Types";
+import type {PlayerType} from "../../data/Types";
 
 type RowData = {
   player: PlayerType;
@@ -47,6 +47,9 @@ export default RowItem;
 
 // helper-function to get the Position
 const getPosition = (position: string) => {
+  if (!position) {
+    return "";
+  }
   return position.includes("Forward")
     ? "Forward"
     : position.includes("Defender")
@@ -60,6 +63,9 @@ const getPosition = (position: string) => {
 
 // Helper-Function to set CSS-Klassen by position
 const getPlayerPositionClass = (position: string) => {
+  if (!position) {
+    return "";
+  }
   if (position.includes("Forward")) {
     return "pga";
   } else if (position.includes("Midfielder")) {

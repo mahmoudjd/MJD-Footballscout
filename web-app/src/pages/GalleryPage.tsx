@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchPlayers } from "../apiService";
 import Gallery from "../components/gallery/Gallery";
-import { PlayerType } from "../data/Types";
+import type { PlayerType } from "../data/Types";
 
 export default function GalleryPage() {
   const [players, setPlayers] = useState<PlayerType[]>([]);
