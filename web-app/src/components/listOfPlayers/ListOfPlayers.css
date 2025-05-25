@@ -109,94 +109,67 @@ tr:nth-child(even) {
 .mlb,
 .nhl,
 .pga {
-  text-decoration: none;
-  transition: ease-in 0.3s;
-  padding-left: 10px;
+    text-decoration: none;
+    transition: ease-in 0.3s;
+    padding-left: 10px;
 }
 
 .nfl {
-  border-left: 3px solid #007bff;
-}
-
-tr.nfl:hover {
-  background-color: #044c98;
-  color: var(--btn-color);
+    border-left: 3px solid #007bff;
 }
 
 .mlb {
-  border-left: 3px solid #52d29a;
-}
-
-tr.mlb:hover {
-  background-color: #279766;
-  color: var(--btn-color);
+    border-left: 3px solid #52d29a;
 }
 
 .nhl {
-  border-left: 3px solid rgba(231, 196, 104, 0.7);
-}
-
-tr.nhl:hover {
-  background-color: rgba(201, 154, 32, 0.7);
-  color: var(--btn-color);
+    border-left: 3px solid rgba(231, 196, 104, 0.7);
 }
 
 .pga {
-  border-left: 3px solid #eb7655;
-}
-
-tr.pga:hover {
-  background-color: #c63219;
-  color: var(--btn-color);
+    border-left: 3px solid #eb7655;
 }
 
 .nfl .player-number {
-  background-color: #044c98;
+    background-color: #044c98;
 }
 
 .pga .player-number {
-  background-color: #c63219;
+    background-color: #c63219;
 }
 
 .mlb .player-number {
-  background-color: #279766;
+    background-color: #279766;
 }
 
 .nhl .player-number {
-  background-color: rgba(201, 154, 32, 0.7);
+    background-color: rgba(201, 154, 32, 0.7);
 }
 
-.nfl:hover .player-number {
-  color: #044c98;
-  background-color: var(--btn-color);
-}
-
-.pga:hover .player-number {
-  color: #ab0612;
-  background-color: var(--btn-color);
-}
-
-.mlb:hover .player-number {
-  color: #279766;
-  background-color: var(--btn-color);
-}
-
-.nhl:hover .player-number {
-  color: rgba(201, 154, 32, 0.7);
-  background-color: var(--btn-color);
-}
-
-.nfl:hover p,
-.pga:hover p,
-.mlb:hover p,
-.nhl:hover p {
-  color: var(--btn-color);
-}
 
 .trash {
-  color: var(--link-color);
-  cursor: pointer;
+    color: var(--link-color);
+    cursor: pointer;
 }
+
 .trash:hover {
-  padding-left: 3px;
+    padding-left: 3px;
+}
+
+@media (max-width: 768px) {
+    .player-info {
+        min-width: 100%;
+    }
+    .player-avatar {
+        display: none;
+    }
+    .player-number {
+        display: none;
+    }
+}
+@media (max-width: 425px) {
+    .players-table th:nth-child(3),
+    .players-table td:nth-child(3) {
+        display: none;
+    }
 }
