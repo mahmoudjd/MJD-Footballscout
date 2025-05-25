@@ -11,19 +11,17 @@ import {
 
 import PlayerType, { Title } from "../types";
 
-export async function extractPlayerData(name: string, one = false) {
+export async function extractPlayerData(name: string, one: boolean = false) {
   try {
-    const convertedName = convert(name);
-
     // Early return if fetching only one player
     if (one) {
-      return [await extractWithName(convertedName)];
+      return [await extractWithName(name)];
     }
 
-    const urlsBesoccer = await getLinksBesoccer(convertedName);
+    const urlsBesoccer = await getLinksBesoccer(name);
     if (urlsBesoccer.length === 0) {
       console.log("not found in Besoccer!");
-      return [await extractWithName(convertedName)];
+      return [await extractWithName(name)];
     }
 
     const urlsToAnalyse = urlsBesoccer.slice(0, 3);
@@ -43,16 +41,19 @@ export async function extractPlayerData(name: string, one = false) {
     return [];
   }
 }
-
 export async function extractWithName(
-  name: string,
+    name: string,
 ): Promise<PlayerType | undefined> {
   try {
+    console.log("🔍 [extractWithName] Eingabe:", name);
     name = convert(name);
+    console.log("🔁 [extractWithName] Konvertierter Name:", name);
+
     const [url1, url2] = await Promise.all([
       getSingleLinkBesoccer(name),
       getLinkPlaymakerstats(name),
     ]);
+    console.log("🌐 [extractWithName] URLs gefunden:", { url1, url2 });
 
     let [player1, player2] = await Promise.all([
       extractDataBesoccer(`${url1}`),
@@ -60,25 +61,45 @@ export async function extractWithName(
     ]);
 
     if (!player1 && player2) {
+      console.log("➡️ [Fallback] Nur player2 vorhanden, hole neue URL für player1 mit:", player2.name);
       const newUrl = await getSingleLinkBesoccer(player2.name);
       player1 = await extractDataBesoccer(`${newUrl}`);
+      console.log("🔁 [extractWithName] Erneut extrahierter player1:", player1);
     }
 
     if (player1 && !player2) {
+      console.log("➡️ [Fallback] Nur player1 vorhanden, hole neue URL für player2 mit:", player1.title);
       const newUrl = await getLinkPlaymakerstats(player1.title);
       player2 = await extractDataPlaymakerstats(newUrl);
+      console.log("🔁 [extractWithName] Erneut extrahierter player2:", player2);
     }
 
     if (player1 && player2 && isEquals(player1, player2)) {
-      console.log("----- check result 1 ----->");
+      console.log("✅ [extractWithName] Beide Spieler sind gleich – kombiniere:");
       return await checkAndUpdate(player1, player2);
     }
-    if (player1 && !player2) return player1;
-    if (player2 && !player1) return player2;
+    if (player1 && player2 && !isEquals(player1, player2)) {
+      console.log("✅ [extractWithName] Beide Spieler sind nicht gleich:");
+      return player1;
+    }
+    if (player1 && !player2) {
+      console.log("📥 [extractWithName] Rückgabe: Nur player1");
+      return player1;
+    }
+
+    if (player2 && !player1) {
+      console.log("📥 [extractWithName] Rückgabe: Nur player2");
+      return player2;
+    }
+
+    console.warn("⚠️ [extractWithName] Kein valider Spieler gefunden für:", name);
+    return undefined;
+
   } catch (error) {
-    console.error(error.message);
+    console.error("❌ [extractWithName] Fehler:", error.message);
   }
 }
+
 
 export async function extractWithBesoccerURL(
   name: string,
