@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js --external:express --external:cors --external:mongoose",
-    "start": "nodemon dist/index.js"
+    "start": "node dist/index.js"
   },
   "author": "Mahmoud Al Jarad",
   "license": "ISC",
