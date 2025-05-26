@@ -21,6 +21,7 @@
     "hamlet": "^0.3.3",
     "helmet": "^8.1.0",
     "nodemon": "^3.1.0",
+    "mongoose": "^8.3.3",
     "tsx": "^4.19.4"
   },
   "devDependencies": {
@@ -31,7 +32,6 @@
     "@types/express": "^5.0.2",
     "@types/mongoose": "^5.11.97",
     "iconv-lite": "^0.6.3",
-    "mongoose": "^8.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.3"
   },
