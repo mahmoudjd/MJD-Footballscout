@@ -15,8 +15,13 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
     const response = await axios.get(`https://www.besoccer.com/search/${name}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-      }
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        // optional
+        'Referer': 'https://www.google.com',
+      },
     });
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
@@ -40,7 +45,17 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
 export const getSingleLinkBesoccer = async (name: string) => {
   try {
     name = name.toLowerCase().replace(" ", "-");
-    const response = await axios.get(`https://www.besoccer.com/search/${name}`);
+    const response = await axios.get(`https://www.besoccer.com/search/${name}`,{
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        // optional
+        'Referer': 'https://www.google.com',
+      },
+    });
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
     const urlOfPlayer: string | undefined = $(
