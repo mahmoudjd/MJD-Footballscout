@@ -1,5 +1,5 @@
 import type { PlayerType } from "./data/Types";
-import { API_URL, SEARCH_API } from "./apiURLs";
+import { API_URL } from "./apiURLs";
 
 const URL = `${API_URL}/players`;
 
