@@ -14,6 +14,7 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
     name = name.toLowerCase().replace(" ", "-");
     console.log("starting extract besoccer links for name: ", name);
     const response = await axios.get(`https://www.besoccer.com/search/${name}`);
+    console.log("response.status: ", response.status);
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
 
@@ -22,6 +23,7 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
       const link: string | undefined = $(element)
         .find(".pr0 > a")
         .attr("href");
+      console.log("--->url", index, ": ", link);
       if (link) urlLinks.push(link);
       console.log("--->url", index, ": ", link);
     });
