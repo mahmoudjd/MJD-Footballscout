@@ -107,11 +107,11 @@ export async function extractWithBesoccerURL(
 ): Promise<PlayerType | undefined> {
   try {
     name = convert(name);
-
+    console.log("Extract with besoccer link: ", besoccerLink, "name: ", name);
     const url1Promise = Promise.resolve(besoccerLink); // Da der link bereit eingegeben
     const url2Promise: Promise<string> = getLinkPlaymakerstats(name);
-
     let [url1, url2] = await Promise.all([url1Promise, url2Promise]);
+    console.log("Playmakerstats - url: ", url2);
 
     const p1: Promise<PlayerType | undefined> = extractDataBesoccer(`${url1}`);
     const p2: Promise<PlayerType | undefined> = extractDataPlaymakerstats(url2);

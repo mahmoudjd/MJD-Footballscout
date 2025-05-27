@@ -22,11 +22,11 @@ async function startServer() {
     server.use(compression())
     server.use(express.json());
 
-// Route zum aller Spieler
+    // Route zum aller Spieler
     server.use("/", PlayersRouter);
 
     server.listen(PORT, () => {
-        console.log(`✅ [server]: Server is running at http://localhost:${PORT}`);
+        console.log(`✅ [server]: Server is running on PORT: ${PORT}`);
     });
 }
 
