@@ -68,7 +68,7 @@ export async function deletePlayer(id: string) {
 
 export async function searchPlayers(name: string) {
   try {
-    const response = await fetch(`${SEARCH_API}=${name}`);
+    const response = await fetch(`${API_URL}/search?name=${name}`);
     if (!response.ok) {
       throw new Error("Failed to fetch player");
     }
