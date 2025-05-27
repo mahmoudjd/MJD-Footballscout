@@ -24,15 +24,13 @@ function SearchField({ players, setPlayers }: Props) {
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     console.log(e.target.value?.toString().trim());
     setName(convert(e.target.value.trim()));
-    const foundPlayers = players.filter(
-      (player) =>
-        convert(player?.name)
-          .toLowerCase()
-          .includes(convert(name).toLowerCase().trim()) ||
-        convert(player.fullName)
-          .toLowerCase()
-          .includes(convert(name).toLowerCase().trim()),
-    );
+    const foundPlayers = players.filter((player) => {
+          const convertedSearch = convert(name).toLowerCase().trim();
+          return (
+              convert(player?.name).toLowerCase().includes(convertedSearch) ||
+              convert(player?.fullName).toLowerCase().includes(convertedSearch)
+          );
+    });
     if (foundPlayers.length > 0) {
       setResults(foundPlayers);
     } else {
