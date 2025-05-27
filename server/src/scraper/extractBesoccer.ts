@@ -15,13 +15,14 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
     console.log("starting extract besoccer links for name: ", name);
     const response = await axios.get(`https://www.besoccer.com/search/${name}`);
     console.log("response.status: ", response.status);
+    console.log("response.data: ", response.data);
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
 
     const urlLinks: string[] = [];
-    $(".player-result > .row.info > div.col-left > .pr").each((index, element) => {
+    $(".player-result > .info > .pr0 ").each((index, element) => {
       const link: string | undefined = $(element)
-        .find(".pr > a")
+        .find("a.block")
         .attr("href");
       console.log("--->url", index, ": ", link);
       if (link) urlLinks.push(link);
