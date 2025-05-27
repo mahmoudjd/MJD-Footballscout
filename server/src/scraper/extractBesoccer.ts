@@ -17,7 +17,7 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
     const $ = cheerio.load(html, cheerioConfig);
 
     const urlLinks: string[] = [];
-    $(".player-result > .info > .pr0").each((index, element) => {
+    $(".results .player-result > .row.info > .pr0").each((index, element) => {
       const link: string | undefined = $(element)
         .find(".pr0 > a")
         .attr("href");
