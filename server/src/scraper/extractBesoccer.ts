@@ -55,7 +55,14 @@ export const extractDataBesoccer = async (
   url: string,
 ): Promise<PlayerType | undefined> => {
   try {
-    const response = await axios.get(url);
+    if (!url || url.includes("undefined")) throw new Error("Invalid URL");
+
+    const headers = {
+      'User-Agent': 'Mozilla/5.0',
+      'Accept': 'text/html',
+    };
+
+    const response = await axios.get(url, { headers });
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
 
