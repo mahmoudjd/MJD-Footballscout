@@ -26,10 +26,7 @@ function SearchField({ players, setPlayers }: Props) {
     setName(convert(e.target.value.trim()));
     const foundPlayers = players.filter(
       (player) =>
-        convert(player.name)
-          .toLowerCase()
-          .includes(convert(name).toLowerCase().trim()) ||
-        convert(player.name)
+        convert(player?.name)
           .toLowerCase()
           .includes(convert(name).toLowerCase().trim()) ||
         convert(player.fullName)
