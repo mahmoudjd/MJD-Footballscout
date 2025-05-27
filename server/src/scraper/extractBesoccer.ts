@@ -19,7 +19,7 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
     const urlLinks: string[] = [];
     $(".player-result > .info > .pr0").each((index, element) => {
       const link: string | undefined = $(element)
-        .find(".pr0 > a.block")
+        .find(".pr0 > a")
         .attr("href");
       if (link) urlLinks.push(link);
       console.log("--->url", index, ": ", link);

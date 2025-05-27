@@ -23,9 +23,12 @@ export const getLinkPlaymakerstats = async (name: string): Promise<string> => {
     const html = iconv.decode(response.data, "windows-1252");
 
     const $ = cheerio.load(html, cheerioConfig);
-    const result: string | undefined = $(".zz-search-item.player a.title")
-      .first()
-      .attr("href");
+    const result: string = $(".zz-search-main > .zz-search-results > .player> div")
+        .first()
+        .find('a[href^="/player/"]')
+        .attr('href')
+
+    console.log("url2 ---> ", result);
 
     const urlOfPlayer = "https://www.playmakerstats.com" + result;
     // console.log("URL of Player:", urlOfPlayer);
