@@ -12,7 +12,12 @@ const cheerioConfig = {
 export const getLinksBesoccer = async (name: string): Promise<string[]> => {
   try {
     name = name.toLowerCase().replace(" ", "-");
-    const response = await axios.get(`https://www.besoccer.com/search/${name}`);
+    const response = await axios.get(`https://www.besoccer.com/search/${name}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+      }
+    });
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
 
