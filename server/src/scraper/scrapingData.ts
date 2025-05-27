@@ -21,6 +21,7 @@ export async function extractPlayerData(name: string, one = false) {
     }
 
     const urlsBesoccer = await getLinksBesoccer(convertedName);
+    console.log("besoccer links:", urlsBesoccer);
     if (urlsBesoccer.length === 0) {
       console.log("not found in Besoccer!");
       return [await extractWithName(convertedName)];
