@@ -19,8 +19,6 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
-        // optional
-        'Referer': 'https://www.google.com',
       },
     });
     const html = response.data;
@@ -52,8 +50,6 @@ export const getSingleLinkBesoccer = async (name: string) => {
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
-        // optional
-        'Referer': 'https://www.google.com',
       },
     });
     const html = response.data;
