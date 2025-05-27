@@ -50,16 +50,17 @@ export async function extractWithName(
 ): Promise<PlayerType | undefined> {
   try {
     name = convert(name);
+    console.log("extract urls")
     const [url1, url2] = await Promise.all([
       getSingleLinkBesoccer(name),
       getLinkPlaymakerstats(name),
     ]);
-
+    console.log("extract player details from urls")
     let [player1, player2] = await Promise.all([
       extractDataBesoccer(`${url1}`),
       extractDataPlaymakerstats(url2),
     ]);
-
+    console.log("check if player is equal")
     if (!player1 && player2) {
       const newUrl = await getSingleLinkBesoccer(player2.name);
       player1 = await extractDataBesoccer(`${newUrl}`);
@@ -92,13 +93,15 @@ export async function extractWithBesoccerURL(
     const url2Promise: Promise<string> = getLinkPlaymakerstats(name);
 
     let [url1, url2] = await Promise.all([url1Promise, url2Promise]);
-
+    console.log("urls ", url1, " - ", url2)
+    console.log("extract player details from urls")
     const p1: Promise<PlayerType | undefined> = extractDataBesoccer(`${url1}`);
     const p2: Promise<PlayerType | undefined> = extractDataPlaymakerstats(url2);
     let [player1, player2] = await Promise.all([
       p1,
       url2.includes("undefined") ? Promise.resolve(undefined) : p2,
     ]);
+    console.log("players: ", player1, player2);
 
     if (player1 && !player2) {
       url2 = await getLinkPlaymakerstats(player1.title);

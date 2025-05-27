@@ -44,8 +44,8 @@ export const extractDataPlaymakerstats = async (
   url: string,
 ): Promise<PlayerType | undefined> => {
   try {
-    const proxyUrl = `http://api.scraperapi.com?api_key=DEIN_KEY&url=${encodeURIComponent(url)}`;
-    const response = await axios.get(proxyUrl, {
+
+    const response = await axios.get(url, {
       responseType: "arraybuffer",
     });
     const html = iconv.decode(response.data, "windows-1252");
