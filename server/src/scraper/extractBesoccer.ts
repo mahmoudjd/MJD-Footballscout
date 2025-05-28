@@ -9,11 +9,17 @@ const cheerioConfig = {
   _useHtmlParser: false,
 };
 
+const headers= {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+}
 export const getLinksBesoccer = async (name: string): Promise<string[]> => {
   try {
     name = name.toLowerCase().replace(" ", "-");
     console.log("starting extract besoccer links for name: ", name);
-    const response = await axios.get(`https://www.besoccer.com/search/${name}`);
+    const response = await axios.get(`https://www.besoccer.com/search/${name}`, {
+      headers
+    });
     console.log("response.status: ", response.status);
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
@@ -37,11 +43,8 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
 export const getSingleLinkBesoccer = async (name: string) => {
   try {
     name = name.toLowerCase().replace(" ", "-");
-    const response = await axios.get(`https://www.besoccer.com/search/${name}`, {
-      headers: {
-        Accept: "application/json"
-      }
-    });
+    const response = await axios.get(`https://www.besoccer.com/search/${name}`,
+        {headers});
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
     console.log("getting single link for name: ", name);
@@ -62,12 +65,6 @@ export const extractDataBesoccer = async (
 ): Promise<PlayerType | undefined> => {
   try {
     if (!url || url.includes("undefined")) throw new Error("Invalid URL");
-
-    const headers = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.9',
-    }
 
     const response = await axios.get(url, { headers });
     const html = response.data;
