@@ -37,7 +37,11 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
 export const getSingleLinkBesoccer = async (name: string) => {
   try {
     name = name.toLowerCase().replace(" ", "-");
-    const response = await axios.get(`https://www.besoccer.com/search/${name}`);
+    const response = await axios.get(`https://www.besoccer.com/search/${name}`, {
+      headers: {
+        Accept: "application/json"
+      }
+    });
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
     console.log("getting single link for name: ", name);
