@@ -28,6 +28,6 @@ FROM base
 
 COPY --from=build /app /app
 
-EXPOSE 3000
+EXPOSE 80
 
 CMD ["npm", "run", "start"]
