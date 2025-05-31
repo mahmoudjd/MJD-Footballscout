@@ -25,7 +25,7 @@ const ProfileHeader = ({ name, title, position, image, number }: Props) => {
         </div>
       </div>
       <h2 className="title-profile">
-        {number || "-"}. {decodeURIComponent(title)}
+        {number ?? "-"}. {title ? decodeURIComponent(title): name}
       </h2>
     </header>
   );
