@@ -215,7 +215,7 @@ export const extractDataPlaymakerstats = async (
       number: parseInt(number.toString().replace(".", "")) || 0,
       fullName,
       currentClub,
-      image,
+      image: "https://www.playmakerstats.com"+image,
       caps,
       birthCountry,
       value: "",
