@@ -28,7 +28,7 @@ const ProfileInfo = ({player}: Props) => {
                 value={(player.height || "-") + " cm"}
             />}
             {player.position && <ProfileInfoItem label="Position: " value={player.position}/>}
-            {player.number && <ProfileInfoItem label="Number: " value={player.number || "-"}/>}
+            {player.number && player.number > 0 && <ProfileInfoItem label="Number: " value={player.number || "-"}/>}
             {player.preferredFoot && (
                 <ProfileInfoItem
                     label="Preferred foot: "
@@ -48,7 +48,7 @@ const ProfileInfo = ({player}: Props) => {
             {player.currentClub && (
                 <ProfileInfoItem label="Current club: " value={player.currentClub}/>
             )}
-            {player.elo && <ProfileInfoItem label="ELO: " value={player.elo}/>}
+            {player.elo && player.elo > 0 && <ProfileInfoItem label="ELO: " value={player.elo}/>}
             {player.caps !== "played  /  Goals" && (
                 <ProfileInfoItem
                     label="CAPS"
