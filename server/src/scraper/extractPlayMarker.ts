@@ -85,7 +85,7 @@ export const extractDataPlaymakerstats = async (
       .replace("Name", "")
       .toString();
 
-    const image ="https://www.playmakerstats.com/"+ $(".profile_picture > .logo > a > img").attr("src");
+    const image ="https://www.playmakerstats.com"+ $(".profile_picture > .logo > a > img").attr("src");
 
     const currentClub: string = $(
       '#page_rightbar > .rbbox > h3:contains("CURRENT CLUB")',
