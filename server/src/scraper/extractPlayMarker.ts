@@ -69,11 +69,11 @@ export const extractDataPlaymakerstats = async (
     //console.log("-----age-----:", age);
     const number = $(".zz-enthdr-data > h1 > .name > .number").text().trim();
 
-    const bioElem = $('#page_rightbar > .rbbox > h3:contains("PROFILE")')
+    const bioElem = $('#page_rightbar > .rbbox > h2:contains("PROFILE")')
       .next()
       .find(".bio");
 
-    const bioHalfElem = $('#page_rightbar > .rbbox > h3:contains("PROFILE")')
+    const bioHalfElem = $('#page_rightbar > .rbbox > h2:contains("PROFILE")')
       .next()
       .find(".bio_half");
 
