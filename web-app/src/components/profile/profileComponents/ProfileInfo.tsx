@@ -28,7 +28,8 @@ const ProfileInfo = ({player}: Props) => {
                 value={(player.height || "-") + " cm"}
             />}
             {player.position && <ProfileInfoItem label="Position: " value={player.position}/>}
-            {player.number && player.number > 0 && <ProfileInfoItem label="Number: " value={player.number || "-"}/>}
+            {player.number && player.number > 0 ?
+                <ProfileInfoItem label="Number: " value={player.number || "-"}/> : null}
             {player.preferredFoot && (
                 <ProfileInfoItem
                     label="Preferred foot: "
