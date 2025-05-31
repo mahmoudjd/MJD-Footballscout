@@ -54,10 +54,16 @@ export const extractDataPlaymakerstats = async (
       "#page_header_container > .zz-entity-header > .zz-enthdr-top",
     );
 
-    const name = $(headerContainer)
-      .find(".zz-enthdr-data > h1 > span.name")
-      .text()
-      .split(".")[1];
+    let name = $(headerContainer)
+        .find(".zz-enthdr-data > h1 > span.name")
+        .text()
+        .trim();
+
+    const hasNumber = /\d/.test(name);
+
+    if (hasNumber) {
+      name = name.split(".")[1];
+    }
 
     const ageText = $(headerContainer)
       .find(".zz-enthdr-info .info")
