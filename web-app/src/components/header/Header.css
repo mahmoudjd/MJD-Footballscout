@@ -107,7 +107,7 @@
         background-color: var(--bg-1);
         z-index: 999;
         padding: 1rem;
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     /* Wenn Dropdown geöffnet: anzeigen */
@@ -121,8 +121,28 @@
     }
 
     .navbar ul .link {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        gap: 1rem;
         color: var(--txt-1);
         font-size: 1rem;
+        border-bottom: none;
+    }
+
+    .navbar ul .link:hover {
+        transform: translateY(0px);
+    }
+
+    .navbar ul .link.active {
+        color: var(--primary-color);
+        border-bottom: none;
+        transform: translateY(0px);
+    }
+    .dark .navbar ul .active {
+        color: var(--primary-color);
+        border-bottom: none;
+        transform: translateY(0px);
     }
 
 }
