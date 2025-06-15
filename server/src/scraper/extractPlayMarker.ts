@@ -83,13 +83,11 @@ export const extractDataPlaymakerstats = async (
       .next()
       .find(".bio_half");
 
-    const fullName: string = $(bioElem)
-      .find('span:contains("Name")')
-      .parent()
-      .text()
-      .trim()
-      .replace("Name", "")
-      .toString();
+    const fullName = $('.bio')
+        .filter((_, el) => $(el).find("span").text().trim() === "Name")
+        .text()
+        .replace("Name", "")
+        .trim();
 
     const image ="https://www.playmakerstats.com"+ $(".profile_picture > .logo > a > img").attr("src");
 
@@ -101,23 +99,22 @@ export const extractDataPlaymakerstats = async (
       .text()
       .trim();
 
-    const website: string = $(bioElem)
-      .find('span:contains("Official Site")')
-      .next()
-      .text();
+    const website = $('.bio')
+        .filter((_, el) => $(el).find("span").text().trim() === "Official Site")
+        .find("a")
+        .attr("href");
 
-    const position: string = $(bioElem)
-      .find('span:contains("Position")')
-      .parent()
-      .text()
-      .trim()
-      .replace("Position", "");
+    const position = $('.bio')
+        .filter((_, el) => $(el).find("span").text().trim() === "Position")
+        .text()
+        .replace("Position", "")
+        .trim();
 
-    const country: string = $(bioHalfElem)
-      .find('span:contains("Nationality")')
-      .next()
-      .first()
-      .text();
+    const country: string = $('.bio_half')
+        .filter((_, el) => $(el).find("span").text().trim() === "Nationality")
+        .find('.text')
+        .text()
+        .trim();
 
     const otherNation: string = $(bioHalfElem)
       .find('span:contains("Dual Nationality")')
@@ -125,17 +122,17 @@ export const extractDataPlaymakerstats = async (
       .find(".micrologo_and_text > .text")
       .text();
 
-    const caps: string = $(bioHalfElem)
-      .find('span:contains("Caps")')
-      .next()
-      .text();
+    const caps: string = $('.bio_half')
+        .filter((_, el) => $(el).find("span").first().text().trim() === "Caps")
+        .first()
+        .find('a').text().trim();
 
-    const preferredFootText: string = $(bioHalfElem)
-      .find('span:contains("Preferred foot")')
-      .parent()
-      .text()
-      .trim()
-      .toLowerCase();
+    const preferredFootText = $('.bio_half')
+        .filter((_, el) => $(el).find("span").text().trim() === "Preferred foot")
+        .text()
+        .replace("Preferred foot", "")
+        .trim()
+        .toLowerCase();
 
     const preferredFoot: string = preferredFootText.includes("right")
       ? "right"
@@ -143,36 +140,31 @@ export const extractDataPlaymakerstats = async (
         ? "left"
         : "";
 
-    const weight: string = $(bioHalfElem)
-      .find('span:contains("Weight")')
-      .parent()
-      .text()
-      .trim()
-      .replace("Weight", "");
+    const weight: string =  $('.bio_half')
+        .filter((_, el) => $(el).find("span").text().trim() === "Weight")
+        .text()
+        .replace("Weight", "")
+        .trim();
 
-    const height: string = $(bioHalfElem)
-      .find('span:contains("Height")')
-      .parent()
-      .text()
-      .trim()
-      .replace("Height", "");
+    const height: string =  $('.bio_half')
+        .filter((_, el) => $(el).find("span").text().trim() === "Height")
+        .text()
+        .replace("Height", "")
+        .trim();
 
-    const bornData: string = $(bioHalfElem)
-      .find('span:contains("Born/Age")')
-      .parent()
-      .text()
-      .trim();
+    const bornData: string = $('.bio_half')
+        .filter((_, el) => $(el).find("span").first().text().trim() === "Born/Age")
+        .first().text();
 
     const bornDateMatch = bornData.match(/\d{4}-\d{2}-\d{2}/);
     const bornDate: string = bornDateMatch ? bornDateMatch[0] : "";
     const birthCountry: string = bornData.split("Country of Birth")[1];
 
-    const status: string = $(bioElem)
-      .find('span:contains("Status")')
-      .parent()
-      .text()
-      .trim()
-      .replace("Status", "");
+    const status = $('.bio')
+        .filter((_, el) => $(el).find('span').text().trim() === 'Status')
+        .text()
+        .replace('Status', '')
+        .trim();
 
     const transfers: Transfer[] = [];
 
@@ -191,14 +183,15 @@ export const extractDataPlaymakerstats = async (
       transfers.push({ season, team, amount });
     });
 
-    const awards: Award[] = [];
-
     // Iterate over each trophy element
-    $(".awards > .trophy").each((_, element) => {
-      const $trophy = $(element);
-      const number = $trophy.find(".number").text().trim();
-      const name = $trophy.find(".competition a").text().trim();
-      awards.push({ number, name });
+    const awards: { number: string; name: string }[] = [];
+
+    $(".trophy").each((_, el) => {
+      const number = $(el).find(".number").text().trim();
+      const name = $(el).find(".competition a").text().trim();
+      if (name) {
+        awards.push({ number, name });
+      }
     });
 
     const titles: Title[] = [];
@@ -243,7 +236,7 @@ export const extractDataPlaymakerstats = async (
       timestamp: new Date(),
     };
 
-    // console.log("-- obj2: ", objPlayer);
+    console.log("playmakerstats player:\n", objPlayer);
 
     return objPlayer;
   } catch (error) {
