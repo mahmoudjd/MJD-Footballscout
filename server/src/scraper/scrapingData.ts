@@ -21,7 +21,7 @@ export async function extractPlayerData(name: string, one = false) {
     }
 
     const urlsBesoccer = await getLinksBesoccer(convertedName);
-    console.log("besoccer links:", urlsBesoccer);
+
     if (urlsBesoccer.length === 0) {
       console.log("not found in Besoccer!");
       return [await extractWithName(convertedName)];
@@ -32,7 +32,7 @@ export async function extractPlayerData(name: string, one = false) {
     const results = await Promise.all(
       urlsToAnalyse.map((url) => extractWithBesoccerURL(name, url)),
     );
-
+    console.log("results: ", results.length);
     // Filter out invalid results and create an array of players
     const players = results.filter(
       (player) => player && player.name && player.title,
@@ -93,7 +93,6 @@ export async function extractWithBesoccerURL(
     const url2Promise: Promise<string> = getLinkPlaymakerstats(name);
 
     let [url1, url2] = await Promise.all([url1Promise, url2Promise]);
-    console.log("urls ", url1, " - ", url2)
     console.log("extract player details from urls")
     const p1: Promise<PlayerType | undefined> = extractDataBesoccer(`${url1}`);
     const p2: Promise<PlayerType | undefined> = extractDataPlaymakerstats(url2);
@@ -101,7 +100,6 @@ export async function extractWithBesoccerURL(
       p1,
       url2.includes("undefined") ? Promise.resolve(undefined) : p2,
     ]);
-    console.log("players: ", player1, player2);
 
     if (player1 && !player2) {
       url2 = await getLinkPlaymakerstats(player1.title);
@@ -234,6 +232,7 @@ async function checkAndUpdate(
   player1.website = player2.website;
   player1.status = player2.status;
   player1.awards = player2.awards;
+  console.log("player's awards: ", player1.awards.length);
 
   return player1;
 }
