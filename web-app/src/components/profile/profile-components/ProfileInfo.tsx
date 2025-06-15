@@ -118,7 +118,7 @@ const ProfileInfo = ({player}: Props) => {
             <h2 className="text-xl font-bold text-gray-800 mb-6">Player Information</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {items
-                    .filter((item) => item.value && item.value !== "–")
+                    .filter((item) => item.value && item.value !== "–" && item.value !== 0)
                     .map(({icon, label, value, clickable, onClick}) => (
                         <ProfileInfoItem
                             key={label}
