@@ -1,4 +1,14 @@
-.env
+# Node modules
+node_modules/
+
+# Build output
+.next/
+out/
+dist/
+
+# System files
+.DS_Store
+Thumbs.db
 
 # Logs
 logs
@@ -9,18 +19,30 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Local env files
+.env
+.env.local
+.env.*.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
+# IDEs & editors
+.vscode/
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+
+# Optional: OS/Editor backups
+*.swp
+*.bak
+*.tmp
+*.log
+
+# Optional: Testing coverage
+coverage/
+
+# Optional: TypeScript build files
+*.tsbuildinfo
+
+# Optional: Next.js telemetry
+.next/telemetry

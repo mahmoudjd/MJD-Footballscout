@@ -20,7 +20,6 @@ export const getLinksBesoccer = async (name: string): Promise<string[]> => {
     const response = await axios.get(`https://www.besoccer.com/search/${name}`, {
       headers
     });
-    console.log("response.status: ", response.status);
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
 

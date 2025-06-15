@@ -1,95 +1,117 @@
-import "./SearchField.css";
-import Player from "./Player";
-import { useState, type KeyboardEvent, type ChangeEvent, useEffect } from "react";
-import { Link } from "react-router-dom";
-import type { PlayerType } from "../../data/Types";
-import { convert } from "../../convert";
-import { searchPlayers, fetchPlayers } from "../../apiService";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import PlayerType from "@/lib/types/type";
+import { convert } from "@/lib/convert";
+import { searchPlayers } from "@/lib/hooks/mutations/search-player";
+import Link from "next/link";
+import { Loader } from "@/components/loader";
+import {Player} from "@/components/search/Player";
 
 interface Props {
-  players: Array<PlayerType>;
-  setPlayers: React.Dispatch<React.SetStateAction<PlayerType[]>>;
+    players: PlayerType[];
 }
 
-function SearchField({ players, setPlayers }: Props) {
-  const [name, setName] = useState<string>("");
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const [results, setResults] = useState<Array<PlayerType>>([]);
+export function SearchField({ players }: Props) {
+    const [name, setName] = useState("");
+    const [debouncedName, setDebouncedName] = useState("");
+    const [isLoading, setLoading] = useState(false);
+    const [results, setResults] = useState<PlayerType[]>([]);
 
-  useEffect(() => {
-    setName("");
-    setResults([]);
-  }, []);
+    // Reset bei neuem Aufruf
+    useEffect(() => {
+        setName("");
+        setResults([]);
+    }, []);
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    console.log(e.target.value?.toString().trim());
-    setName(convert(e.target.value.trim()));
-    const foundPlayers = players.filter((player) => {
-          const convertedSearch = convert(name).toLowerCase().trim();
-          return (
-              convert(player?.name).toLowerCase().includes(convertedSearch) ||
-              convert(player?.fullName).toLowerCase().includes(convertedSearch)
-          );
-    });
-    if (foundPlayers.length > 0) {
-      setResults(foundPlayers);
-    } else {
-      setResults([]);
-    }
-  }
+    // Debounce für lokale Suche
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setDebouncedName(name);
+        }, 300); // 300ms debounce
 
-  const handlePress = async (e: KeyboardEvent) => {
-    if (e.key === "Enter") {
-      await handleClick();
-    }
-  };
-  const handleClick = async () => {
-    if (name.trim().length < 3) {
-      alert("not correct name!");
-      return;
-    }
-    try {
-      setLoading(true);
-      setResults(await searchPlayers(name));
-      setPlayers(await fetchPlayers());
-    } catch (error) {
-      console.error("Error searching for player:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        return () => clearTimeout(timeout);
+    }, [name]);
 
-  return (
-    <div className="search-content">
-      <div className="search">
-        <input
-          type="search"
-          className="searchField"
-          onChange={handleChange}
-          onKeyDown={handlePress}
-          placeholder="Enter name of player..."
-        />
-        <button className="btn-search" onClick={handleClick}>
-          search
-        </button>
-      </div>
+    // Lokale Suche
+    useEffect(() => {
+        if (debouncedName.length === 0) {
+            setResults([]);
+            return;
+        }
 
-      {isLoading && <div className="loader"></div>}
-      {results.length > 0 && (
-        <div className="results">
-          {results.map((player, index) => (
-            <Link
-              key={index}
-              className="list-item"
-              to={`/profiles/${player._id}`}
-            >
-              <Player player={player} />
-            </Link>
-          ))}
+        const searchTerm = convert(debouncedName).toLowerCase().trim();
+        const filtered = players.filter((player) =>
+            [player.name, player.fullName]
+                .map((p) => convert(p).toLowerCase())
+                .some((p) => p.includes(searchTerm))
+        );
+        setResults(filtered);
+    }, [debouncedName, players]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setName(e.target.value);
+    };
+
+    const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            await handleSearch();
+        }
+    };
+
+    const handleSearch = useCallback(async () => {
+        const query = convert(name.trim());
+
+        if (query.length < 3) {
+            alert("Please enter at least 3 characters.");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const serverResults = await searchPlayers(query);
+            setResults(serverResults);
+        } catch (error) {
+            console.error("Search failed:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [name]);
+
+    return (
+        <div className="w-full max-w-3xl mx-auto flex flex-col p-6">
+            <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-2">
+                <input
+                    type="search"
+                    className="w-full h-12 px-4 py-2 rounded-xl border border-cyan-600 bg-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    value={name}
+                    placeholder="Enter player name..."
+                />
+                <button
+                    className="w-full sm:w-40 h-12 px-4 py-2 rounded-xl bg-cyan-600 text-white font-semibold hover:bg-cyan-500 transition"
+                    onClick={handleSearch}
+                >
+                    Search
+                </button>
+            </div>
+
+            {isLoading && <Loader />}
+
+            {results.length > 0 && (
+                <div className="mt-6 flex flex-col divide-y divide-gray-200">
+                    {results.map((player) => (
+                        <Link
+                            key={player._id}
+                            href={`/players/${player._id}`}
+                            className="transition"
+                        >
+                            <Player player={player} />
+                        </Link>
+                    ))}
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }
-
-export default SearchField;
