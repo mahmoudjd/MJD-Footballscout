@@ -16,7 +16,12 @@ async function startServer() {
 
     await connectDB(MONGOURI!);
 
-    server.use(cors());
+    server.use(cors({
+        origin: process.env.NODE_ENV === "production" ? (process.env.CLIENT_URL || "*") : "*",
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Accept", "Authorization"],
+        credentials: true
+    }));
     server.use(helmet())
     server.use(cookieParser())
     server.use(compression())
