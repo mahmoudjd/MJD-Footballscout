@@ -9,7 +9,7 @@ interface NavbarProps {
 export function Navbar({open, setOpen}: NavbarProps) {
     return (
         <nav
-            className={`sm:hidden fixed top-0 left-0 h-full w-64 bg-cyan-700 text-white z-40 shadow-lg transition-transform duration-300 ease-in-out ${
+            className={`sm:hidden fixed top-0 left-0 h-full w-64 bg-gradient-to-r from-cyan-800 to-cyan-600 text-white z-40 shadow-lg transition-transform duration-300 ease-in-out ${
                 open ? "translate-x-0" : "-translate-x-full"
             } rounded-r-lg`}
             aria-hidden={!open}
