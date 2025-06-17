@@ -2,7 +2,9 @@ node_modules/
 
 server/dist/
 
-package-lock.json
+web-app/package-lock.json
+
+mobile-app/package-lock.json
 
 .vercel
 
