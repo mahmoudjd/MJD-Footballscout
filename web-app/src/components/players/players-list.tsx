@@ -6,12 +6,14 @@ import PlayerType from "@/lib/types/type";
 import { deletePlayer } from "@/lib/hooks/mutations/delete-player";
 import PlayerFilters from "@/components/players/player-filters";
 import {Loader} from "@/components/loader";
+import { fetchPlayers } from "@/lib/hooks/queries/get-players";
 
 interface Props {
     players: Array<PlayerType>;
 }
 
-const PlayersList = ({ players }: Props) => {
+const PlayersList = ({ players: initialPlayers }: Props) => {
+    const [players, setPlayers] = useState<PlayerType[]>(initialPlayers);
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredPlayers, setFilteredPlayers] = useState<PlayerType[]>([]);
     const [elemsPerPage, setElemsPerPage] = useState(5);
@@ -21,9 +23,7 @@ const PlayersList = ({ players }: Props) => {
     const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
     const [selectedNationality, setSelectedNationality] = useState("");
 
-    useEffect(() => {
-        setFilteredPlayers(players);
-    }, [players]);
+    // Initial setup of filteredPlayers is handled by the applyFilters useEffect
 
     const applyFilters = () => {
         let result = [...players];
@@ -65,7 +65,7 @@ const PlayersList = ({ players }: Props) => {
 
     useEffect(() => {
         applyFilters();
-    }, [selectedPosition, selectedAgeGroup, selectedNationality]);
+    }, [players, selectedPosition, selectedAgeGroup, selectedNationality]);
 
     const currentPlayers = useMemo(() => {
         const idxOfLast = currentPage * elemsPerPage;
@@ -82,8 +82,13 @@ const PlayersList = ({ players }: Props) => {
         try {
             setIsLoading(true);
             await deletePlayer(id);
-            const updated = filteredPlayers.filter((p) => p._id !== id);
-            setFilteredPlayers(updated);
+
+            // Refresh players data from server
+            const refreshedPlayers = await fetchPlayers();
+            setPlayers(refreshedPlayers);
+
+            // Update filtered players based on current filters
+            // This will happen automatically via useEffect when players changes
 
             // Zurückblättern, wenn nur ein Eintrag auf Seite war
             if (currentPlayers.length === 1 && currentPage > 1) {
