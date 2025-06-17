@@ -65,9 +65,40 @@ export async function updatePlayerFromWebSites(playerId: string) {
 
         const newPlayer = filteredPlayer.length > 0 ? filteredPlayer[0] : oldPlayer;
 
+        // Merge old and new player data
+        // If new data is missing or has default values (like 0 for numbers), use old data
+        const mergedPlayer = {
+            ...oldPlayer.toObject(), // Start with all old player data
+            ...Object.fromEntries(
+                Object.entries(newPlayer).map(([key, value]) => {
+                    // For numeric fields, check if the new value is 0 (default)
+                    if (typeof value === 'number' && value === 0 && oldPlayer[key] !== undefined) {
+                        return [key, oldPlayer[key]];
+                    }
+                    // For string fields, check if the new value is empty
+                    if (typeof value === 'string' && value === '' && oldPlayer[key] !== undefined) {
+                        return [key, oldPlayer[key]];
+                    }
+                    // For undefined or null values, use old value if available
+                    if ((value === undefined || value === null) && oldPlayer[key] !== undefined) {
+                        return [key, oldPlayer[key]];
+                    }
+                    // Otherwise use the new value
+                    return [key, value];
+                })
+            )
+        };
+
+        // Handle arrays separately to ensure they're properly merged
+        ['playerAttributes', 'titles', 'awards', 'transfers'].forEach(arrayField => {
+            if (!newPlayer[arrayField] || newPlayer[arrayField].length === 0) {
+                mergedPlayer[arrayField] = oldPlayer[arrayField];
+            }
+        });
+
         const updatedPlayer = await Player.findOneAndUpdate(
             {_id: playerId},
-            newPlayer,
+            mergedPlayer,
             {new: true},
         );
 

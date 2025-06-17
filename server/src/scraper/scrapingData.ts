@@ -228,11 +228,21 @@ async function checkAndUpdate(
     if (numberOfTitles2 > numberOfTitles1) player1.titles = player2.titles;
   }
 
-  player1.otherNation = player2.otherNation;
-  player1.website = player2.website;
-  player1.status = player2.status;
-  player1.awards = player2.awards;
-  console.log("player's awards: ", player1.awards.length);
+  if (!player1.otherNation) player1.otherNation = player2.otherNation;
+  if (!player1.website) player1.website = player2.website;
+  if (!player1.status) player1.status = player2.status;
+
+  // Only update awards if player2 has awards and either player1 has no awards or player2 has more awards
+  if (player2.awards && player2.awards.length > 0 && 
+      (!player1.awards || player1.awards.length === 0 || player2.awards.length > player1.awards.length)) {
+    player1.awards = player2.awards;
+  }
+
+  // Only update playerAttributes if player2 has attributes and either player1 has no attributes or player2 has more attributes
+  if (player2.playerAttributes && player2.playerAttributes.length > 0 && 
+      (!player1.playerAttributes || player1.playerAttributes.length === 0 || player2.playerAttributes.length > player1.playerAttributes.length)) {
+    player1.playerAttributes = player2.playerAttributes;
+  }
 
   return player1;
 }
