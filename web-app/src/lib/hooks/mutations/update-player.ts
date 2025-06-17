@@ -6,6 +6,7 @@ export async function updatePlayer(id: string) {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             },
         });
         if (!res.ok) throw new Error("not found player");
