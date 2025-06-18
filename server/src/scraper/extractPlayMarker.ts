@@ -110,19 +110,22 @@ export const extractDataPlaymakerstats = async (
         .replace("Position", "")
         .trim();
 
-    const country: string = $('.bio_half')
-        .find('span:contains("Nationality")')
+    const nationalitySpan = $('.bio_half span').filter((_, el) => $(el).text().trim() === "Nationality");
+
+    const country: string = nationalitySpan
         .next('.micrologo_and_text')
         .find('.text')
         .text()
         .trim();
 
-    const otherNation: string = $('.bio_half')
-        .find('span:contains("Dual Nationality")')
+    const dualNationalitySpan = $('.bio_half span').filter((_, el) => $(el).text().trim() === "Dual Nationality");
+
+    const otherNation: string = dualNationalitySpan
         .next('.micrologo_and_text')
         .find('.text')
         .text()
         .trim();
+
 
     const caps: string = $('.bio_half')
         .filter((_, el) => $(el).find("span").first().text().trim() === "Caps")
@@ -237,9 +240,6 @@ export const extractDataPlaymakerstats = async (
       transfers,
       timestamp: new Date(),
     };
-
-    console.log("playmakerstats player:\n", objPlayer);
-
     return objPlayer;
   } catch (error) {
     console.error(error.message);
