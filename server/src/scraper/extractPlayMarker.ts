@@ -111,16 +111,18 @@ export const extractDataPlaymakerstats = async (
         .trim();
 
     const country: string = $('.bio_half')
-        .filter((_, el) => $(el).find("span").text().trim() === "Nationality")
+        .find('span:contains("Nationality")')
+        .next('.micrologo_and_text')
         .find('.text')
         .text()
         .trim();
 
-    const otherNation: string = $(bioHalfElem)
-      .find('span:contains("Dual Nationality")')
-      .next()
-      .find(".micrologo_and_text > .text")
-      .text();
+    const otherNation: string = $('.bio_half')
+        .find('span:contains("Dual Nationality")')
+        .next('.micrologo_and_text')
+        .find('.text')
+        .text()
+        .trim();
 
     const caps: string = $('.bio_half')
         .filter((_, el) => $(el).find("span").first().text().trim() === "Caps")
