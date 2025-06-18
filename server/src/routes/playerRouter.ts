@@ -35,7 +35,6 @@ router.get("/players/:id", async function (req: Request, res: Response) {
 router.put("/players/:id", async (req: Request, res: Response) => {
   try {
     const playerId = req.params.id;
-    console.log("---start update");
     const player = await updatePlayerFromWebSites(playerId);
     if (!player) return res.status(404).json("not found player");
     res.status(202).json(player);
