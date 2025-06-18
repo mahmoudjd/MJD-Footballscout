@@ -34,7 +34,6 @@ export async function deletePlayerById(id: string) {
 export async function updatePlayerFromWebSites(playerId: string) {
     try {
         console.log("--- updating 1 ---");
-        console.log(playerId);
         const oldPlayer = await getPlayerById(playerId);
         if (!oldPlayer) throw new Error("not found player");
         let foundedPlayers = await extractPlayerData(
@@ -59,7 +58,8 @@ export async function updatePlayerFromWebSites(playerId: string) {
             filteredPlayer = foundedPlayers.filter(
                 (p) =>
                     convert(`${oldPlayer?.fullName}`) === convert(`${p?.fullName}`) ||
-                    (oldPlayer.country === p?.country && (oldPlayer.name === p?.name || oldPlayer.fullName === p.fullName)),
+                    (oldPlayer.country === p?.country && (oldPlayer.name === p?.name ||
+                        oldPlayer.fullName.toLowerCase().trim() === p.fullName.toLowerCase().trim())),
             );
             console.log("results 2:", filteredPlayer.length);
         }
