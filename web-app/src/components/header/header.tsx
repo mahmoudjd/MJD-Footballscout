@@ -23,7 +23,7 @@ const Header = () => {
         <header className="bg-gradient-to-r from-cyan-800 to-cyan-600 text-white shadow-md w-full z-50 sticky top-0">
             <div
                 ref={navRef}
-                className="max-w-7xl mx-auto px-6 sm:px-10 py-4 flex items-center justify-between"
+                className="px-6 sm:px-10 py-4 flex items-center justify-between"
             >
                 {/* Logo */}
                 <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3">
