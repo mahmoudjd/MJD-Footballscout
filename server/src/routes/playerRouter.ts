@@ -44,14 +44,13 @@ router.put("/players/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/search", async (req: Request, res: Response) => {
-  const { name } = req.query;
+router.post("/search", async (req: Request, res: Response) => {
+  const { name } = req.body;
   try {
     if (typeof name !== "string" || !name) {
       res.status(400).json({ error: "Invalid name parameter" });
     }
 
-    console.log("------>", name);
     const foundedPlayers = await searchPlayers(`${name}`);
     res.status(201).json(foundedPlayers);
   } catch (error) {
