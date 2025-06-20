@@ -1,6 +1,14 @@
 /.git
+
+.gitignore
+
+/dist
+
 /node_modules
+
 .dockerignore
+
 .env
+
 Dockerfile
-fly.toml
+
