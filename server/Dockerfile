@@ -1,29 +1,37 @@
-# stage 1: base image
-ARG NODE_VERSION=24.2.0
-FROM node:${NODE_VERSION}-slim AS base
+# 1️⃣ Base image
+FROM node:24.2.0-slim AS base
 
 WORKDIR /app
-ENV NODE_ENV="production"
+ENV NODE_ENV=production
 
-# stage 2: build
+# 2️⃣ Build stage
 FROM base AS build
 
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential python-is-python3 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy dependencies
 COPY package*.json ./
+RUN npm ci --include=dev
 
-RUN npm ci
-
-# Copy app
+# Copy source
 COPY . .
 
-# Build step
+# Build output
 RUN npm run build
 
-# stage 3: production runtime (no dev deps)
+# 3️⃣ Final stage
 FROM base
 
-COPY package*.json ./
-RUN npm ci --omit=dev
+WORKDIR /app
 
-EXPOSE 3000
+# Copy only what's needed:
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package.json ./
+COPY --from=build /app/node_modules ./node_modules
+
+EXPOSE 80
 
 CMD ["npm", "run", "start"]
