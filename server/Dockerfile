@@ -1,48 +1,29 @@
-# syntax = docker/dockerfile:1
-
-ARG NODE_VERSION=20.12.1
+# stage 1: base image
+ARG NODE_VERSION=24.2.0
 FROM node:${NODE_VERSION}-slim AS base
 
 WORKDIR /app
-
 ENV NODE_ENV="production"
 
+# stage 2: build
 FROM base AS build
 
-# Install build dependencies
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --include=dev
+RUN npm ci
 
-# Copy source code
+# Copy app
 COPY . .
 
-# Build the application
+# Build step
 RUN npm run build
 
-# Prune dev dependencies but keep iconv-lite
-RUN npm prune --omit=dev
-
+# stage 3: production runtime (no dev deps)
 FROM base
 
-# Install runtime dependencies for scraper
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y ca-certificates && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Copy built application
-COPY --from=build /app /app
+EXPOSE 3000
 
-# Expose port
-EXPOSE 80
-
-# Start the application
 CMD ["npm", "run", "start"]
