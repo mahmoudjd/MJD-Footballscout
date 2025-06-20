@@ -46,11 +46,9 @@ export const getSingleLinkBesoccer = async (name: string) => {
         {headers});
     const html = response.data;
     const $ = cheerio.load(html, cheerioConfig);
-    console.log("getting single link for name: ", name);
     const urlOfPlayer: string | undefined = $(
       ".player-result > .info > .pr0 > a.block",
     ).attr("href");
-    console.log("url1 ---> ", urlOfPlayer);
     return urlOfPlayer;
   } catch (error) {
     console.error("Error fetching data:", error.message);
