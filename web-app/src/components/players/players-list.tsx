@@ -47,7 +47,7 @@ export default function PlayersList() {
         if (isErrorDeleting) {
             throw errorDeleting;
         }
-        // back to the previous page if the deleted player alone in the current page
+
         if (currentPlayers.length === 1 && currentPage > 1) {
             setCurrentPage((prev) => Math.max(1, prev - 1));
         }
@@ -70,7 +70,7 @@ export default function PlayersList() {
     return (
         <div className="flex flex-col px-6 py-4 w-full space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center justify-between gap-4">
                 <h1 className="text-2xl text-gray-800 font-bold tracking-tight">All Players</h1>
                 <p className="text-sm text-gray-500">
                     Showing {filteredPlayers.length} result{filteredPlayers.length !== 1 && "s"}
