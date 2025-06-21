@@ -12,4 +12,6 @@ mobile-app/package-lock.json
 
 .env
 
-server/.env
+*.env
+
+.gitignore
