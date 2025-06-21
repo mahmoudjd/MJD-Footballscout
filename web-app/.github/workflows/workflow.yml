@@ -1,0 +1,9 @@
+name: Web-App CI/CD
+
+on:
+  push:
+    paths:
+      - 'web-app/**'
+    branches:
+      - main
+jobs:
