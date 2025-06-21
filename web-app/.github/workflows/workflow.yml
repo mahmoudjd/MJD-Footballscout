@@ -7,3 +7,27 @@ on:
     branches:
       - main
 jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        working-directory: ./web-app
+        run: npm install
+
+      - name: Run tests
+        working-directory: ./web-app
+        run: npm test
+
+      - name: Build project
+        working-directory: ./web-app
+        run: npm run build
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npx vercel --prod --token $VERCEL_TOKEN --cwd ./web-app
