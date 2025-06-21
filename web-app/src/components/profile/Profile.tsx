@@ -1,5 +1,6 @@
 "use client";
 
+import {useEffect} from "react";
 import {useUpdateMutation} from "@/lib/hooks/mutations/use-update-player";
 import {Spinner} from "@/components/spinner";
 import ProfileHeader from "@/components/profile/profile-components/ProfileHeader";
@@ -12,6 +13,7 @@ import {OutlineIcons} from "@/components/outline-icons";
 import {notFound, useRouter} from "next/navigation";
 import {useQueryClient} from "@tanstack/react-query";
 import {useGetPlayer} from "@/lib/hooks/queries/use-get-player";
+import {ScrollToTopButton} from "@/components/scroll-to-top-button";
 
 interface Props {
     playerId: string;
@@ -29,6 +31,12 @@ export function Profile({playerId}: Props) {
         }
     });
 
+    useEffect(() => {
+        if (typeof window !== "undefined" && window.scrollY > 0) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    }, []);
+
     async function handleClick() {
         await updatePlayerMutation({playerId});
     }
@@ -40,8 +48,8 @@ export function Profile({playerId}: Props) {
     const lastUpdated = player ? new Date(player.timestamp).toLocaleString() : "-";
 
     return (
-        <div className="mx-auto px-4 py-6 space-y-6 bg-white">
-            <button
+        <div className="mx-auto px-4 py-6 space-y-6 bg-white min-h-screen">
+        <button
                 onClick={() => router.back()}
                 className="mb-4 inline-flex items-center text-sm font-medium cursor-pointer text-cyan-700 hover:text-cyan-800 transition"
             >
@@ -101,6 +109,7 @@ export function Profile({playerId}: Props) {
                     <Awards awards={player.awards}/>
                 </>
             )}
+            <ScrollToTopButton />
         </div>
     );
 };
