@@ -3,7 +3,7 @@ name: Server CI/CD
 on:
   push:
     paths:
-      - 'server/**'
+      - '../../server'
     branches:
       - main
 
