@@ -1,0 +1,42 @@
+name: Server CI/CD
+
+on:
+  push:
+    paths:
+      - 'server/**'
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        working-directory: ./server
+        run: npm install
+
+      - name: Run tests
+        working-directory: ./server
+        run: npm test
+
+      - name: Build project
+        working-directory: ./server
+        run: npm run build
+
+      - name: Deploy to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            https://mjd-football-server.onrender.com
