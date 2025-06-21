@@ -1,5 +1,5 @@
 import {OutlineIcons} from "@/components/outline-icons";
-import PlayerType from "@/lib/types/type";
+import { PlayerType } from "@/lib/types/type";
 import ProfileInfoItem from "@/components/profile/profile-components/ProfileInfoItem";
 
 interface Props {

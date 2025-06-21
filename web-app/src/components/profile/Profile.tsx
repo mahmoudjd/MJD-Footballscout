@@ -1,9 +1,7 @@
-"use client"
+"use client";
 
-import PlayerType from "@/lib/types/type";
-import {useState} from "react";
-import {updatePlayer} from "@/lib/hooks/mutations/update-player";
-import {Loader} from "@/components/loader";
+import {useUpdateMutation} from "@/lib/hooks/mutations/use-update-player";
+import {Spinner} from "@/components/spinner";
 import ProfileHeader from "@/components/profile/profile-components/ProfileHeader";
 import ProfileInfo from "@/components/profile/profile-components/ProfileInfo";
 import Transfers from "@/components/profile/profile-components/Transfers";
@@ -11,32 +9,46 @@ import Attributes from "@/components/profile/profile-components/attributes";
 import Titles from "@/components/profile/profile-components/Titles";
 import Awards from "@/components/profile/profile-components/awards";
 import {OutlineIcons} from "@/components/outline-icons";
+import {notFound, useRouter} from "next/navigation";
+import {useQueryClient} from "@tanstack/react-query";
+import {useGetPlayer} from "@/lib/hooks/queries/use-get-player";
 
 interface Props {
-    person: PlayerType;
+    playerId: string;
 }
 
-const Profile = ({person}: Props) => {
-    const [player, setPlayer] = useState<PlayerType>(person);
-    const [loading, setLoading] = useState<boolean>(false);
+export function Profile({playerId}: Props) {
+    const router = useRouter();
+    const queryClient = useQueryClient();
+
+    const {data: player, error, isLoading} = useGetPlayer({playerId});
+
+    const {mutateAsync: updatePlayerMutation, isPending: isUpdating} = useUpdateMutation({
+        onSuccess: async () => {
+            await queryClient.refetchQueries({queryKey: ["player", {playerId}]});
+        }
+    });
 
     async function handleClick() {
-        try {
-            setLoading(true);
-            const updated = await updatePlayer(player._id);
-            setPlayer(updated);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
+        await updatePlayerMutation({playerId});
     }
 
-    const lastUpdated = new Date(player.timestamp).toLocaleString();
-    if (loading) return <Loader/>;
+    if (isLoading || isUpdating) return <Spinner/>;
+    if (error) return <p className="text-red-500">Failed to load player.</p>;
+    if (!player) return notFound();
+
+    const lastUpdated = player ? new Date(player.timestamp).toLocaleString() : "-";
 
     return (
         <div className="mx-auto px-4 py-6 space-y-6 bg-white">
+            <button
+                onClick={() => router.back()}
+                className="mb-4 inline-flex items-center text-sm font-medium cursor-pointer text-cyan-700 hover:text-cyan-800 transition"
+            >
+                <OutlineIcons.ArrowLeftIcon className="w-5 h-5 mr-1"/>
+                Back
+            </button>
+
             <ProfileHeader
                 name={player.name}
                 title={player.title}
@@ -55,10 +67,11 @@ const Profile = ({person}: Props) => {
 
                 <button
                     onClick={handleClick}
-                    className="inline-flex items-center cursor-pointer gap-2 text-sm font-medium text-cyan-700 hover:text-cyan-800 transition"
+                    disabled={isUpdating}
+                    className="inline-flex items-center cursor-pointer gap-2 text-sm font-medium text-cyan-700 hover:text-cyan-800 transition disabled:opacity-50"
                 >
                     <OutlineIcons.ArrowPathIcon className="w-5 h-5"/>
-                    Update Data
+                    {isUpdating ? "Updating..." : "Update Data"}
                 </button>
             </div>
 
@@ -66,22 +79,24 @@ const Profile = ({person}: Props) => {
             <ProfileInfo player={player}/>
             <hr className="border-gray-300"/>
 
-            {player.playerAttributes.length > 0 && (<>
-                <Attributes attributes={player.playerAttributes}/>
-                <hr className="border-gray-300"/>
-            </>)}
-
-            {player.transfers.length > 0 && (<>
-                <Transfers transfers={player.transfers}/>
-                <hr className="border-gray-300"/>
-            </>)}
-
-
-            {player.titles.length > 0 && (
-                <Titles titles={player.titles}/>
+            {player.playerAttributes?.length > 0 && (
+                <>
+                    <Attributes attributes={player.playerAttributes}/>
+                    <hr className="border-gray-300"/>
+                </>
             )}
 
-            {player.awards.length > 0 && (<>
+            {player.transfers?.length > 0 && (
+                <>
+                    <Transfers transfers={player.transfers}/>
+                    <hr className="border-gray-300"/>
+                </>
+            )}
+
+            {player.titles?.length > 0 && <Titles titles={player.titles}/>}
+
+            {player.awards?.length > 0 && (
+                <>
                     <hr className="border-gray-300"/>
                     <Awards awards={player.awards}/>
                 </>
@@ -89,5 +104,3 @@ const Profile = ({person}: Props) => {
         </div>
     );
 };
-
-export default Profile;

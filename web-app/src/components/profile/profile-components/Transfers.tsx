@@ -1,9 +1,9 @@
-import { OutlineIcons } from "@/components/outline-icons";
-import { Transfer } from "@/lib/types/type";
+import {OutlineIcons} from "@/components/outline-icons";
+import {TransferType} from "@/lib/types/type";
 import {JSX} from "react";
 
 interface Props {
-    transfers: Array<Transfer>;
+    transfers: Array<TransferType>;
 }
 
 function parseAmount(amount: string): { display: string; fullValue?: string; icon: JSX.Element } {
@@ -12,21 +12,21 @@ function parseAmount(amount: string): { display: string; fullValue?: string; ico
     if (!cleaned) {
         return {
             display: "Undisclosed",
-            icon: <OutlineIcons.QuestionMarkCircleIcon className="w-5 h-5 text-gray-400" />,
+            icon: <OutlineIcons.QuestionMarkCircleIcon className="w-5 h-5 text-gray-400"/>,
         };
     }
 
     if (/^\d{4}$/.test(cleaned)) {
         return {
             display: `Until ${cleaned}`,
-            icon: <OutlineIcons.ClockIcon className="w-5 h-5 text-amber-500" />,
+            icon: <OutlineIcons.ClockIcon className="w-5 h-5 text-amber-500"/>,
         };
     }
 
     if (cleaned === "Free Transfer") {
         return {
             display: "Free Transfer",
-            icon: <OutlineIcons.ArrowsRightLeftIcon className="w-5 h-5 text-indigo-500" />,
+            icon: <OutlineIcons.ArrowsRightLeftIcon className="w-5 h-5 text-indigo-500"/>,
         };
     }
 
@@ -40,18 +40,18 @@ function parseAmount(amount: string): { display: string; fullValue?: string; ico
         return {
             display: `€${cleaned.toUpperCase()}`,
             fullValue,
-            icon: <OutlineIcons.CurrencyEuroIcon className="w-5 h-5 text-green-600" />,
+            icon: <OutlineIcons.CurrencyEuroIcon className="w-5 h-5 text-green-600"/>,
         };
     }
 
     // fallback: just return raw value with €
     return {
         display: `€${cleaned}`,
-        icon: <OutlineIcons.CurrencyEuroIcon className="w-5 h-5 text-green-600" />,
+        icon: <OutlineIcons.CurrencyEuroIcon className="w-5 h-5 text-green-600"/>,
     };
 }
 
-export default function Transfers({ transfers }: Props) {
+export default function Transfers({transfers}: Props) {
     return (
         <section className="bg-gray-50 p-6 rounded-2xl shadow-lg">
             <h3 className="text-2xl font-semibold mb-6 text-gray-800 pb-2">
@@ -60,7 +60,7 @@ export default function Transfers({ transfers }: Props) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {transfers.map((t, idx) => {
-                    const { display, fullValue, icon } = parseAmount(t.amount);
+                    const {display, fullValue, icon} = parseAmount(t.amount);
 
                     return (
                         <div
@@ -69,13 +69,13 @@ export default function Transfers({ transfers }: Props) {
                         >
                             {/* Season */}
                             <div className="flex items-center gap-2 text-sm text-gray-500">
-                                <OutlineIcons.CalendarIcon className="w-5 h-5 text-cyan-600" />
+                                <OutlineIcons.CalendarIcon className="w-5 h-5 text-cyan-600"/>
                                 <span className="font-medium">{t.season}</span>
                             </div>
 
                             {/* Team */}
                             <div className="flex items-center gap-2">
-                                <OutlineIcons.ArrowsRightLeftIcon className="w-6 h-6 text-indigo-600" />
+                                <OutlineIcons.ArrowsRightLeftIcon className="w-6 h-6 text-indigo-600"/>
                                 <span className="text-indigo-700 font-semibold text-base">{t.team}</span>
                             </div>
 

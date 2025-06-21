@@ -5,6 +5,7 @@ import {
   getPlayerById,
   deletePlayerById,
   updatePlayerFromWebSites,
+  updateAllPlayers,
   searchPlayers,
 } from "../controllers/playerController";
 
@@ -64,6 +65,19 @@ router.delete("/players/:id", async (req: Request, res: Response) => {
     const player = await deletePlayerById(playerId);
     if (!player) return res.status(404).json("not found player");
     res.status(204).json(player);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/update-players", async (req: Request, res: Response) => {
+  try {
+    const updatedPlayers = await updateAllPlayers();
+    res.status(200).json({ 
+      message: `Successfully updated ${updatedPlayers.length} players`,
+      players: updatedPlayers
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });

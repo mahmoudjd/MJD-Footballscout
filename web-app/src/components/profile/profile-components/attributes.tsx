@@ -1,4 +1,4 @@
-import { Attribute } from "@/lib/types/type";
+import { AttributeType } from "@/lib/types/type";
 import {
     BoltIcon,
     FireIcon,
@@ -10,7 +10,7 @@ import {
 import {JSX} from "react";
 
 interface Props {
-    attributes: Attribute[];
+    attributes: AttributeType[];
 }
 
 const iconMap: Record<string, JSX.Element> = {

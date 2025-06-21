@@ -1,8 +1,8 @@
-import {Award} from "@/lib/types/type";
+import {AwardType} from "@/lib/types/type";
 import {SolidIcons} from "@/components/solid-icons";
 
 interface AwardProps {
-    awards: Array<Award>;
+    awards: Array<AwardType>;
 }
 
 export default function Awards({awards}: AwardProps) {

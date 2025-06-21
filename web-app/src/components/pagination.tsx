@@ -33,7 +33,7 @@ const Pagination = ({currentPage, totalPages, renderElementsOfPage}: Props) => {
     return (
         <nav className="flex justify-center items-center space-x-1 mt-4">
             <button
-                className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                className="p-2 rounded-md bg-gray-200 cursor-pointer hover:bg-gray-300 disabled:opacity-50"
                 onClick={() => renderElementsOfPage(currentPage - 1)}
                 disabled={currentPage <= 1}
                 aria-label="Previous"
@@ -48,7 +48,7 @@ const Pagination = ({currentPage, totalPages, renderElementsOfPage}: Props) => {
                     <button
                         key={idx}
                         onClick={() => renderElementsOfPage(page)}
-                        className={`px-3 py-1 rounded-md text-sm font-medium ${
+                        className={`px-3 py-1 rounded-md text-sm font-medium cursor-pointer ${
                             page === currentPage
                                 ? "bg-cyan-700 text-white"
                                 : "bg-gray-100 hover:bg-gray-200 text-gray-800"
@@ -60,7 +60,7 @@ const Pagination = ({currentPage, totalPages, renderElementsOfPage}: Props) => {
             )}
 
             <button
-                className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                className="p-2 cursor-pointer rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
                 onClick={() => renderElementsOfPage(currentPage + 1)}
                 disabled={currentPage >= totalPages}
                 aria-label="Next"
