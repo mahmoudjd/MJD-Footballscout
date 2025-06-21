@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ImageBackground } from "@/components/image-background";
+import {ImageBackground} from "@/components/image-background";
 
 export default function HomePage() {
     return (

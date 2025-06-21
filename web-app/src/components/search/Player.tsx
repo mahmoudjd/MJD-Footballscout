@@ -1,5 +1,5 @@
 import Image from "next/image";
-import PlayerType from "@/lib/types/type";
+import {PlayerType} from "@/lib/types/type";
 
 interface Props {
     player: PlayerType;

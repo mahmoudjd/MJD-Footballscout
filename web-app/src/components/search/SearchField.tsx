@@ -1,82 +1,75 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import PlayerType from "@/lib/types/type";
-import { convert } from "@/lib/convert";
-import { searchPlayers } from "@/lib/hooks/mutations/search-player";
-import Link from "next/link";
-import { Loader } from "@/components/loader";
-import {Player} from "@/components/search/Player";
+import {useState, useCallback, useMemo} from "react";
+import {convert} from "@/lib/convert";
+import {useGetPlayers} from "@/lib/hooks/queries/use-get-players";
+import {useSearchPlayers} from "@/lib/hooks/mutations/use-search-players";
+import {useDebounce} from "@/lib/hooks/use-debounce";
+import {PlayerType} from "@/lib/types/type";
+import {Spinner} from "@/components/spinner";
+import {SearchResultsList} from "@/components/search/search-results-list";
+import {useQueryClient} from "@tanstack/react-query";
 
-interface Props {
-    players: PlayerType[];
-}
-
-export function SearchField({ players }: Props) {
+export function SearchField() {
+    const {data: players, error, isError} = useGetPlayers();
     const [name, setName] = useState("");
-    const [debouncedName, setDebouncedName] = useState("");
-    const [isLoading, setLoading] = useState(false);
-    const [results, setResults] = useState<PlayerType[]>([]);
+    const [showServerResults, setShowServerResults] = useState(false);
+    const queryClient = useQueryClient();
+    const debouncedName = useDebounce(convert(name.trim()), 300);
 
-    // Reset bei neuem Aufruf
-    useEffect(() => {
-        setName("");
-        setResults([]);
-    }, []);
+    if (isError) {
+        throw error;
+    }
 
-    // Debounce für lokale Suche
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setDebouncedName(name);
-        }, 300); // 300ms debounce
+    const localResults = useMemo(() => {
+        if (!players || debouncedName.length === 0) return [];
 
-        return () => clearTimeout(timeout);
-    }, [name]);
-
-    // Lokale Suche
-    useEffect(() => {
-        if (debouncedName.length === 0) {
-            setResults([]);
-            return;
-        }
-
-        const searchTerm = convert(debouncedName).toLowerCase().trim();
-        const filtered = players.filter((player) =>
+        const searchTerm = debouncedName.toLowerCase();
+        return players.filter((player) =>
             [player.name, player.fullName]
                 .map((p) => convert(p).toLowerCase())
                 .some((p) => p.includes(searchTerm))
         );
-        setResults(filtered);
-    }, [debouncedName, players]);
+    }, [players, debouncedName]);
 
+    const {
+        mutate,
+        data: serverResults,
+        isPending,
+        error: searchingError,
+        isError: isSearchingError
+    } = useSearchPlayers();
+
+    if (isSearchingError) {
+        throw searchingError;
+    }
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
+        setShowServerResults(false);
     };
 
-    const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
-            await handleSearch();
+            handleSearch();
         }
     };
 
-    const handleSearch = useCallback(async () => {
+    const handleSearch = useCallback(() => {
         const query = convert(name.trim());
 
         if (query.length < 3) {
             alert("Please enter at least 3 characters.");
             return;
         }
+        setShowServerResults(true);
+        mutate(query, {
+            onSuccess: () => queryClient.refetchQueries({queryKey: ["players"]}),
+        });
+    }, [name, mutate]);
 
-        try {
-            setLoading(true);
-            const serverResults = await searchPlayers(query);
-            setResults(serverResults);
-        } catch (error) {
-            console.error("Search failed:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, [name]);
+    const results: PlayerType[] = showServerResults
+        ? serverResults ?? []
+        : localResults;
 
     return (
         <div className="w-full max-w-3xl mx-auto flex flex-col p-6">
@@ -90,28 +83,18 @@ export function SearchField({ players }: Props) {
                     placeholder="Enter player name..."
                 />
                 <button
-                    className="w-full sm:w-40 h-12 px-4 py-2 rounded-xl bg-cyan-600 text-white font-semibold hover:bg-cyan-500 transition"
+                    className="w-full sm:w-40 h-12 cursor-pointer px-4 py-2 rounded-xl bg-cyan-600 text-white font-semibold hover:bg-cyan-500 transition"
                     onClick={handleSearch}
                 >
                     Search
                 </button>
             </div>
 
-            {isLoading && <Loader />}
+            {isPending && (<div className="flex w-full justify-center items-center">
+                <Spinner/>
+            </div>)}
 
-            {results.length > 0 && (
-                <div className="mt-6 flex flex-col divide-y divide-gray-200">
-                    {results.map((player) => (
-                        <Link
-                            key={player._id}
-                            href={`/players/${player._id}`}
-                            className="transition"
-                        >
-                            <Player player={player} />
-                        </Link>
-                    ))}
-                </div>
-            )}
+            <SearchResultsList players={results}/>
         </div>
     );
 }

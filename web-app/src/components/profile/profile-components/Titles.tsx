@@ -1,8 +1,8 @@
 import {SolidIcons} from "@/components/solid-icons";
-import {Title} from "@/lib/types/type";
+import {TitleType} from "@/lib/types/type";
 
 interface Props {
-    titles: Array<Title>;
+    titles: Array<TitleType>;
 }
 
 export default function Titles({titles}: Props) {

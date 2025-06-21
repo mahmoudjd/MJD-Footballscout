@@ -21,7 +21,8 @@ import { BeakerIcon,
     CalendarIcon,
     QuestionMarkCircleIcon,
     ClockIcon,
-    ArrowPathIcon
+    ArrowPathIcon,
+    ArrowLeftIcon
 } from '@heroicons/react/24/outline'
 export const OutlineIcons = {
     BeakerIcon: BeakerIcon,
@@ -48,4 +49,5 @@ export const OutlineIcons = {
     QuestionMarkCircleIcon: QuestionMarkCircleIcon,
     ClockIcon: ClockIcon,
     ArrowPathIcon: ArrowPathIcon,
+    ArrowLeftIcon:ArrowLeftIcon
 }

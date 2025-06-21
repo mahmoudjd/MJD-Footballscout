@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-
 interface NavbarProps {
     open: boolean;
     setOpen: (value: boolean) => void;

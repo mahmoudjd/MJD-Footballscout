@@ -170,44 +170,82 @@ export async function getPlayers() {
     }
 }
 
-export async function initializePlayers() {
-  try {
-    const playerCount = await Player.countDocuments();
-    if (playerCount <= 0) {
-      console.log("➕ [server]: Initializing famous players...");
-      const playersToAdd = [
-        "Cristiano Ronaldo",
-        "Lionel Messi",
-        "Neymar",
-        "Ronaldinho",
-        "David Beckham",
-        "Sergio Ramos",
-        "Karim Benzema",
-        "M. Salah",
-        "Marcelo",
-        "James Rodriguez",
-        "Zlatan Ibrahimovic",
-      ];
-      for (const playerName of playersToAdd) {
-        const players = await extractPlayerData(playerName, true);
-        if (players.length !== 0) {
-          for (const player of players) {
-            const createdPlayer = await createPlayer(player);
-            if (createdPlayer) {
-              console.log(createdPlayer.fullName, " created successfully.");
-            }
-          }
-        } else {
-          throw new Error("Player not found");
-        }
-      }
-      console.log("✅ [server]: Famous players initialized successfully.");
-    } else {
-      console.log(
-        "✅ [server]: Famous players already exist. Skipping initialization.",
-      );
+async function getPlayerIds() {
+    try {
+        const playerIds = await Player.find({}, {_id: 1}).lean();
+
+        return playerIds.map(p => p._id.toString());
+    } catch (error) {
+        console.error(error);
+        return [];
     }
-  } catch (error) {
-    console.error("Error initializing players:", error);
-  }
+}
+
+export async function updateAllPlayers() {
+    try {
+        console.log("--- updating all players ---");
+        const playerIds = await getPlayerIds();
+        if (!playerIds) throw new Error("No players found");
+
+        const updatedPlayers = [];
+        for (const playerId of playerIds) {
+            try {
+                const updatedPlayer = await updatePlayerFromWebSites(playerId);
+                if (updatedPlayer) {
+                    updatedPlayers.push(updatedPlayer);
+                }
+            } catch (error) {
+                console.error(`Error updating player ${playerId}: ${error.message}`);
+                // Continue with next player even if one fails
+            }
+        }
+
+        console.log(`Updated ${updatedPlayers.length} out of ${playerIds.length} players`);
+        return updatedPlayers;
+    } catch (error) {
+        console.error("Error updating all players:", error);
+        throw error;
+    }
+}
+
+export async function initializePlayers() {
+    try {
+        const playerCount = await Player.countDocuments();
+        if (playerCount <= 0) {
+            console.log("➕ [server]: Initializing famous players...");
+            const playersToAdd = [
+                "Cristiano Ronaldo",
+                "Lionel Messi",
+                "Neymar",
+                "Ronaldinho",
+                "David Beckham",
+                "Sergio Ramos",
+                "Karim Benzema",
+                "M. Salah",
+                "Marcelo",
+                "James Rodriguez",
+                "Zlatan Ibrahimovic",
+            ];
+            for (const playerName of playersToAdd) {
+                const players = await extractPlayerData(playerName, true);
+                if (players.length !== 0) {
+                    for (const player of players) {
+                        const createdPlayer = await createPlayer(player);
+                        if (createdPlayer) {
+                            console.log(createdPlayer.fullName, " created successfully.");
+                        }
+                    }
+                } else {
+                    throw new Error("Player not found");
+                }
+            }
+            console.log("✅ [server]: Famous players initialized successfully.");
+        } else {
+            console.log(
+                "✅ [server]: Famous players already exist. Skipping initialization.",
+            );
+        }
+    } catch (error) {
+        console.error("Error initializing players:", error);
+    }
 }

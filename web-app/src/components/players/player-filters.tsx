@@ -32,7 +32,7 @@ const PlayerFilters = ({
                 <div className="space-y-1">
                     <label className="text-sm font-medium text-gray-600">Position</label>
                     <select
-                        className="w-full border border-gray-200 bg-white rounded px-4 py-2 text-sm text-gray-800 shadow-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                        className="w-full cursor-pointer border border-gray-200 bg-white rounded px-4 py-2 text-sm text-gray-800 shadow-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                         value={selectedPosition}
                         onChange={(e) => onPositionChange(e.target.value)}
                     >
@@ -49,7 +49,7 @@ const PlayerFilters = ({
                 <div className="space-y-1">
                     <label className="text-sm font-medium text-gray-600">Age Group</label>
                     <select
-                        className="w-full border border-gray-200 bg-white rounded px-4 py-2 text-sm text-gray-800 shadow-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                        className="w-full cursor-pointer border border-gray-200 bg-white rounded px-4 py-2 text-sm text-gray-800 shadow-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                         value={selectedAgeGroup}
                         onChange={(e) => onAgeGroupChange(e.target.value)}
                     >
@@ -65,7 +65,7 @@ const PlayerFilters = ({
                 <div className="space-y-1">
                     <label className="text-sm font-medium text-gray-600">Nationality</label>
                     <select
-                        className="w-full border border-gray-200 bg-white rounded px-4 py-2 text-sm text-gray-800 shadow-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                        className="w-full cursor-pointer border border-gray-200 bg-white rounded px-4 py-2 text-sm text-gray-800 shadow-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                         value={selectedNationality}
                         onChange={(e) => onNationalityChange(e.target.value)}
                     >

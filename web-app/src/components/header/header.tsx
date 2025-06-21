@@ -3,7 +3,7 @@ import {useEffect, useRef, useState} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {SolidIcons} from "@/components/solid-icons";
-import {Navbar} from "@/components/header/navbar"; // Bars4Icon
+import {Navbar} from "@/components/header/navbar";
 
 const Header = () => {
     const [open, setOpen] = useState(false);

@@ -4,6 +4,7 @@ import "./globals.css";
 
 import Header from "@/components/header/header";
 import {Footer} from "@/components/footer";
+import { Providers } from "./providers";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -30,11 +31,13 @@ export default function RootLayout({children}: Readonly<{
             <title>MJD-FootballScout</title>
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
-        <Header/>
-        <main className="min-h-[calc(100vh-8.5rem)]">
-        {children}
-        </main>
-        <Footer />
+        <Providers>
+            <Header/>
+            <main className="min-h-[calc(100vh-8.5rem)]">
+            {children}
+            </main>
+            <Footer />
+        </Providers>
         </body>
         </html>
     );
