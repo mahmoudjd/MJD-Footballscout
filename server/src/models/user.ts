@@ -7,6 +7,11 @@ export const UserRegisterInputSchema = z.object({
     name: z.string().min(2),
 });
 
+export const UserGoogleLoginInputSchema = z.object({
+    email: z.string().email(),
+    name: z.string().min(2),
+})
+
 export const UserLoginInputSchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
@@ -23,3 +28,4 @@ export const UserSchema = z.object({
 export type User = z.infer<typeof UserSchema>;
 export type UserRegisterInput = z.infer<typeof UserRegisterInputSchema>;
 export type UserLoginInput = z.infer<typeof UserLoginInputSchema>;
+export type UserGoogleLoginInput = z.infer<typeof UserGoogleLoginInputSchema>;
