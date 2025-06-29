@@ -66,7 +66,7 @@ const Header = () => {
                     ) : (
                         <button
                             onClick={() => signIn()}
-                            className="hover:text-cyan-300 transition"
+                            className="hover:text-cyan-300 transition cursor-pointer"
                         >
                             Login
                         </button>

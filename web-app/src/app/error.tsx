@@ -1,6 +1,8 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
+import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function GlobalError({
                                         error,
@@ -10,9 +12,15 @@ export default function GlobalError({
     reset: () => void;
 }) {
     const [isResetting, setIsResetting] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         console.error('Global Error:', error);
+
+        // Automatisches Signout bei 401
+        if (error.message.includes('401')) {
+            signOut({ callbackUrl: '/login' }); // Leitet nach Logout zur Login-Seite
+        }
     }, [error]);
 
     const handleReset = () => {
@@ -32,10 +40,10 @@ export default function GlobalError({
                     onClick={handleReset}
                     disabled={isResetting}
                     className={`px-5 py-2.5 rounded-lg font-semibold transition-colors cursor-pointer
-                        ${isResetting
+            ${isResetting
                         ? 'bg-red-300 cursor-not-allowed'
                         : 'bg-red-600 hover:bg-red-700 text-white'}
-                        `}
+          `}
                 >
                     {isResetting ? 'Retrying...' : 'Try Again'}
                 </button>
