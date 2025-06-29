@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
 export default function GlobalError({
                                         error,
@@ -12,7 +11,6 @@ export default function GlobalError({
     reset: () => void;
 }) {
     const [isResetting, setIsResetting] = useState(false);
-    const router = useRouter();
 
     useEffect(() => {
         console.error('Global Error:', error);
