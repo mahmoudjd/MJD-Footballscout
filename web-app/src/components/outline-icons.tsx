@@ -23,7 +23,11 @@ import { BeakerIcon,
     ClockIcon,
     ArrowPathIcon,
     ArrowLeftIcon,
-    ArrowUpIcon
+    ArrowUpIcon,
+    HeartIcon,
+    EyeIcon,
+    InformationCircleIcon,
+    XMarkIcon
 } from '@heroicons/react/24/outline'
 export const OutlineIcons = {
     BeakerIcon: BeakerIcon,
@@ -52,4 +56,8 @@ export const OutlineIcons = {
     ArrowPathIcon: ArrowPathIcon,
     ArrowLeftIcon:ArrowLeftIcon,
     ArrowUpIcon: ArrowUpIcon,
+    HeartIcon: HeartIcon,
+    EyeIcon: EyeIcon,
+    InformationCircleIcon: InformationCircleIcon,
+    XMarkIcon: XMarkIcon
 }

@@ -14,6 +14,7 @@ import {notFound, useRouter} from "next/navigation";
 import {useQueryClient} from "@tanstack/react-query";
 import {useGetPlayer} from "@/lib/hooks/queries/use-get-player";
 import {ScrollToTopButton} from "@/components/scroll-to-top-button";
+import {useToast} from "@/lib/hooks/use-toast";
 
 interface Props {
     playerId: string;
@@ -22,15 +23,21 @@ interface Props {
 export function Profile({playerId}: Props) {
     const router = useRouter();
     const queryClient = useQueryClient();
-
-    const {data: player, error, isLoading} = useGetPlayer({playerId});
+    const toast = useToast()
+    const {data: player, error, isError, isLoading} = useGetPlayer({playerId});
 
     const {mutateAsync: updatePlayerMutation, isPending: isUpdating} = useUpdateMutation({
         onSuccess: async () => {
             await queryClient.refetchQueries({queryKey: ["player", {playerId}]});
-        }
+            toast.success(`${player?.name} data updated successfully!`)
+        },
+        onError: () => {
+            toast.error("Failed to update player data!")
+        },
     });
-
+    if (isError) {
+        throw error;
+    }
     useEffect(() => {
         if (typeof window !== "undefined" && window.scrollY > 0) {
             window.scrollTo({ top: 0, behavior: "smooth" });

@@ -8,13 +8,14 @@ import {Spinner} from "@/components/spinner";
 import {useGetPlayers} from "@/lib/hooks/queries/use-get-players";
 import {useQueryClient} from "@tanstack/react-query";
 import {useFilterPlayers} from "@/lib/hooks/use-filter-players";
+import {useToast} from "@/lib/hooks/use-toast";
 
 export default function PlayersList() {
     const queryClient = useQueryClient()
     const {data: players, isLoading, isError, error} = useGetPlayers();
     const [currentPage, setCurrentPage] = useState(1);
     const [elemsPerPage, setElemsPerPage] = useState(5);
-
+    const toast = useToast()
     if (isError) {
         throw error
     }
@@ -30,6 +31,10 @@ export default function PlayersList() {
     const {mutate: deletePlayer, error: errorDeleting, isError: isErrorDeleting, isPending: isDeleting} = useDeletePlayer({
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ["players"]})
+            toast.success("Player deleted successfully!")
+        },
+        onError: () => {
+            toast.error("Failed to delete player!")
         }
     });
     const currentPlayers = useMemo(() => {

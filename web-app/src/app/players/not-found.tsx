@@ -8,7 +8,7 @@ export default function NotFound() {
           Players Not Found
         </h2>
         <p className="mt-4 text-base text-gray-500">
-          Sorry, we couldn't find the players you're looking for.
+          Sorry, we couldn't find the player you're looking for.
         </p>
         <div className="mt-10">
           <Link 

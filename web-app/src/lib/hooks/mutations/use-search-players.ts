@@ -2,6 +2,7 @@ import {useMutation} from "@tanstack/react-query";
 import axios from "axios";
 import {PlayerType} from "@/lib/types/type";
 import {env} from "@/env";
+import {apiClient} from "@/lib/hooks/api-client";
 
 export function useSearchPlayers() {
     return useMutation({
@@ -10,6 +11,6 @@ export function useSearchPlayers() {
 }
 
 async function searchPlayers(name: string) {
-    const response = await axios.post<PlayerType[]>(`${env.NEXT_PUBLIC_API_HOST}/search`, {name});
+    const response = await apiClient.post<PlayerType[]>(`${env.NEXT_PUBLIC_API_HOST}/search`, {name});
     return response.data;
 }
