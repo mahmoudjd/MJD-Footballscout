@@ -55,7 +55,7 @@ export const PlayerTypeSchemaWithoutID = BasePlayerSchema.extend({
     timestamp: z.date(),
 });
 
-export const PlayerTypeSchema = PlayerTypeSchemaWithoutID.extend(ObjectIdSchema);
+export const PlayerTypeSchema = ObjectIdSchema.merge(PlayerTypeSchemaWithoutID);
 
 export type PlayerType = z.infer<typeof PlayerTypeSchema>;
 export type Attribute = z.infer<typeof AttributeSchema>;
