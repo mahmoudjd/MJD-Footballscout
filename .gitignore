@@ -1,5 +1,7 @@
 node_modules/
 
+*.log
+
 server/dist/
 
 web-app/package-lock.json

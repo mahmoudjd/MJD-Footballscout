@@ -1,251 +1,277 @@
-import PlayerType from "../types";
-import Player from "../models/playerModel";
-import {Document} from "mongoose";
-import {extractPlayerData, convert} from "../scraper/scrapingData";
+import {PlayerTypeSchemaWithoutID} from "../models/player";
+import {AppContext} from "../models/context";
+import {ObjectId} from "mongodb";
+import {extractPlayerData} from "../scraper/scrapingData";
+import {convert, normalizeName} from "../scraper/utils";
+import logger from "../logger/logger";
 
-async function createPlayer(data: PlayerType) {
+export async function getPlayerById(context: AppContext, id: string) {
     try {
-        const player = await Player.create(data);
+        logger.debug(`Fetching player by ID: ${id}`);
+        const playerId = new ObjectId(id);
+        const player = await context.players.findOne({_id: new ObjectId(playerId)});
+        if (!player) {
+            logger.warn(`Player not found with ID: ${id}`);
+            return null;
+        }
         return player;
-    } catch (error) {
-        console.error(error);
-        throw new Error("Failed to create player");
+    } catch (error: any) {
+        logger.error(`Failed to fetch player by ID ${id}: ${error.stack || error.message}`);
+        throw new Error("Failed to fetch player by ID");
     }
 }
 
-export async function getPlayerById(id: string) {
+export async function createPlayer(context: AppContext, player: any) {
     try {
-        const player = await Player.findOne({_id: id});
-        return player;
-    } catch (error) {
-        throw new Error("do not get Player");
+        logger.debug(`Creating player with name: ${player?.name}`);
+        player.timestamp = new Date();
+
+        const safeData = PlayerTypeSchemaWithoutID.safeParse(player);
+        if (!safeData.success) {
+            throw new Error(`Failed to parse player data: ${JSON.stringify(safeData.error.issues, null, 2)}`);
+        }
+
+        const existing = await context.players.findOne({
+            fullName: player.fullName,
+            born: player.born,
+            country: player.country,
+        });
+
+        if (existing) {
+            logger.warn(`Player already exists: ${player.fullName}, born ${player.born}`);
+            return existing;
+        }
+
+        const result = await context.players.insertOne(safeData.data);
+        const inserted = await context.players.findOne({_id: result.insertedId});
+
+        logger.info(`Inserted player: ${inserted?.name}`);
+        return inserted;
+
+    } catch (error: any) {
+        logger.error(`Failed to insert player: ${error.message}`);
+        throw new Error("Failed to insert player: " + error.message);
     }
 }
 
-export async function deletePlayerById(id: string) {
+export async function deletePlayerById(context: AppContext, id: string) {
     try {
-        const player = await Player.findOneAndDelete({_id: id});
-        return player;
-    } catch (error) {
-        throw new Error("does not delete player");
+        logger.info(`Deleting player by ID: ${id}`);
+        const deletedPlayer = await context.players.findOneAndDelete({_id: new ObjectId(id)});
+        if (!deletedPlayer?.value) {
+            logger.warn(`No player found to delete with ID: ${id}`);
+            return null;
+        }
+        return deletedPlayer?.value;
+    } catch (error: any) {
+        logger.error(`Failed to delete player by ID ${id}: ${error.stack || error.message}`);
+        throw new Error("Failed to delete player by ID");
     }
 }
 
-export async function updatePlayerFromWebSites(playerId: string) {
+export async function updatePlayerFromWebSites(context: AppContext, playerId: string) {
     try {
-        console.log("--- updating 1 ---");
-        const oldPlayer = await getPlayerById(playerId);
-        if (!oldPlayer) throw new Error("not found player");
-        let foundedPlayers = await extractPlayerData(
-            convert(`${oldPlayer?.title}`),
-        );
+        logger.info(`Updating player from websites: ${playerId}`);
 
-        let filteredPlayer = foundedPlayers.filter(
-            // prüfen der gleiche Spieler gefunden wird.
+        const oldPlayer = await context.players
+            .findOne({_id: new ObjectId(playerId)});
+        if (!oldPlayer) {
+            logger.warn(`Player not found with ID: ${playerId}`);
+            throw new Error("Player not found");
+        }
+        logger.info(`Updating player: ${oldPlayer.fullName}`);
+        let foundPlayers = await extractPlayerData(convert(oldPlayer?.title));
+        logger.info(`Found players: ${foundPlayers.length}`);
+        let filteredPlayer = foundPlayers.filter(
             (p) =>
-                (convert(`${oldPlayer?.fullName}`) === convert(`${p?.fullName}`) &&
-                    oldPlayer.born === p?.born) /* &&
-          oldPlayer.number === p?.number */ ||
+                (convert(oldPlayer?.fullName) === convert(p?.fullName) &&
+                    oldPlayer.born === p?.born) ||
                 (oldPlayer.country === p?.country &&
                     oldPlayer.name === p?.name &&
-                    oldPlayer.number === p?.number),
+                    oldPlayer.number === p?.number)
         );
-        console.log("results 1:", filteredPlayer.length);
+
         if (filteredPlayer.length === 0) {
-            foundedPlayers = await extractPlayerData(
-                convert(`${oldPlayer.fullName}`),
-            );
-            filteredPlayer = foundedPlayers.filter(
+            foundPlayers = await extractPlayerData(convert(oldPlayer.fullName));
+            filteredPlayer = foundPlayers.filter(
                 (p) =>
-                    convert(`${oldPlayer?.fullName}`) === convert(`${p?.fullName}`) ||
-                    (oldPlayer.country === p?.country && (oldPlayer.name === p?.name ||
-                        oldPlayer.fullName.toLowerCase().trim() === p.fullName.toLowerCase().trim())),
-            );
-            console.log("results 2:", filteredPlayer.length);
+                    normalizeName(oldPlayer?.fullName) === normalizeName(p?.fullName) ||
+                    (oldPlayer.country === p?.country && normalizeName(oldPlayer.name) === normalizeName(p?.name))
+            )
         }
 
         const newPlayer = filteredPlayer.length > 0 ? filteredPlayer[0] : oldPlayer;
-
         // Merge old and new player data
-        // If new data is missing or has default values (like 0 for numbers), use old data
-        const mergedPlayer = {
-            ...oldPlayer.toObject(), // Start with all old player data
-            ...Object.fromEntries(
-                Object.entries(newPlayer).map(([key, value]) => {
-                    // For numeric fields, check if the new value is 0 (default)
-                    if (typeof value === 'number' && value === 0 && oldPlayer[key] !== undefined) {
-                        return [key, oldPlayer[key]];
-                    }
-                    // For string fields, check if the new value is empty
-                    if (typeof value === 'string' && value === '' && oldPlayer[key] !== undefined) {
-                        return [key, oldPlayer[key]];
-                    }
-                    // For undefined or null values, use old value if available
-                    if ((value === undefined || value === null) && oldPlayer[key] !== undefined) {
-                        return [key, oldPlayer[key]];
-                    }
-                    // Otherwise use the new value
-                    return [key, value];
-                })
-            )
-        };
+        const mergedPlayer = mergePlayerData(oldPlayer, newPlayer);
 
-        // Handle arrays separately to ensure they're properly merged
-        ['playerAttributes', 'titles', 'awards', 'transfers'].forEach(arrayField => {
-            if (!newPlayer[arrayField] || newPlayer[arrayField].length === 0) {
-                mergedPlayer[arrayField] = oldPlayer[arrayField];
+        const result = await context.players
+            .findOneAndUpdate({_id: new ObjectId(playerId)}, {$set: mergedPlayer}, {returnDocument: "after"});
+
+        logger.info(`Player updated: ${playerId}`);
+
+        return result;
+    } catch (error: any) {
+        logger.error(`Failed to update player ${playerId}: ${error.stack || error.message}`);
+        throw new Error("Failed to update player");
+    }
+}
+
+export function mergePlayerData(oldPlayer: any, newPlayer: any): any {
+    const merged = {...oldPlayer};
+    for (const [key, newValue] of Object.entries(newPlayer)) {
+        const oldValue = oldPlayer[key];
+
+        if (newValue === undefined || newValue === null || newValue === "") continue;
+
+        if (Array.isArray(newValue)) {
+            if (newValue.length > 0) {
+                if (["awards", "titles", "transfers", "playerAttributes"].includes(key)) {
+                    const uniqueKey = {
+                        awards: "name",
+                        titles: "name",
+                        transfers: "season",
+                        playerAttributes: "name",
+                    }[key];
+
+                    const combined = [
+                        ...oldValue,
+                        ...newValue.filter(
+                            (item: any) =>
+                                // @ts-ignore
+                                !oldValue.some((oldItem: any) => oldItem[uniqueKey] === item[uniqueKey])
+                        ),
+                    ];
+
+                    merged[key] = combined;
+                } else {
+                    merged[key] = newValue;
+                }
+            }
+        } else {
+            merged[key] =
+                newValue !== 0 && newValue !== "" && newValue !== undefined ? newValue : oldValue;
+        }
+    }
+
+    return merged;
+}
+
+export async function searchPlayers(context: AppContext, name: string) {
+    try {
+        logger.info(`Searching players with name: ${name}`);
+        const players = await extractPlayerData(name);
+        if (players.length === 0) {
+            logger.warn(`No players found for search: ${name}`);
+            throw new Error("No players found");
+        }
+
+        const savedPlayers = [];
+        for (const p of players) {
+            const existingPlayer = await context.players
+                .findOne({fullName: p?.fullName});
+
+            if (!existingPlayer) {
+                const safeData = PlayerTypeSchemaWithoutID.safeParse(p);
+                if (!safeData.success) {
+                    throw new Error(`Failed to parse player data: ${safeData.error.message}`);
+                }
+                //const result = await context.players.insertOne(safeData.data);
+                // const insertedPlayer = await context.players.findOne({_id: result.insertedId});
+                savedPlayers.push({
+                    ...safeData.data,
+                });
+                logger.info(`Inserted new player: ${p.fullName}`);
+            } else {
+                const result = await updatePlayerFromWebSites(context, existingPlayer?._id?.toString()!);
+                savedPlayers.push(result);
+                logger.info(`Updated existing player: ${existingPlayer?.fullName}`);
+            }
+        }
+
+        return savedPlayers;
+    } catch (error: any) {
+        logger.error(`Failed to search players: ${error.stack || error.message}`);
+        throw new Error("Failed to search players");
+    }
+}
+
+export async function getPlayers(context: AppContext) {
+    try {
+        logger.debug("Fetching all players");
+        const players = await context.players.find().toArray();
+        if (players.length === 0) {
+            logger.warn("No players found");
+            return [];
+        }
+        return players;
+    } catch (error: any) {
+        logger.error(`Error fetching players: ${error.stack || error.message}`);
+        throw new Error("Failed to fetch players");
+    }
+}
+
+export async function updateAllPlayers(context: AppContext) {
+    try {
+        logger.info("Updating all players");
+        const players = await context.players.find().toArray();
+        if (!players || players.length === 0) {
+            logger.warn("No players found for update");
+            throw new Error("No players found");
+        }
+
+        const updatePromises = players.map(async (player) => {
+            try {
+                return await updatePlayerFromWebSites(context, (player._id?.toString())!);
+            } catch (error: any) {
+                logger.error(`Error updating player ${player._id}: ${error.message}`);
+                return null;
             }
         });
 
-        const updatedPlayer = await Player.findOneAndUpdate(
-            {_id: playerId},
-            mergedPlayer,
-            {new: true},
-        );
 
-        return updatedPlayer;
-    } catch (error) {
-        console.error(error);
+        const updatedPlayers = await Promise.all(updatePromises);
+        return updatedPlayers.filter((p) => p);
+    } catch (error: any) {
+        logger.error(`Error updating all players: ${error.stack || error.message}`);
         throw error;
     }
 }
 
-export async function getPlayerByName(name: string) {
+export async function initializePlayers(context: AppContext) {
     try {
-        return await Player.findOne({fullName: name});
-    } catch (error) {
-        console.error(error);
-        throw new Error("Failed to get player by name");
-    }
-}
+        const playerCount = await context.players.countDocuments();
 
-export async function searchPlayers(name: string) {
-    try {
-        let players = await extractPlayerData(name);
-        if (players.length === 0) {
-            throw new Error("Player not found");
-        }
+        if (playerCount === 0) {
+            logger.info("Initializing famous players...");
 
-        const foundedPlayers: Document[] = [];
-        for (const player of players) {
-            const existsPlayer = await getPlayerByName(`${player?.fullName}`);
-            if (player && !existsPlayer && player.name && player.title) {
-                if (
-                    (!player.number || !player.age) &&
-                    !player.weight &&
-                    !player.height &&
-                    !player.preferredFoot
-                )
-                    continue;
-                const createdPlayer = await createPlayer(player);
-                if (createdPlayer) foundedPlayers.push(createdPlayer);
-            } else if (
-                player &&
-                existsPlayer &&
-                player?.number !== existsPlayer.number &&
-                player.age !== existsPlayer.age &&
-                player.height !== existsPlayer.height &&
-                player.currentClub !== existsPlayer.currentClub
-            ) {
-                const createdPlayer = await createPlayer(player);
-                if (createdPlayer) foundedPlayers.push(createdPlayer);
-            } else if (existsPlayer) {
-                foundedPlayers.push(existsPlayer);
-            }
-        }
-        return foundedPlayers;
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
-
-export async function getPlayers() {
-    try {
-        const players = await Player.find();
-        if (!players) throw new Error("not founded players");
-        return players;
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function getPlayerIds() {
-    try {
-        const playerIds = await Player.find({}, {_id: 1}).lean();
-
-        return playerIds.map(p => p._id.toString());
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
-
-export async function updateAllPlayers() {
-    try {
-        console.log("--- updating all players ---");
-        const playerIds = await getPlayerIds();
-        if (!playerIds) throw new Error("No players found");
-
-        const updatedPlayers = [];
-        for (const playerId of playerIds) {
-            try {
-                const updatedPlayer = await updatePlayerFromWebSites(playerId);
-                if (updatedPlayer) {
-                    updatedPlayers.push(updatedPlayer);
-                }
-            } catch (error) {
-                console.error(`Error updating player ${playerId}: ${error.message}`);
-                // Continue with next player even if one fails
-            }
-        }
-
-        console.log(`Updated ${updatedPlayers.length} out of ${playerIds.length} players`);
-        return updatedPlayers;
-    } catch (error) {
-        console.error("Error updating all players:", error);
-        throw error;
-    }
-}
-
-export async function initializePlayers() {
-    try {
-        const playerCount = await Player.countDocuments();
-        if (playerCount <= 0) {
-            console.log("➕ [server]: Initializing famous players...");
-            const playersToAdd = [
+            const playersToInitialize = [
                 "Cristiano Ronaldo",
                 "Lionel Messi",
                 "Neymar",
                 "Ronaldinho",
                 "David Beckham",
-                "Sergio Ramos",
-                "Karim Benzema",
-                "M. Salah",
-                "Marcelo",
-                "James Rodriguez",
-                "Zlatan Ibrahimovic",
             ];
-            for (const playerName of playersToAdd) {
-                const players = await extractPlayerData(playerName, true);
-                if (players.length !== 0) {
-                    for (const player of players) {
-                        const createdPlayer = await createPlayer(player);
-                        if (createdPlayer) {
-                            console.log(createdPlayer.fullName, " created successfully.");
-                        }
+
+            for (const playerName of playersToInitialize) {
+                const players = await extractPlayerData(playerName);
+
+                for (const player of players) {
+                    const safeData = PlayerTypeSchemaWithoutID.safeParse(player);
+                    if (!safeData.success) {
+                        throw new Error(`Failed to parse player data: ${safeData.error.message}`);
                     }
-                } else {
-                    throw new Error("Player not found");
+                    // @ts-ignore
+                    await context.players.insertOne(safeData.data);
+                    logger.info(`Inserted famous player: ${player.fullName}`);
                 }
             }
-            console.log("✅ [server]: Famous players initialized successfully.");
+
+            logger.info("Famous players initialized successfully.");
         } else {
-            console.log(
-                "✅ [server]: Famous players already exist. Skipping initialization.",
-            );
+            logger.info("Players already initialized.");
         }
-    } catch (error) {
-        console.error("Error initializing players:", error);
+    } catch (error: any) {
+        logger.error(`Error initializing players: ${error.stack || error.message}`);
+        throw new Error("Failed to initialize players");
     }
 }

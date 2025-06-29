@@ -1,330 +1,274 @@
 import {
-  extractDataBesoccer,
-  getSingleLinkBesoccer,
-  getLinksBesoccer,
+    extractDataBesoccer,
+    getSingleLinkBesoccer,
+    getLinksBesoccer,
 } from "./extractBesoccer";
 
 import {
-  extractDataPlaymakerstats,
-  getLinkPlaymakerstats,
-} from "./extractPlayMarker";
+    extractDataPlaymakerstats,
+    getLinkPlaymakerstats,
+} from "./extractPlaymaker";
+import type {PlayerTypeSchemaWithoutID, Title} from "../models/player";
+import {z} from "zod";
+import {convert, normalizeName} from "./utils";
+import {ScraperError} from "../middleware/customErrors";
+import logger from "../logger/logger";
 
-import PlayerType, { Title } from "../types";
+type PlayerTypeSchema = z.infer<typeof PlayerTypeSchemaWithoutID>;
 
-export async function extractPlayerData(name: string, one = false) {
-  try {
-    const convertedName = convert(name);
+export async function extractPlayerData(name: string, one = false): Promise<PlayerTypeSchema[]> {
+    try {
+        logger.info(`Start extraction for Player: ${name}`);
+        const convertedName = convert(name);
+        logger.info(`Converted Name: ${convertedName}`);
 
-    // Early return if fetching only one player
-    if (one) {
-      return [await extractWithName(convertedName)];
+        if (one) {
+            const player = await extractWithName(convertedName);
+            return player ? [player] : [];
+        }
+
+        const urlsBesoccer = await getLinksBesoccer(convertedName);
+        logger.info(`Founded Besoccer-Links: ${urlsBesoccer.length}`);
+
+        if (urlsBesoccer.length === 0) {
+            logger.warn("No links found on Besoccer. Attempting alternative extraction.");
+            const player = await extractWithName(convertedName);
+            return player ? [player] : [];
+        }
+
+        const urlsToAnalyse = urlsBesoccer.slice(0, 3);
+        logger.info(`Analyzing the first ${urlsToAnalyse.length} URLs.`);
+
+        const results = await Promise.all(
+            urlsToAnalyse.map((url) => extractWithBesoccerURL(name, url))
+        );
+        logger.info(`Extracted players: ${results.length}`);
+        const players = results.filter(
+            (player): player is PlayerTypeSchema => !!player && typeof player.name === "string" && typeof player.title === "string"
+        );
+        return players;
+    } catch (error: any) {
+        logger.error(`extractPlayerData error: ${error.message || error}`);
+        return [];
+    }
+}
+
+export async function extractWithName(name: string): Promise<PlayerTypeSchema | undefined> {
+    try {
+        const normalizedName = normalizeName(name);
+        logger.debug(`Extract URLs for: ${normalizedName}`);
+
+        const [urlBesoccer, urlPlaymaker] = await Promise.all([
+            getSingleLinkBesoccer(normalizedName),
+            getLinkPlaymakerstats(normalizedName),
+        ]);
+
+        logger.debug(`Besoccer URL: ${urlBesoccer}, Playmaker URL: ${urlPlaymaker}`);
+        let [playerBesoccer, playerPlaymaker] = await Promise.all([
+            extractDataBesoccer(urlBesoccer),
+            extractDataPlaymakerstats(urlPlaymaker),
+        ]);
+
+        if (!playerBesoccer && playerPlaymaker) {
+            const newUrlBesoccer = await getSingleLinkBesoccer(playerPlaymaker.name);
+            playerBesoccer = await extractDataBesoccer(newUrlBesoccer);
+        }
+
+        if (playerBesoccer && !playerPlaymaker) {
+            const newUrlPlaymaker = await getLinkPlaymakerstats(playerBesoccer.title);
+            playerPlaymaker = await extractDataPlaymakerstats(newUrlPlaymaker);
+        }
+
+        if (playerBesoccer && playerPlaymaker && isEquals(playerBesoccer, playerPlaymaker)) {
+            logger.info("Player profiles match, merging will be performed.");
+            return await checkAndUpdate(playerBesoccer, playerPlaymaker);
+        }
+
+        return playerBesoccer ?? playerPlaymaker;
+    } catch (error: any) {
+        logger.error(`extractWithName error: ${error.message || error}`);
+    }
+}
+
+export async function extractWithBesoccerURL(name: string, besoccerLink: string): Promise<PlayerTypeSchema | undefined> {
+    try {
+        const normalizedName = normalizeName(name);
+        logger.info(`Extracted with Besoccer-Link: ${besoccerLink}`);
+
+        let urlPlaymaker = await getLinkPlaymakerstats(normalizedName);
+        logger.info(`Initialize Playmaker-URL: ${urlPlaymaker}`);
+
+        let [player1, player2] = await Promise.all([
+            extractDataBesoccer(besoccerLink),
+            urlPlaymaker.includes("undefined") ? Promise.resolve(undefined) : extractDataPlaymakerstats(urlPlaymaker),
+        ]);
+
+        if (player1 && !player2) {
+            urlPlaymaker = await getLinkPlaymakerstats(player1.title);
+            logger.info(`Neue Playmaker-URL: ${urlPlaymaker}`);
+            player2 = await extractDataPlaymakerstats(urlPlaymaker);
+        }
+
+        if (player1 && player2 && isEquals(player1, player2)) {
+            logger.info("Players match (Case 1), Merge data...");
+            return await checkAndUpdate(player1, player2);
+        }
+
+        if (player1 && player2 && !isEquals(player1, player2)) {
+            urlPlaymaker = await getLinkPlaymakerstats(player1.title);
+            if (!urlPlaymaker.includes("undefined")) {
+                player2 = await extractDataPlaymakerstats(urlPlaymaker);
+                if (player2 && isEquals(player1, player2)) {
+                    logger.info("Players match (Case 2), Merge data...");
+                    return await checkAndUpdate(player1, player2);
+                }
+            }
+        }
+
+        if (urlPlaymaker.includes("undefined") && player1) {
+            urlPlaymaker = await getLinkPlaymakerstats(normalizeName(player1.name));
+            if (!urlPlaymaker.includes("undefined")) {
+                player2 = await extractDataPlaymakerstats(urlPlaymaker);
+                if (player2 && isEquals(player1, player2)) {
+                    logger.info("Players match (Case 3), Merge data...");
+                    return await checkAndUpdate(player1, player2);
+                }
+            }
+        }
+
+        if (player1?.age === 0 && player1?.weight === 0 && player1?.height === 0 && !player1?.preferredFoot && !player1?.currentClub) {
+            throw new ScraperError("Missing the base info", "extractWithBesoccerURL");
+        }
+        return player1 ?? player2;
+    } catch (error: any) {
+        logger.error(`extractWithBesoccerURL error: ${error.message || error}`);
+        return undefined;
+    }
+}
+
+async function checkAndUpdate(player1: PlayerTypeSchema, player2: PlayerTypeSchema): Promise<PlayerTypeSchema> {
+    logger.debug("Start merge of players profiles");
+
+    if (!player1.name) player1.name = player2.name;
+    if (!player1.title) player1.title = player2.title;
+    if (!player1.number && player2.number) player1.number = player2.number;
+    if (!player1.number && !player2.number) player1.number = 0;
+    if (!player1.weight) player1.weight = player2.weight;
+    if (!player1.height) player1.height = player2.height;
+    if (!player1.preferredFoot) player1.preferredFoot = player2.preferredFoot;
+    if (!player1.currentClub) player1.currentClub = player2.currentClub;
+    else if (player2.currentClub?.length > player1.currentClub?.length) player1.currentClub = player2.currentClub;
+    if (player1.image?.includes("nofoto") && player2.image) player1.image = player2.image;
+    if (!player1.position || player1.position.length < player2.position.length) player1.position = player2.position;
+    if (!player1.born) player1.born = player2.born;
+    if (!player1.birthCountry) player1.birthCountry = player2.birthCountry;
+    if (player1.transfers.length === 0) player1.transfers = player2.transfers;
+
+    if (player2.titles.length > player1.titles.length) {
+        player1.titles = player2.titles;
+    } else if (player2.titles === player2.titles) {
+        const sumTitles = (titles: Title[]) => titles.reduce((total, title) => total + parseInt(title.number, 10), 0);
+        const numberOfTitles1 = sumTitles(player1.titles);
+        const numberOfTitles2 = sumTitles(player2.titles);
+        if (numberOfTitles2 > numberOfTitles1) player1.titles = player2.titles;
     }
 
-    const urlsBesoccer = await getLinksBesoccer(convertedName);
+    if (!player1.otherNation) player1.otherNation = player2.otherNation;
+    if (!player1.website) player1.website = player2.website;
+    if (!player1.status) player1.status = player2.status;
 
-    if (urlsBesoccer.length === 0) {
-      console.log("not found in Besoccer!");
-      return [await extractWithName(convertedName)];
+    if (
+        player2.awards &&
+        player2.awards.length > 0 &&
+        (!player1.awards || player1.awards.length === 0 || player2.awards.length > player1.awards.length)
+    ) {
+        player1.awards = player2.awards;
     }
 
-    const urlsToAnalyse = urlsBesoccer.slice(0, 3);
+    if (
+        player2.playerAttributes &&
+        player2.playerAttributes.length > 0 &&
+        (!player1.playerAttributes ||
+            player1.playerAttributes.length === 0 ||
+            player2.playerAttributes.length > player1.playerAttributes.length)
+    ) {
+        player1.playerAttributes = player2.playerAttributes;
+    }
 
-    const results = await Promise.all(
-      urlsToAnalyse.map((url) => extractWithBesoccerURL(name, url)),
+    logger.debug("Merge successfully!");
+    return player1;
+}
+
+export function isEquals(obj1: PlayerTypeSchema, obj2: PlayerTypeSchema) {
+    if (!obj1 || !obj2) return false;
+
+    const fullName1 = convert(obj1.fullName).toLowerCase();
+    const fullName2 = convert(obj2.fullName).toLowerCase();
+
+    const country1 = obj1.country?.toString().toLowerCase();
+    const country2 = obj2.country?.toString().toLowerCase();
+
+    const num1 = obj1.number;
+    const num2 = obj2.number;
+
+    const age1 = obj1.age;
+    const age2 = obj2.age;
+
+    const pos1 = obj1.position?.toLowerCase();
+    const pos2 = obj2.position?.toLowerCase();
+
+    let foot1 = obj1.preferredFoot?.toLowerCase();
+    const foot2 = obj2.preferredFoot?.toLowerCase();
+
+    const height1 = obj1.height;
+    const height2 = obj2.height;
+
+    if (
+        fullName1 === fullName2 &&
+        age1 === age2 &&
+        num1 === num2 &&
+        foot1 === foot2 &&
+        height1 === height2
+    ) {
+        return true;
+    }
+
+    if (
+        fullName1 === fullName2 &&
+        foot1 === foot2 &&
+        height1 === height2 &&
+        country1 === country2 &&
+        pos2.includes(pos1)
+    ) {
+        return true;
+    }
+
+    if (
+        country1 === country2 &&
+        age1 === age2 &&
+        num1 === num2 &&
+        foot1 === foot2 &&
+        height1 === height2
+    ) {
+        return true;
+    }
+
+    if (
+        age1 === age2 &&
+        country1 === country2 &&
+        (pos1.includes(pos2) ||
+            pos2.includes(pos1) ||
+            (foot1 === foot2 && height1 === height2))
+    ) {
+        return true;
+    }
+
+    return (
+        (convert(fullName1) === convert(fullName2) && age1 === age2) ||
+        (country1 === country2 &&
+            num1 === num2 &&
+            age1 === age2 &&
+            foot1 === foot2 &&
+            pos2.includes(pos1))
     );
-    console.log("results: ", results.length);
-    // Filter out invalid results and create an array of players
-    const players = results.filter(
-      (player) => player && player.name && player.title,
-    );
-
-    return players;
-  } catch (error) {
-    console.error(error.message);
-    return [];
-  }
-}
-
-export async function extractWithName(
-  name: string,
-): Promise<PlayerType | undefined> {
-  try {
-    name = convert(name);
-    console.log("extract urls")
-    const [url1, url2] = await Promise.all([
-      getSingleLinkBesoccer(name),
-      getLinkPlaymakerstats(name),
-    ]);
-    console.log("extract player details from urls")
-    let [player1, player2] = await Promise.all([
-      extractDataBesoccer(`${url1}`),
-      extractDataPlaymakerstats(url2),
-    ]);
-    console.log("check if player is equal")
-    if (!player1 && player2) {
-      const newUrl = await getSingleLinkBesoccer(player2.name);
-      player1 = await extractDataBesoccer(`${newUrl}`);
-    }
-
-    if (player1 && !player2) {
-      const newUrl = await getLinkPlaymakerstats(player1.title);
-      player2 = await extractDataPlaymakerstats(newUrl);
-    }
-
-    if (player1 && player2 && isEquals(player1, player2)) {
-      console.log("----- check result 1 ----->");
-      return await checkAndUpdate(player1, player2);
-    }
-    if (player1 && !player2) return player1;
-    if (player2 && !player1) return player2;
-  } catch (error) {
-    console.error(error.message);
-  }
-}
-
-export async function extractWithBesoccerURL(
-  name: string,
-  besoccerLink: string,
-): Promise<PlayerType | undefined> {
-  try {
-    name = convert(name);
-
-    const url1Promise = Promise.resolve(besoccerLink); // Da der link bereit eingegeben
-    const url2Promise: Promise<string> = getLinkPlaymakerstats(name);
-
-    let [url1, url2] = await Promise.all([url1Promise, url2Promise]);
-    console.log("extract player details from urls")
-    const p1: Promise<PlayerType | undefined> = extractDataBesoccer(`${url1}`);
-    const p2: Promise<PlayerType | undefined> = extractDataPlaymakerstats(url2);
-    let [player1, player2] = await Promise.all([
-      p1,
-      url2.includes("undefined") ? Promise.resolve(undefined) : p2,
-    ]);
-
-    if (player1 && !player2) {
-      url2 = await getLinkPlaymakerstats(player1.title);
-      player2 = await extractDataPlaymakerstats(url2);
-    }
-
-    if (player1 && player2 && isEquals(player1, player2)) {
-      console.log("----- check result case 1 ----->");
-      return await checkAndUpdate(player1, player2);
-    }
-
-    if (player1 && player2 && !isEquals(player1, player2)) {
-      url2 = await getLinkPlaymakerstats(player1.title);
-      if (!url2.includes("undefined")) {
-        player2 = await extractDataPlaymakerstats(url2);
-        if (player2 && isEquals(player1, player2)) {
-          console.log("----- check result case 2 ----->");
-          return await checkAndUpdate(player1, player2);
-        }
-      }
-    }
-
-    if (url2.includes("undefined") && player1) {
-      url2 = await getLinkPlaymakerstats(convert(player1.name));
-      if (!url2.includes("undefined")) {
-        player2 = await extractDataPlaymakerstats(url2);
-        if (player2 && isEquals(player1, player2)) {
-          console.log("----- check result case 3 ----->");
-          return await checkAndUpdate(player1, player2);
-        }
-      }
-    }
-
-    if (
-      player1 &&
-      (url2.includes("undefined") || (player2 && !isEquals(player1, player2)))
-    ) {
-      url2 = await getLinkPlaymakerstats(convert(player1.fullName));
-      if (!url2.includes("undefined")) {
-        player2 = await extractDataPlaymakerstats(url2);
-        if (player2 && isEquals(player1, player2)) {
-          console.log("----- check result case 4 ----->");
-          return await checkAndUpdate(player1, player2);
-        }
-      }
-    }
-
-    if (
-      player1 &&
-      (url2.includes("undefined") || (player2 && !isEquals(player1, player2)))
-    ) {
-      url2 = await getLinkPlaymakerstats(
-        `${convert(player1.title)} ${player1.position} ${player1.country} ${
-          player1.age
-        }`,
-      );
-      player2 = await extractDataPlaymakerstats(url2);
-      if (player2 && isEquals(player1, player2)) {
-        console.log("----- check result case 5 ----->");
-        return await checkAndUpdate(player1, player2);
-      }
-    }
-
-    /* check if player not not enough Information */
-    if (
-      player1?.age === 0 &&
-      player1?.weight === 0 &&
-      player1?.height === 0 &&
-      !player1?.preferredFoot &&
-      !player1?.currentClub
-    ) {
-      throw new Error("player has no data");
-    }
-    if (player1) {
-      return player1;
-    }
-    if (player2 && !player1) return player2;
-  } catch (error) {
-    console.error(error.message);
-  }
-}
-
-// if the same players then complete the infos
-async function checkAndUpdate(
-  player1: PlayerType,
-  player2: PlayerType,
-): Promise<PlayerType> {
-  if (!player1.name) player1.name = player2.name;
-  if (!player1.title) player1.title = player2.title;
-
-  const num = player1.number;
-  const num2 = player2.number;
-  if (!num) player1.number = player2.number;
-  if (!num && !num2) player1.number = 0;
-
-  const weight = player1.weight;
-  if (!weight) player1.weight = player2.weight;
-
-  const height = player1.height;
-  if (!height) player1.height = player2.height;
-
-  const foot = player1.preferredFoot;
-  if (!foot) player1.preferredFoot = player2.preferredFoot;
-
-  if (!player1.currentClub) player1.currentClub = player2.currentClub;
-  if (player2.currentClub?.length > player1.currentClub?.length)
-    player1.currentClub = player2.currentClub;
-  if (player1.image?.includes("nofoto")) player1.image = player2.image;
-
-  if (player1.position.length < player2.position.length || !player1.position)
-    player1.position = player2.position;
-
-  if (!player1.born) player1.born = player2.born;
-  if (!player1.birthCountry) player1.birthCountry = player2.birthCountry;
-  if (player1.transfers?.length === 0) player1.transfers = player2.transfers;
-  if (player2.titles.length > player1.titles.length)
-    player1.titles = player2.titles;
-  if (player2.titles === player2.titles) {
-    const sumTitles = (titles: Title[]) =>
-      titles.reduce(
-        (total: number, title: Title): number => total + parseInt(title.number),
-        0,
-      );
-    const numberOfTitles1 = sumTitles(player1.titles);
-    const numberOfTitles2 = sumTitles(player2.titles);
-    if (numberOfTitles2 > numberOfTitles1) player1.titles = player2.titles;
-  }
-
-  if (!player1.otherNation) player1.otherNation = player2.otherNation;
-  if (!player1.website) player1.website = player2.website;
-  if (!player1.status) player1.status = player2.status;
-
-  // Only update awards if player2 has awards and either player1 has no awards or player2 has more awards
-  if (player2.awards && player2.awards.length > 0 && 
-      (!player1.awards || player1.awards.length === 0 || player2.awards.length > player1.awards.length)) {
-    player1.awards = player2.awards;
-  }
-
-  // Only update playerAttributes if player2 has attributes and either player1 has no attributes or player2 has more attributes
-  if (player2.playerAttributes && player2.playerAttributes.length > 0 && 
-      (!player1.playerAttributes || player1.playerAttributes.length === 0 || player2.playerAttributes.length > player1.playerAttributes.length)) {
-    player1.playerAttributes = player2.playerAttributes;
-  }
-
-  return player1;
-}
-
-export function isEquals(obj1: PlayerType, obj2: PlayerType) {
-  if (!obj1 || !obj2) return false;
-
-  const fullName1 = convert(obj1.fullName).toLowerCase();
-  const fullName2 = convert(obj2.fullName).toLowerCase();
-
-  const country1 = obj1.country?.toString().toLowerCase();
-  const country2 = obj2.country?.toString().toLowerCase();
-
-  const num1 = obj1.number;
-  const num2 = obj2.number;
-
-  const age1 = obj1.age;
-  const age2 = obj2.age;
-
-  const pos1 = obj1.position?.toLowerCase();
-  const pos2 = obj2.position?.toLowerCase();
-
-  let foot1 = obj1.preferredFoot?.toLowerCase();
-  const foot2 = obj2.preferredFoot?.toLowerCase();
-
-  const height1 = obj1.height;
-  const height2 = obj2.height;
-
-  if (
-    fullName1 === fullName2 &&
-    age1 === age2 &&
-    num1 === num2 &&
-    foot1 === foot2 &&
-    height1 === height2
-  ) {
-    return true;
-  }
-
-  if (
-    fullName1 === fullName2 &&
-    foot1 === foot2 &&
-    height1 === height2 &&
-    country1 === country2 &&
-    pos2.includes(pos1)
-  ) {
-    return true;
-  }
-
-  if (
-    country1 === country2 &&
-    age1 === age2 &&
-    num1 === num2 &&
-    foot1 === foot2 &&
-    height1 === height2
-  ) {
-    return true;
-  }
-
-  if (
-    age1 === age2 &&
-    country1 === country2 &&
-    (pos1.includes(pos2) ||
-      pos2.includes(pos1) ||
-      (foot1 === foot2 && height1 === height2))
-  ) {
-    return true;
-  }
-
-  return (
-    (convert(fullName1) === convert(fullName2) && age1 === age2) ||
-    (country1 === country2 &&
-      num1 === num2 &&
-      age1 === age2 &&
-      foot1 === foot2 &&
-      pos2.includes(pos1))
-  );
-}
-
-// to make name normal
-export function convert(name: string) {
-  return name
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s]/gi, "");
 }

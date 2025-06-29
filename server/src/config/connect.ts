@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
-import { initializePlayers } from "../controllers/playerController";
+import logger from "../logger/logger";
 
 export async function connectDB(MONGOURI: string) {
   try {
-    console.log("Connecting to MongoDB...")
-    await mongoose.connect(MONGOURI!);
-    console.log("✅ [server]: Connected successfully to MongoDB")
-    await initializePlayers();
+    logger.info("Connecting to MongoDB...")
+    const connect = await mongoose.connect(MONGOURI!);
+    logger.info("✅ [server]: Connected successfully to MongoDB")
+    return connect.connection.db
   } catch (error) {
-    console.error(`❌[error]:Failed to connect to MongoDB:${error}`);
+    logger.error(`❌[error]:Failed to connect to MongoDB:${error}`);
   }
 }

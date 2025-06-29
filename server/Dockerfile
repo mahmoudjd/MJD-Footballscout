@@ -1,4 +1,6 @@
-FROM node:24.2.0-slim
+FROM node:24-alpine
+
+RUN apk add --no-cache ca-certificates
 
 RUN mkdir -p /opt/app
 
