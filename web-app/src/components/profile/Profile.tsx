@@ -25,7 +25,7 @@ export function Profile({playerId}: Props) {
     const queryClient = useQueryClient();
     const toast = useToast()
     const {data: player, error, isError, isLoading} = useGetPlayer({playerId});
-
+    console.log(player)
     const {mutateAsync: updatePlayerMutation, isPending: isUpdating} = useUpdateMutation({
         onSuccess: async () => {
             await queryClient.refetchQueries({queryKey: ["player", {playerId}]});
@@ -36,6 +36,7 @@ export function Profile({playerId}: Props) {
         },
     });
     if (isError) {
+        console.log("---->", error)
         throw error;
     }
     useEffect(() => {
@@ -49,10 +50,9 @@ export function Profile({playerId}: Props) {
     }
 
     if (isLoading || isUpdating) return <Spinner/>;
-    if (error) return <p className="text-red-500">Failed to load player.</p>;
     if (!player) return notFound();
 
-    const lastUpdated = player ? new Date(player.timestamp).toLocaleString() : "-";
+    const lastUpdated = player ? new Date(player?.timestamp).toLocaleString() : "-";
 
     return (
         <div className="mx-auto px-4 py-6 space-y-6 bg-white min-h-screen">
