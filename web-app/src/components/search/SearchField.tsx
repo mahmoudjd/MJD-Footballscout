@@ -9,6 +9,8 @@ import {PlayerType} from "@/lib/types/type";
 import {Spinner} from "@/components/spinner";
 import {SearchResultsList} from "@/components/search/search-results-list";
 import {useQueryClient} from "@tanstack/react-query";
+import {useRouter} from "next/navigation";
+import {useSession} from "next-auth/react";
 
 export function SearchField() {
     const {data: players, error, isError} = useGetPlayers();
@@ -16,7 +18,9 @@ export function SearchField() {
     const [showServerResults, setShowServerResults] = useState(false);
     const queryClient = useQueryClient();
     const debouncedName = useDebounce(convert(name.trim()), 300);
-
+    const router = useRouter()
+    const { data: session } = useSession()
+    const loggedIn = !!session?.user?.email
     if (isError) {
         throw error;
     }
@@ -55,6 +59,10 @@ export function SearchField() {
     };
 
     const handleSearch = useCallback(() => {
+        if (!loggedIn) {
+            router.push("/login?callbackUrl=" + encodeURIComponent("/search"));
+            return;
+        }
         const query = convert(name.trim());
 
         if (query.length < 3) {
@@ -65,7 +73,7 @@ export function SearchField() {
         mutate(query, {
             onSuccess: () => queryClient.refetchQueries({queryKey: ["players"]}),
         });
-    }, [name, mutate]);
+    }, [name, mutate, loggedIn, router, queryClient]);
 
     const results: PlayerType[] = showServerResults
         ? serverResults ?? []
@@ -94,7 +102,7 @@ export function SearchField() {
                 <Spinner/>
             </div>)}
 
-            <SearchResultsList players={results}/>
+            <SearchResultsList players={results} />
         </div>
     );
 }

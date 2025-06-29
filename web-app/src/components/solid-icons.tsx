@@ -6,7 +6,9 @@ import {
     ChevronLeftIcon,
     ChevronRightIcon,
     TrophyIcon,
-    StarIcon
+    StarIcon,
+    CheckCircleIcon,
+    ExclamationTriangleIcon
 } from "@heroicons/react/24/solid";
 
 export const SolidIcons = {
@@ -18,4 +20,7 @@ export const SolidIcons = {
     AdjustmentsVerticalIcon: AdjustmentsVerticalIcon,
     TrophyIcon: TrophyIcon,
     StarIcon: StarIcon,
+    CheckCircleIcon: CheckCircleIcon,
+    ExclamationTriangleIcon: ExclamationTriangleIcon
+
 }
