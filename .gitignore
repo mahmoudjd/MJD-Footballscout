@@ -1,7 +1,5 @@
 node_modules/
 
-*.log
-
 server/dist/
 
 web-app/package-lock.json
@@ -13,6 +11,8 @@ mobile-app/package-lock.json
 .idea/
 
 .env
+
+logs/
 
 *.env
 
