@@ -28,7 +28,7 @@ const Header = () => {
                 className="px-6 sm:px-10 py-4 flex items-center justify-between"
             >
                 {/* Logo */}
-                <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3">
+                <Link href="/" prefetch={false} onClick={() => setOpen(false)} className="flex items-center gap-3">
                     <Image
                         src="/mjd-logo.png"
                         alt="Logo"
@@ -54,8 +54,28 @@ const Header = () => {
 
                 {/* Desktop Nav */}
                 <nav className="hidden sm:flex space-x-8 items-center font-medium text-lg">
-                    <NavLinks onClick={() => setOpen(false)} />
-                    {/* Hinzufügen von Login/Logout-Button */}
+                    <Link
+                        href="/"
+                        prefetch={false}
+                        className="hover:text-cyan-300 transition"
+                    >
+                        Home
+                    </Link>
+                    <Link
+                        href="/players"
+                        prefetch={false}
+                        className="hover:text-cyan-300 transition"
+                    >
+                        Players
+                    </Link>
+                    <Link
+                        href="/search"
+                        prefetch={false}
+                        className="hover:text-cyan-300 transition"
+                    >
+                        Search
+                    </Link>
+
                     {status === "authenticated" ? (
                         <button
                             onClick={() => signOut({ callbackUrl: "/" })}
@@ -80,31 +100,3 @@ const Header = () => {
 };
 
 export default Header;
-
-function NavLinks({ onClick }: { onClick: () => void }) {
-    return (
-        <>
-            <Link
-                href="/"
-                onClick={onClick}
-                className="hover:text-cyan-300 transition"
-            >
-                Home
-            </Link>
-            <Link
-                href="/players"
-                onClick={onClick}
-                className="hover:text-cyan-300 transition"
-            >
-                Players
-            </Link>
-            <Link
-                href="/search"
-                onClick={onClick}
-                className="hover:text-cyan-300 transition"
-            >
-                Search
-            </Link>
-        </>
-    );
-}

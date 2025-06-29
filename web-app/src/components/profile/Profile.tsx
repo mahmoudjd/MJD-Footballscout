@@ -25,7 +25,7 @@ export function Profile({playerId}: Props) {
     const queryClient = useQueryClient();
     const toast = useToast()
     const {data: player, error, isError, isLoading} = useGetPlayer({playerId});
-    console.log(player)
+
     const {mutateAsync: updatePlayerMutation, isPending: isUpdating} = useUpdateMutation({
         onSuccess: async () => {
             await queryClient.refetchQueries({queryKey: ["player", {playerId}]});
@@ -36,7 +36,6 @@ export function Profile({playerId}: Props) {
         },
     });
     if (isError) {
-        console.log("---->", error)
         throw error;
     }
     useEffect(() => {
@@ -119,4 +118,4 @@ export function Profile({playerId}: Props) {
             <ScrollToTopButton />
         </div>
     );
-};
+}

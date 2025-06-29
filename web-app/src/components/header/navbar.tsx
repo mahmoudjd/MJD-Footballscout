@@ -17,13 +17,13 @@ export function Navbar({ status, open, setOpen }: NavbarProps) {
         >
             {/* Navigation Links */}
             <ul className="flex flex-col mt-24 space-y-6 pl-8 text-lg font-semibold">
-                <Link href="/" onClick={() => setOpen(false)} className="hover:text-cyan-300 transition">
+                <Link href="/" prefetch={false} onClick={() => setOpen(false)} className="hover:text-cyan-300 transition">
                     Home
                 </Link>
-                <Link href="/players" onClick={() => setOpen(false)} className="hover:text-cyan-300 transition">
+                <Link href="/players" prefetch={false} onClick={() => setOpen(false)} className="hover:text-cyan-300 transition">
                     Players
                 </Link>
-                <Link href="/search" onClick={() => setOpen(false)} className="hover:text-cyan-300 transition">
+                <Link href="/search" prefetch={false} onClick={() => setOpen(false)} className="hover:text-cyan-300 transition">
                     Search
                 </Link>
             </ul>
