@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
-import { AppContext, UserRegisterInput, User } from "../models/player";
+import { AppContext } from "../models/context";
+import { User, UserRegisterInput } from "../models/user";
+import {UserGoogleLoginInput} from "../models/user";
 
 export async function createUser(context: AppContext, input: UserRegisterInput): Promise<User> {
     const existingUser = await context.users.findOne({ email: input.email });
@@ -21,6 +23,17 @@ export async function createUser(context: AppContext, input: UserRegisterInput):
     return { ...newUser, _id: result.insertedId };
 }
 
-export async function findUserByEmail(context: AppContext, email: string): Promise<User | null> {
+export async function createGoogleUser(context: AppContext, input: UserGoogleLoginInput) {
+    const newUser = {
+        email: input.email,
+        name: input.name,
+        authProvider: "google",
+        createdAt: new Date(),
+    }
+    const result = await context.users.insertOne(newUser as any);
+    return { ...newUser, _id: result.insertedId };
+}
+
+export async function findUserByEmail(context: AppContext, email: string) {
     return context.users.findOne({ email });
 }
