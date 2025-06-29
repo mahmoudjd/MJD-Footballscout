@@ -1,13 +1,15 @@
 "use client";
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {SolidIcons} from "@/components/solid-icons";
-import {Navbar} from "@/components/header/navbar";
+import { SolidIcons } from "@/components/solid-icons";
+import { Navbar } from "@/components/header/navbar";
+import { useSession, signOut, signIn } from "next-auth/react";
 
 const Header = () => {
     const [open, setOpen] = useState(false);
     const navRef = useRef<HTMLDivElement>(null);
+    const { data: session, status } = useSession(); // Zugriff auf den Sitzungsstatus
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -36,8 +38,8 @@ const Header = () => {
                         priority
                     />
                     <span className="font-extrabold text-xl tracking-wide select-none">
-            MJD
-          </span>
+                        MJD
+                    </span>
                 </Link>
 
                 {/* Mobile Menu Button */}
@@ -47,23 +49,39 @@ const Header = () => {
                     aria-label="Toggle navigation"
                     aria-expanded={open}
                 >
-                    <SolidIcons.Bars4Icon className="h-7 w-7 text-white"/>
+                    <SolidIcons.Bars4Icon className="h-7 w-7 text-white" />
                 </button>
 
                 {/* Desktop Nav */}
                 <nav className="hidden sm:flex space-x-8 items-center font-medium text-lg">
-                    <NavLinks onClick={() => setOpen(false)}/>
+                    <NavLinks onClick={() => setOpen(false)} />
+                    {/* Hinzufügen von Login/Logout-Button */}
+                    {status === "authenticated" ? (
+                        <button
+                            onClick={() => signOut({ callbackUrl: "/" })}
+                            className="text-white hover:text-red-300 transition cursor-pointer"
+                        >
+                            Logout
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => signIn()}
+                            className="hover:text-cyan-300 transition"
+                        >
+                            Login
+                        </button>
+                    )}
                 </nav>
             </div>
 
-            <Navbar open={open} setOpen={setOpen}/>
+            <Navbar status={status} open={open} setOpen={setOpen} />
         </header>
     );
 };
 
 export default Header;
 
-function NavLinks({onClick}: { onClick: () => void }) {
+function NavLinks({ onClick }: { onClick: () => void }) {
     return (
         <>
             <Link
@@ -90,4 +108,3 @@ function NavLinks({onClick}: { onClick: () => void }) {
         </>
     );
 }
-

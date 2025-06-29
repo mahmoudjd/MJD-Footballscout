@@ -8,13 +8,7 @@ export function SearchResultsList({ players }: { players: PlayerType[] }) {
     return (
         <div className="mt-6 flex flex-col divide-y divide-gray-200">
             {players.map((player) => (
-                <Link
-                    key={player._id}
-                    href={`/players/${player._id}`}
-                    className="transition"
-                >
-                    <Player player={player} />
-                </Link>
+                    <Player player={player} key={player.fullName} />
             ))}
         </div>
     );

@@ -3,6 +3,7 @@ import React, {memo, useCallback, useMemo} from "react";
 import {PlayerType} from "@/lib/types/type";
 import {useRouter} from "next/navigation";
 import {OutlineIcons} from "@/components/outline-icons";
+import {useSession} from "next-auth/react";
 
 // Move helper types and constants outside component for better performance
 type KnownPosition = "Forward" | "Midfielder" | "Defender" | "Goalkeeper" | "Manager";
@@ -48,9 +49,16 @@ interface RowItemProps {
 }
 
 const RowItem = memo(({player, handleDelete}: RowItemProps) => {
+    const {data: session} = useSession()
+    const isLoggedIn = !!session?.user?.email;
     const router = useRouter();
 
     const navigateToProfile = useCallback(() => {
+        if (!isLoggedIn) {
+            const loginUrl = `/login?callbackUrl=${encodeURIComponent(`/players/${player._id}`)}`;
+            router.push(loginUrl)
+            return;
+        }
         router.push(`/players/${player._id}`);
     }, [router, player._id]);
 
@@ -94,6 +102,7 @@ const RowItem = memo(({player, handleDelete}: RowItemProps) => {
             <td className="px-2 text-center">
                 <button
                     onClick={onDelete}
+                    disabled={!session?.user?.email}
                     title="Delete player"
                     className="hover:scale-110 transition-transform cursor-pointer p-2"
                     aria-label={`Delete ${player.name}`}
