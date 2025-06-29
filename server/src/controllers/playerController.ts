@@ -57,12 +57,18 @@ export async function createPlayer(context: AppContext, player: any) {
 export async function deletePlayerById(context: AppContext, id: string) {
     try {
         logger.info(`Deleting player by ID: ${id}`);
-        const deletedPlayer = await context.players.findOneAndDelete({_id: new ObjectId(id)});
-        if (!deletedPlayer) {
+        const playerId = new ObjectId(id);
+        const player = await context.players.findOne({_id: new ObjectId(playerId)});
+        if (!player) {
             logger.warn(`Player not found with ID: ${id}`);
             return null;
         }
-        return deletedPlayer?.value;
+        const deletedPlayer = await context.players.deleteOne({_id: new ObjectId(id)});
+        if (!deletedPlayer.acknowledged) {
+            logger.warn(`Failed to delete player with ID (${id})`);
+            return null;
+        }
+        return deletedPlayer;
     } catch (error: any) {
         logger.error(`Failed to delete player by ID ${id}: ${error.stack || error.message}`);
         throw new Error("Failed to delete player by ID");

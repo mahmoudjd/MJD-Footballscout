@@ -6,7 +6,7 @@ import {
     searchPlayers, updateAllPlayers,
     updatePlayerFromWebSites
 } from "../controllers/playerController";
-import {AppContext} from "../models/player";
+import {AppContext} from "../models/context";
 import logger from "../logger/logger";
 import {authMiddleware} from "../middleware/auth-middleware";
 
@@ -79,7 +79,7 @@ const createPlayersRouter = (context: AppContext) => {
         try {
             const player = await deletePlayerById(context, playerId);
             if (!player) return res.status(404).json("not found player");
-            res.status(204).end();
+            res.status(204).json({message: "Successfully deleted player"});
         } catch (error) {
             logger.error("Failed to delete player: ", error);
             res.status(500).json({error: "Internal server error"});
