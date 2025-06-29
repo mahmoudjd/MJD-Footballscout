@@ -58,8 +58,8 @@ export async function deletePlayerById(context: AppContext, id: string) {
     try {
         logger.info(`Deleting player by ID: ${id}`);
         const deletedPlayer = await context.players.findOneAndDelete({_id: new ObjectId(id)});
-        if (!deletedPlayer?.value) {
-            logger.warn(`No player found to delete with ID: ${id}`);
+        if (!deletedPlayer) {
+            logger.warn(`Player not found with ID: ${id}`);
             return null;
         }
         return deletedPlayer?.value;
