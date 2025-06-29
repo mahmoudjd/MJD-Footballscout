@@ -7,7 +7,7 @@ interface Props {
 }
 
 function parseAmount(amount: string): { display: string; fullValue?: string; icon: JSX.Element } {
-    const cleaned = amount?.trim();
+    const cleaned = amount?.toString()?.trim();
 
     if (!cleaned) {
         return {
