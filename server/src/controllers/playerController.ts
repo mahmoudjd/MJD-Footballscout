@@ -93,7 +93,7 @@ export async function updatePlayerFromWebSites(context: AppContext, playerId: st
                 (convert(oldPlayer?.fullName) === convert(p?.fullName) &&
                     oldPlayer.born === p?.born) ||
                 (oldPlayer.country === p?.country &&
-                    oldPlayer.name === p?.name &&
+                    convert(oldPlayer.name) === convert(p?.name) &&
                     oldPlayer.number === p?.number)
         );
 
