@@ -13,24 +13,33 @@ import { ScraperError } from "../middleware/customErrors";
 import logger from "../logger/logger";
 
 type PlayerTypeSchema = z.infer<typeof PlayerTypeSchemaWithoutID>;
-const cheerioConfig = { decodeEntities: false, xmlMode: false };
+
+const cheerioConfig = {
+    decodeEntities: false,
+    xmlMode: true,
+    _useHtmlParser2: true,
+    _useHtmlParser: false,
+};
 
 const fetchHTML = async (url: string, extraHeaders = {}): Promise<string> => {
+
     const headers = {
-        "User-Agent": "Mozilla/5.0",
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
         ...extraHeaders,
     };
 
     try {
-        logger.info(`Fetching HTML from URL: ${url}`);
+        logger.info(`Lade HTML von URL: ${url}`);
+        // Sende die GET-Anfrage mit den angegebenen Headern
         const response = await axios.get(url, { headers });
-        return response.data;
+        return response.data; // Gibt den HTML-Inhalt der Seite zurück
     } catch (err: any) {
-        logger.error(`Failed to fetch HTML from URL: ${url}, Error: ${err.message}`);
-        throw new ScraperError(err.message, "fetchHTML");
+        // Fehlerbehandlung, falls die Anfrage fehlschlägt
+        logger.error(`Fehler beim Abrufen von HTML von URL: ${url}, Fehler: ${err.message}`);
+        throw new ScraperError(err.message, 'fetchHTML');
     }
 };
 
