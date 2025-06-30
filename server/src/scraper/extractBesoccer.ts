@@ -25,7 +25,7 @@ const fetchHTML = async (url: string, extraHeaders = {}): Promise<string> => {
 
     const headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': '*/*',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
         ...extraHeaders,
@@ -33,11 +33,9 @@ const fetchHTML = async (url: string, extraHeaders = {}): Promise<string> => {
 
     try {
         logger.info(`Lade HTML von URL: ${url}`);
-        // Sende die GET-Anfrage mit den angegebenen Headern
         const response = await axios.get(url, { headers });
-        return response.data; // Gibt den HTML-Inhalt der Seite zurück
+        return response.data;
     } catch (err: any) {
-        // Fehlerbehandlung, falls die Anfrage fehlschlägt
         logger.error(`Fehler beim Abrufen von HTML von URL: ${url}, Fehler: ${err.message}`);
         throw new ScraperError(err.message, 'fetchHTML');
     }
