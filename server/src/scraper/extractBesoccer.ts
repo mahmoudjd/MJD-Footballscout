@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
 import { z } from "zod";
-import axios from "axios";
+import puppeteer from 'puppeteer';
 import {
     PlayerTypeSchemaWithoutID,
     Attribute,
@@ -21,23 +21,26 @@ const cheerioConfig = {
     _useHtmlParser: false,
 };
 
-const fetchHTML = async (url: string, extraHeaders = {}): Promise<string> => {
-    const headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
-        ...extraHeaders,
-    };
 
-    try {
-        logger.info(`Lade HTML von URL: ${url}`);
-        const response = await axios.get(url, { headers });
-        return response.data;
-    } catch (err: any) {
-        logger.error(`Fehler beim Abrufen von HTML von URL: ${url}, Fehler: ${err.message}`);
-        throw new ScraperError(err.message, 'fetchHTML');
-    }
+const fetchHTML = async (url: string): Promise<string> => {
+    const browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox'], // für Docker nötig
+    });
+    const page = await browser.newPage();
+
+    // Setze User-Agent
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+
+    // Setze weitere Headers falls nötig
+    await page.setExtraHTTPHeaders({
+        'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Referer': 'https://www.besoccer.com/',
+    });
+
+    await page.goto(url, { waitUntil: 'networkidle2' });
+    const html = await page.content();
+    await browser.close();
+    return html;
 };
 
 const extractPlayerLinks = ($: cheerio.CheerioAPI): string[] =>
