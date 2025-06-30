@@ -1,6 +1,5 @@
 import * as cheerio from "cheerio";
 import { z } from "zod";
-import puppeteer from 'puppeteer';
 import {
     PlayerTypeSchemaWithoutID,
     Attribute,
@@ -22,26 +21,29 @@ const cheerioConfig = {
 };
 
 
-const fetchHTML = async (url: string): Promise<string> => {
-    const browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'], // für Docker nötig
-    });
-    const page = await browser.newPage();
+import axios from "axios";
 
-    // Setze User-Agent
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-
-    // Setze weitere Headers falls nötig
-    await page.setExtraHTTPHeaders({
+async function fetchHTML(url: string) {
+    const headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Referer': 'https://www.besoccer.com/',
-    });
+        'Referer': 'https://www.google.com/',
+        'Connection': 'keep-alive',
+        'Cache-Control': 'no-cache',
+        'Upgrade-Insecure-Requests': '1',
+    };
 
-    await page.goto(url, { waitUntil: 'networkidle2' });
-    const html = await page.content();
-    await browser.close();
-    return html;
-};
+    try {
+        const response = await axios.get(url, { headers});
+        return response.data;
+    } catch (error: any) {
+        console.error('Fetch Error:', error.message);
+        throw error;
+    }
+}
+
 
 const extractPlayerLinks = ($: cheerio.CheerioAPI): string[] =>
     $(".player-result > .info > .pr0 > a.block")
