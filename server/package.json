@@ -24,6 +24,7 @@
     "iconv-lite": "^0.6.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.3",
+    "puppeteer": "^24.11.1",
     "tsx": "^4.19.4",
     "winston": "^3.17.0",
     "zod": "^3.25.67"
@@ -34,8 +35,8 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
-    "@types/mongoose" : "^5.11.97",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.97",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.3"
   },
