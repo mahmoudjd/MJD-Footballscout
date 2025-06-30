@@ -34,7 +34,7 @@ export const getLinkPlaymakerstats = async (name: string): Promise<string> => {
             .attr("href");
 
         if (!href) {
-            logger.warn(`Kein Spieler-Link gefunden für '${name}'`);
+            logger.warn(`Not found links '${name}'`);
             return "";
         }
 
@@ -44,6 +44,43 @@ export const getLinkPlaymakerstats = async (name: string): Promise<string> => {
         return "";
     }
 };
+
+export async function extractPlayersFromPlayMakerStats(name: string): Promise<PlayerTypeSchema[]> {
+    try {
+        const response = await axios.get(
+            `https://www.playmakerstats.com/pesquisa?search_txt=${encodeURIComponent(name)}`,
+            { responseType: "arraybuffer" }
+        );
+
+        const html = iconv.decode(response.data, "windows-1252");
+        const $ = cheerio.load(html, cheerioConfig);
+
+        const playerLinks: string[] = [];
+
+        $(".zz-search-main > .zz-search-results > .player > div")
+            .slice(0, 3)
+            .each((_, el) => {
+                const href = $(el).find('a[href^="/player/"]').attr("href");
+                if (href) {
+                    playerLinks.push(`https://www.playmakerstats.com${href}`);
+                }
+            });
+
+        const players: PlayerTypeSchema[] = [];
+        for (const url of playerLinks) {
+            const player = await extractDataPlaymakerstats(url);
+            if (player) {
+                players.push(player);
+            }
+        }
+
+        return players;
+    } catch (error: any) {
+        logger.error(`Fehler beim Extrahieren von Spielern für '${name}': ${error.stack || error.message}`);
+        return [];
+    }
+}
+
 
 export const extractDataPlaymakerstats = async (url: string): Promise<PlayerTypeSchema | undefined> => {
     try {
