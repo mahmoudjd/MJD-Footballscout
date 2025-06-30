@@ -24,10 +24,9 @@ const cheerioConfig = {
 const fetchHTML = async (url: string, extraHeaders = {}): Promise<string> => {
     const headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        // Simplify Accept header to reduce 406 errors
-        'Accept': 'text/html',
-        // Optional: try different language or omit it if server is picky
-        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
         ...extraHeaders,
     };
 
