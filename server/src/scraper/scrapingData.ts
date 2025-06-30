@@ -7,6 +7,7 @@ import {
 import {
     extractDataPlaymakerstats,
     getLinkPlaymakerstats,
+    extractPlayersFromPlayMakerStats
 } from "./extractPlaymaker";
 import type {PlayerTypeSchemaWithoutID, Title} from "../models/player";
 import {z} from "zod";
@@ -32,8 +33,9 @@ export async function extractPlayerData(name: string, one = false): Promise<Play
 
         if (urlsBesoccer.length === 0) {
             logger.warn("No links found on Besoccer. Attempting alternative extraction.");
-            const player = await extractWithName(convertedName);
-            return player ? [player] : [];
+
+            const players = await extractPlayersFromPlayMakerStats(convertedName)
+            return players ? players : [];
         }
 
         const urlsToAnalyse = urlsBesoccer.slice(0, 3);
