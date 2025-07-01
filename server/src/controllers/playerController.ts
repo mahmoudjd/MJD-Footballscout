@@ -42,6 +42,7 @@ export async function createPlayer(context: AppContext, player: any) {
             return existing;
         }
 
+        // @ts-ignore
         const result = await context.players.insertOne(safeData.data);
         const inserted = await context.players.findOne({_id: result.insertedId});
 
@@ -85,18 +86,29 @@ export async function updatePlayerFromWebSites(context: AppContext, playerId: st
             logger.warn(`Player not found with ID: ${playerId}`);
             throw new Error("Player not found");
         }
-        logger.info(`Converted Boren date ${normalizeDate(oldPlayer.born)}`)
+        logger.info(`Converted Born date ${normalizeDate(oldPlayer.born)}`)
         logger.info(`Updating player: ${oldPlayer.fullName}`);
         let foundPlayers = await extractPlayerData(convert(oldPlayer?.title));
         logger.info(`Found players: ${foundPlayers.length}`);
         let filteredPlayer = foundPlayers.filter(
-            (p) =>
-                (convert(oldPlayer?.fullName) === convert(p?.fullName) &&
+            (p) => {
+
+                logger.info(`Old player: ${convert(oldPlayer?.fullName)}`);
+                logger.info(`Found player: ${convert(p?.fullName)}`);
+                logger.info(`Old player name: ${convert(oldPlayer?.name)}`);
+                logger.info(`Found player name: ${convert(p?.name)}`)
+                logger.info(`Old player born: ${normalizeDate(oldPlayer.born)}`);
+                logger.info(`Found player born: ${normalizeDate(p?.born)}`);
+                logger.info(`Old player country: ${oldPlayer.country}`);
+                logger.info(`Found player country: ${p?.country}`);
+                return (convert(oldPlayer?.fullName) === convert(p?.fullName) &&
                     normalizeDate(oldPlayer.born) === normalizeDate(p?.born)) ||
                 (oldPlayer.country === p?.country &&
                     convert(oldPlayer.name) === convert(p?.name) &&
                     oldPlayer.number === p?.number)
+            }
         );
+
 
         if (filteredPlayer.length === 0) {
             foundPlayers = await extractPlayerData(convert(oldPlayer.fullName));
