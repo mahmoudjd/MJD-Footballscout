@@ -124,12 +124,9 @@ export const extractDataPlaymakerstats = async (url: string): Promise<PlayerType
         const caps = extractBioHalfValue($, "Caps");
         const status = extractBioValue($, "Status");
 
-        const bornData = extractBioHalfValue($, "Born/Age");
-        const bornDateMatch = bornData.match(/\d{4}-\d{2}-\d{2}/);
-        const born = bornDateMatch ? bornDateMatch[0] : "";
-        const birthCountry = bornData.includes("Country of Birth")
-            ? bornData.split("Country of Birth")[1].trim()
-            : "";
+        const { bornDate, age: age2 } = extractBornInfo($);
+        const birthCountry = extractBirthCountry($);
+        logger.info(`Born in playmaker ${bornDate} in ${birthCountry}`)
 
         const country = $('.bio_half span:contains("Nationality")')
             .nextAll('.micrologo_and_text')
@@ -175,8 +172,8 @@ export const extractDataPlaymakerstats = async (url: string): Promise<PlayerType
         const objPlayer = {
             title: name,
             name,
-            age,
-            born,
+            age: age ?? age2,
+            born: bornDate,
             number,
             fullName,
             currentClub,
@@ -224,12 +221,28 @@ export const extractBioValue = ($: CheerioAPI, label: string): string =>
         .trim();
 
 export const extractBioHalfValue = ($: CheerioAPI, label: string): string =>
-    $(`.bio_half span:contains(${label})`)
+    $(".bio_half")
         .filter((_, el) => $(el).find("span").text().trim() === label)
         .text()
         .replace(label, "")
         .trim();
 
+const extractBornInfo = ($: cheerio.CheerioAPI) => {
+    const bornSpan = $('span').filter((_, el) => $(el).text().trim() === 'Born/Age').first();
+    const bornTextNode = bornSpan[0].nextSibling;
+    const bornDate = bornTextNode?.nodeType === 3 ? (bornTextNode.nodeValue || '').trim() : '';
+
+    const ageText = bornSpan.siblings('span.small').text();
+    const ageMatch = ageText.match(/\((\d+)\s?-yrs-old\)/);
+    const age = ageMatch ? ageMatch[1] : '';
+
+    return { bornDate, age };
+};
+const extractBirthCountry = ($: cheerio.CheerioAPI): string => {
+    const countrySpan = $('span').filter((_, el) => $(el).text().trim() === 'Country of Birth').first();
+    const countryText = countrySpan.nextAll('.micrologo_and_text').find('.text').text().trim();
+    return countryText;
+};
 export const getPosition = (position: string): string => {
     if (!position) return "";
     const lower = position.toLowerCase();
