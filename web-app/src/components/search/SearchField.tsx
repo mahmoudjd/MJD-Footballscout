@@ -1,26 +1,28 @@
 "use client";
 
-import {useState, useCallback, useMemo} from "react";
-import {convert} from "@/lib/convert";
-import {useGetPlayers} from "@/lib/hooks/queries/use-get-players";
-import {useSearchPlayers} from "@/lib/hooks/mutations/use-search-players";
-import {useDebounce} from "@/lib/hooks/use-debounce";
-import {PlayerType} from "@/lib/types/type";
-import {Spinner} from "@/components/spinner";
-import {SearchResultsList} from "@/components/search/search-results-list";
-import {useQueryClient} from "@tanstack/react-query";
-import {useRouter} from "next/navigation";
-import {useSession} from "next-auth/react";
+import { useState, useCallback, useMemo } from "react";
+import { convert } from "@/lib/convert";
+import { useGetPlayers } from "@/lib/hooks/queries/use-get-players";
+import { useSearchPlayers } from "@/lib/hooks/mutations/use-search-players";
+import { useDebounce } from "@/lib/hooks/use-debounce";
+import { PlayerType } from "@/lib/types/type";
+import { Spinner } from "@/components/spinner";
+import { SearchResultsList } from "@/components/search/search-results-list";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export function SearchField() {
-    const {data: players, error, isError} = useGetPlayers();
+    const { data: players, error, isError } = useGetPlayers();
     const [name, setName] = useState("");
     const [showServerResults, setShowServerResults] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
     const queryClient = useQueryClient();
     const debouncedName = useDebounce(convert(name.trim()), 300);
-    const router = useRouter()
-    const { data: session } = useSession()
-    const loggedIn = !!session?.user?.email
+    const router = useRouter();
+    const { data: session } = useSession();
+    const loggedIn = !!session?.user?.email;
+
     if (isError) {
         throw error;
     }
@@ -41,15 +43,17 @@ export function SearchField() {
         data: serverResults,
         isPending,
         error: searchingError,
-        isError: isSearchingError
+        isError: isSearchingError,
     } = useSearchPlayers();
 
     if (isSearchingError) {
         throw searchingError;
     }
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
         setShowServerResults(false);
+        setHasSearched(false);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -69,9 +73,11 @@ export function SearchField() {
             alert("Please enter at least 3 characters.");
             return;
         }
+
+        setHasSearched(true);
         setShowServerResults(true);
         mutate(query, {
-            onSuccess: () => queryClient.refetchQueries({queryKey: ["players"]}),
+            onSuccess: () => queryClient.refetchQueries({ queryKey: ["players"] }),
         });
     }, [name, mutate, loggedIn, router, queryClient]);
 
@@ -98,11 +104,19 @@ export function SearchField() {
                 </button>
             </div>
 
-            {isPending && (<div className="flex w-full justify-center items-center">
-                <Spinner/>
-            </div>)}
+            {isPending && (
+                <div className="flex w-full justify-center items-center">
+                    <Spinner />
+                </div>
+            )}
 
-            <SearchResultsList players={results} />
+            {hasSearched && results.length === 0 && !isPending ? (
+                <div className="w-full flex justify-center items-center text-center p-4 text-gray-600">
+                    No matching players found. Please check the spelling and try again.
+                </div>
+            ) : (
+                <SearchResultsList players={results} />
+            )}
         </div>
     );
 }

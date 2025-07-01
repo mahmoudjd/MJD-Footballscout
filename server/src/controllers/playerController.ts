@@ -181,7 +181,7 @@ export async function searchPlayers(context: AppContext, name: string) {
         const players = await extractPlayerData(name);
         if (players.length === 0) {
             logger.warn(`No players found for search: ${name}`);
-            throw new Error("No players found");
+            return []
         }
 
         const savedPlayers = [];
@@ -199,7 +199,7 @@ export async function searchPlayers(context: AppContext, name: string) {
                 savedPlayers.push({
                     ...safeData.data,
                 });
-                logger.info(`Inserted new player: ${p.fullName}`);
+                logger.info(`Inserted new player in search results: ${safeData.data.fullName}`);
             } else {
                 const result = await updatePlayerFromWebSites(context, existingPlayer?._id?.toString()!);
                 savedPlayers.push(result);
