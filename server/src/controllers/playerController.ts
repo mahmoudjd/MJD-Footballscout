@@ -2,7 +2,7 @@ import {PlayerTypeSchemaWithoutID} from "../models/player";
 import {AppContext} from "../models/context";
 import {ObjectId} from "mongodb";
 import {extractPlayerData} from "../scraper/scrapingData";
-import {convert, normalizeName} from "../scraper/utils";
+import {convert, normalizeDate, normalizeName} from "../scraper/utils";
 import logger from "../logger/logger";
 
 export async function getPlayerById(context: AppContext, id: string) {
@@ -85,13 +85,14 @@ export async function updatePlayerFromWebSites(context: AppContext, playerId: st
             logger.warn(`Player not found with ID: ${playerId}`);
             throw new Error("Player not found");
         }
+        logger.info(`Converted Boren date ${normalizeDate(oldPlayer.born)}`)
         logger.info(`Updating player: ${oldPlayer.fullName}`);
         let foundPlayers = await extractPlayerData(convert(oldPlayer?.title));
         logger.info(`Found players: ${foundPlayers.length}`);
         let filteredPlayer = foundPlayers.filter(
             (p) =>
                 (convert(oldPlayer?.fullName) === convert(p?.fullName) &&
-                    oldPlayer.born === p?.born) ||
+                    normalizeDate(oldPlayer.born) === normalizeDate(p?.born)) ||
                 (oldPlayer.country === p?.country &&
                     convert(oldPlayer.name) === convert(p?.name) &&
                     oldPlayer.number === p?.number)
