@@ -35,3 +35,33 @@ export const toInt = (str: string): number =>
  */
 export const cleanText = (str: string = ""): string =>
     str.replace(/[\r\n\t]/g, " ").replace(/\s+/g, " ").trim();
+
+
+export function normalizeDate(input: string): string | null {
+    const monthMap: { [key: string]: string } = {
+        jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
+        jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12"
+    };
+
+    // Normalize input
+    input = input.toLowerCase().trim();
+
+    // Try ISO format directly
+    const isoMatch = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (isoMatch) return isoMatch[0];
+
+    // Match formats like "Born on 19 December 1987" or "19 Dec 1987"
+    const dateRegex = /(\d{1,2})[\s\-](\w{3,9})[\s\-](\d{4})/;
+    const match = input.match(dateRegex);
+
+    if (match) {
+        let [, day, monthStr, year] = match;
+        const month = monthMap[monthStr.slice(0, 3).toLowerCase()];
+        if (!month) return null;
+
+        if (day.length === 1) day = "0" + day;
+        return `${year}-${month}-${day}`;
+    }
+
+    return null;
+}
