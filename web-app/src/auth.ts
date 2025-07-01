@@ -97,7 +97,6 @@ const authOptions: NextAuthOptions = {
             // @ts-ignore
             if (Date.now() > (token.expiresAt || 0) - fiveMinutesInMs) {
                 try {
-                    console.log("Token läuft bald ab, wird aktualisiert...");
                     const refreshedTokens = await refreshAccessToken(String(token.refreshToken));
 
                     token.accessToken = refreshedTokens?.accessToken;
