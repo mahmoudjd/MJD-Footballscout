@@ -10,7 +10,7 @@ import {toInt} from "./utils";
 type PlayerTypeSchema = z.infer<typeof PlayerTypeSchemaWithoutID>;
 
 const cheerioConfig = {
-    decodeEntities: false,
+    decodeEntities: true,
     xmlMode: true,
     _useHtmlParser2: true,
     _useHtmlParser: false,
@@ -52,7 +52,8 @@ export async function extractPlayersFromPlayMakerStats(name: string): Promise<Pl
             { responseType: "arraybuffer" }
         );
 
-        const html = iconv.decode(response.data, "windows-1252");
+        // const html = iconv.decode(response.data, "windows-1252");
+        const html = iconv.decode(response.data, "utf-8");
         const $ = cheerio.load(html, cheerioConfig);
 
         const playerLinks: string[] = [];
