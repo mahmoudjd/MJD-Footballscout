@@ -2,7 +2,7 @@ import {PlayerTypeSchemaWithoutID} from "../models/player";
 import {AppContext} from "../models/context";
 import {ObjectId} from "mongodb";
 import {extractPlayerData} from "../scraper/scrapingData";
-import {convert, normalizeDate, normalizeName} from "../scraper/utils";
+import {convert, isPlayerMatch, normalizeDate, normalizeName} from "../scraper/utils";
 import logger from "../logger/logger";
 
 export async function getPlayerById(context: AppContext, id: string) {
@@ -101,11 +101,7 @@ export async function updatePlayerFromWebSites(context: AppContext, playerId: st
                 logger.info(`Found player born: ${normalizeDate(p?.born)}`);
                 logger.info(`Old player country: ${oldPlayer.country}`);
                 logger.info(`Found player country: ${p?.country}`);
-                return (convert(oldPlayer?.fullName) === convert(p?.fullName) &&
-                    normalizeDate(oldPlayer.born) === normalizeDate(p?.born)) ||
-                (oldPlayer.country === p?.country &&
-                    (convert(oldPlayer.name) === convert(p?.name)|| convert(oldPlayer.title) === convert(p.title)) &&
-                    oldPlayer.number === p?.number)
+                return isPlayerMatch(oldPlayer, p)
             }
         );
 

@@ -1,4 +1,5 @@
 import type * as cheerio from "cheerio";
+import {PlayerType, PlayerTypeSchemaWithoutID} from "../models/player";
 
 
 /**
@@ -64,4 +65,52 @@ export function normalizeDate(input: string): string | null {
     }
 
     return null;
+}
+
+type PlayerTypeWithoutID = Omit<PlayerType, "_id">;
+
+export function isPlayerMatch(oldPlayer: PlayerType, p: PlayerTypeWithoutID ): boolean {
+    if (!oldPlayer.name || !p.name) return false;
+
+    const oldFullNameNormalized = normalizeName(oldPlayer.fullName ?? oldPlayer.name);
+    const pFullNameNormalized = normalizeName(p.fullName ?? p.name);
+
+    const bornOld = normalizeDate(oldPlayer.born);
+    const bornNew = normalizeDate(p.born);
+
+    // Split Namen
+    const { firstName: oldFirst, lastName: oldLast } = splitName(oldPlayer.name);
+    const { firstName: pFirst, lastName: pLast } = splitName(p.name);
+
+    // Check, ob Vorname gleich oder Teilstring (mit startsWith für bessere Genauigkeit)
+    const checkName =
+        (oldFirst === pFirst && oldLast === pLast) ||
+        (pFirst.startsWith(oldFirst) && oldLast === pLast);
+
+    // 1) Vollständiger Name + Geburtsdatum match
+    if (oldFullNameNormalized === pFullNameNormalized && bornOld === bornNew) {
+        return true;
+    }
+
+    // 2) Fallback: Land, Name/Titel, Nummer vergleichen
+    const countryMatch = oldPlayer.country && p.country && oldPlayer.country === p.country;
+    const nameOrTitleMatch =
+        normalizeName(oldPlayer.name) === normalizeName(p.name) ||
+        normalizeName(oldPlayer.title) === normalizeName(p.title) ||
+        checkName;
+    const numberMatch = oldPlayer.number !== undefined && p.number !== undefined && oldPlayer.number === p.number;
+
+    if (countryMatch && nameOrTitleMatch && numberMatch) {
+        return true;
+    }
+
+    return false;
+}
+
+function splitName(fullName: string): { firstName: string; lastName: string } {
+    const parts = fullName.trim().split(/\s+/);
+    return {
+        firstName: parts[0].toLowerCase(),
+        lastName: parts.length > 1 ? parts[parts.length - 1].toLowerCase() : "",
+    };
 }
