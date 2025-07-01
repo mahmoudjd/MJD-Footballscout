@@ -224,7 +224,7 @@ export const extractBioValue = ($: CheerioAPI, label: string): string =>
         .trim();
 
 export const extractBioHalfValue = ($: CheerioAPI, label: string): string =>
-    $(".bio_half")
+    $(`.bio_half span:contains(${label})`)
         .filter((_, el) => $(el).find("span").text().trim() === label)
         .text()
         .replace(label, "")
