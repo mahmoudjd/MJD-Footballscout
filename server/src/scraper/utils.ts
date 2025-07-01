@@ -85,7 +85,7 @@ export function isPlayerMatch(oldPlayer: PlayerType, p: PlayerTypeWithoutID ): b
     // Check, ob Vorname gleich oder Teilstring (mit startsWith für bessere Genauigkeit)
     const checkName =
         (oldFirst === pFirst && oldLast === pLast) ||
-        (pFirst.startsWith(oldFirst) && oldLast === pLast);
+        (oldFirst.startsWith(pFirst) && oldLast === pLast);
 
     // 1) Vollständiger Name + Geburtsdatum match
     if (oldFullNameNormalized === pFullNameNormalized && bornOld === bornNew) {
@@ -100,11 +100,9 @@ export function isPlayerMatch(oldPlayer: PlayerType, p: PlayerTypeWithoutID ): b
         checkName;
     const numberMatch = oldPlayer.number !== undefined && p.number !== undefined && oldPlayer.number === p.number;
 
-    if (countryMatch && nameOrTitleMatch && numberMatch) {
-        return true;
-    }
+    return !!(countryMatch && nameOrTitleMatch && bornOld === bornNew);
 
-    return false;
+
 }
 
 function splitName(fullName: string): { firstName: string; lastName: string } {
