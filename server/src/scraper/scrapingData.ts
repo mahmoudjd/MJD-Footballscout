@@ -165,7 +165,10 @@ async function checkAndUpdate(player1: PlayerTypeSchema, player2: PlayerTypeSche
     if (!player1.born) player1.born = player2.born;
     if (!player1.birthCountry) player1.birthCountry = player2.birthCountry;
     if (player1.transfers.length === 0) player1.transfers = player2.transfers;
-
+    if (player2.value && player2.currency) {
+        player1.value = player2.value;
+        player1.currency = player2.currency;
+    }
     if (player2.titles.length > player1.titles.length) {
         player1.titles = player2.titles;
     } else if (player2.titles === player2.titles) {

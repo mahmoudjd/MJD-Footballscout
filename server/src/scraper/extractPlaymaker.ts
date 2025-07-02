@@ -49,7 +49,7 @@ export async function extractPlayersFromPlayMakerStats(name: string): Promise<Pl
     try {
         const response = await axios.get(
             `https://www.playmakerstats.com/pesquisa?search_txt=${encodeURIComponent(name)}`,
-            { responseType: "arraybuffer" }
+            {responseType: "arraybuffer"}
         );
 
         // const html = iconv.decode(response.data, "windows-1252");
@@ -125,7 +125,7 @@ export const extractDataPlaymakerstats = async (url: string): Promise<PlayerType
         const caps = extractBioHalfValue($, "Caps");
         const status = extractBioValue($, "Status");
 
-        const { bornDate, age: age2 } = extractBornInfo($);
+        const {bornDate, age: age2} = extractBornInfo($);
         const birthCountry = extractBirthCountry($);
         logger.info(`Born in playmaker ${bornDate} in ${birthCountry}`)
 
@@ -181,9 +181,9 @@ export const extractDataPlaymakerstats = async (url: string): Promise<PlayerType
             image,
             caps,
             birthCountry,
-            value: "",
+            value: extractMarketValue($).value,
             elo: 0,
-            currency: "",
+            currency: extractMarketValue($).currency,
             highstValue: "",
             status,
             weight,
@@ -237,7 +237,7 @@ const extractBornInfo = ($: cheerio.CheerioAPI) => {
     const ageMatch = ageText.match(/\((\d+)\s?-yrs-old\)/);
     const age = ageMatch ? ageMatch[1] : '';
 
-    return { bornDate, age };
+    return {bornDate, age};
 };
 const extractBirthCountry = ($: cheerio.CheerioAPI): string => {
     const countrySpan = $('span').filter((_, el) => $(el).text().trim() === 'Country of Birth').first();
@@ -253,3 +253,18 @@ export const getPosition = (position: string): string => {
     if (lower.includes("goalkeeper")) return "Goalkeeper";
     return position;
 };
+
+export const extractMarketValue = ($: CheerioAPI): { value: string; currency: string } => {
+    const text = $('.rectangle[title="Market value"] .value span').first().text().trim(); // z.B. "18.0 M €"
+
+    // Match: [Zahl][optional Komma/Punkt][Rest = Währung]
+    const match = text.match(/^([\d.,]+)\s*(.*)$/);
+
+    if (match) {
+        const [, value, currency] = match;
+        logger.info(`Extracted market value: ${value} ${currency}`);
+        return {value, currency: currency.trim()};
+    }
+    return {value: "", currency: ""};
+};
+
