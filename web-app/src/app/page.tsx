@@ -5,7 +5,7 @@ export default function HomePage() {
     return (
         <ImageBackground>
             <div className="flex flex-col items-center justify-center min-h-screen bg-black/60 px-4 text-center">
-                <div className="max-w-3xl">
+                <div className="max-w-3xl bg-white/20 p-6 rounded-xl text-white shadow-xl">
                     <h2 className="text-3xl md:text-5xl font-bold text-white">
                         Welcome to
                         <span className="text-cyan-400"> MJD-FootballScout</span>

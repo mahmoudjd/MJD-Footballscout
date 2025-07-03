@@ -4,7 +4,6 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 const images = [
     "/backgrounds/0.jpg",
     "/backgrounds/1.jpg",
-    "/backgrounds/6.jpeg",
     "/backgrounds/3.jpg",
     "/backgrounds/4.jpg",
     "/backgrounds/5.jpg",
