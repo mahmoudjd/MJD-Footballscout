@@ -67,7 +67,7 @@ export default function createAuthRouter(context: AppContext) {
                 return res.status(401).json({error: "Invalid credentials"});
             }
 
-            const validPassword = await bcrypt.compare(input.password, user.passwordHash);
+            const validPassword = await bcrypt.compare(input.password, user.password);
             if (!validPassword) {
                 return res.status(401).json({error: "Invalid credentials"});
             }

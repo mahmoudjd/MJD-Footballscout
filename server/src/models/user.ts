@@ -2,9 +2,9 @@ import {z} from "zod";
 import {ObjectId} from "mongodb";
 
 export const UserRegisterInputSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(6),
-    name: z.string().min(2),
+    email: z.string().email({message: "Invalid email address"}),
+    password: z.string().min(6, {message: "Password must be at least 6 characters"}),
+    name: z.string().min(2, {message: "Name must be at least 2 characters"}),
 });
 
 export const UserGoogleLoginInputSchema = z.object({
@@ -21,7 +21,7 @@ export const UserSchema = z.object({
     _id: z.custom<ObjectId>(),
     email: z.string().email(),
     name: z.string(),
-    passwordHash: z.string(),
+    password: z.string(),
     createdAt: z.date(),
 })
 
