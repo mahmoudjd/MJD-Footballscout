@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
-import { AppContext } from "../models/context";
-import { User, UserRegisterInput } from "../models/user";
+import {AppContext} from "../models/context";
+import {User, UserRegisterInput} from "../models/user";
 import {UserGoogleLoginInput} from "../models/user";
 
 export async function createUser(context: AppContext, input: UserRegisterInput): Promise<User> {
-    const existingUser = await context.users.findOne({ email: input.email });
+    const existingUser = await context.users.findOne({email: input.email});
     if (existingUser) {
         throw new Error("User already exists");
     }
@@ -14,13 +14,13 @@ export async function createUser(context: AppContext, input: UserRegisterInput):
     const newUser = {
         email: input.email,
         name: input.name,
-        passwordHash,
+        password: passwordHash,
         createdAt: new Date(),
     };
 
     const result = await context.users.insertOne(newUser as any);
 
-    return { ...newUser, _id: result.insertedId };
+    return {...newUser, _id: result.insertedId};
 }
 
 export async function createGoogleUser(context: AppContext, input: UserGoogleLoginInput) {
@@ -31,9 +31,9 @@ export async function createGoogleUser(context: AppContext, input: UserGoogleLog
         createdAt: new Date(),
     }
     const result = await context.users.insertOne(newUser as any);
-    return { ...newUser, _id: result.insertedId };
+    return {...newUser, _id: result.insertedId};
 }
 
 export async function findUserByEmail(context: AppContext, email: string) {
-    return context.users.findOne({ email });
+    return context.users.findOne({email});
 }
