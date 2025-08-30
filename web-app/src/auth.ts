@@ -1,4 +1,4 @@
-import NextAuth, {NextAuthOptions, Session} from "next-auth";
+import NextAuth, {NextAuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import {env} from "@/env";
@@ -60,8 +60,8 @@ const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks: {
-        async signIn({ account, profile }) {
-            if (account?.provider === "google" ) {
+        async signIn({account, profile}) {
+            if (account?.provider === "google") {
                 return !!profile?.email
             }
             // The endpoint doesn't exist, so we'll just return true to allow sign-in
@@ -69,11 +69,11 @@ const authOptions: NextAuthOptions = {
             return true;
         },
         async jwt({token, user, account}) {
-            if (account?.provider === "google"){
+            if (account?.provider === "google") {
                 const name = user?.name
                 const googleUser = await googleLogin({
                     email: user?.email!,
-                    name:name
+                    name: name
                 })
                 console.log("Google-User:", googleUser);
                 token.userId = googleUser.id;
@@ -82,8 +82,7 @@ const authOptions: NextAuthOptions = {
                 token.accessToken = googleUser?.accessToken;
                 token.refreshToken = googleUser?.refreshToken;
                 token.expiresAt = Date.now() + 60 * 60 * 1000;
-            }
-            else if (user) {
+            } else if (user) {
                 token.userId = user.id;
                 token.name = user.name;
                 token.email = user.email;

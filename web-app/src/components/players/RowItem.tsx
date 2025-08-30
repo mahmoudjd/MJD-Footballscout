@@ -91,7 +91,7 @@ const RowItem = memo(({player, handleDelete}: RowItemProps) => {
                         loading="lazy"
                     />
                     <div className="flex flex-col justify-between">
-                        <p className="text-gray-800 font-medium text-sm sm:text-lg">{player.title}</p>
+                        <p className="text-gray-800 font-medium text-sm sm:text-lg">{player.name}</p>
                         <p className="text-gray-500 text-sm">{player.country}</p>
                         <p className="text-gray-500 text-sm">{player.currentClub}</p>
                     </div>

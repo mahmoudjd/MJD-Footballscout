@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { signOut } from 'next-auth/react';
+import {Spinner} from "@/components/spinner";
 
 export default function GlobalError({
                                         error,
@@ -26,6 +27,13 @@ export default function GlobalError({
         reset();
     };
 
+    if (error.message === "RefreshTokenError") {
+        return (
+            <div className="flex justify-center items-center w-full p-8">
+                <Spinner />
+            </div>
+        )
+    }
     return (
         <div className="flex justify-center items-center w-full p-8">
             <div className="max-w-md w-full rounded-lg shadow-lg bg-white p-6 text-center border border-red-300">
