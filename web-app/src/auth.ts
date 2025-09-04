@@ -125,6 +125,7 @@ const authOptions: NextAuthOptions = {
                 expiresAt: token.expiresAt
             };
             // console.log("Session:", session);
+            (session as any).error = (token as any)?.error
             return session;
         },
     },
