@@ -15,7 +15,7 @@ export function useSavePlayer(options?: UseMutationOptions<PlayerType, Error, Sa
 }
 
 async function savePlayer(player: PlayerType) {
-    const response = await apiClient.post(`${env.NEXT_PUBLIC_API_HOST}/players`, {
+    const response = await apiClient.post(`/players`, {
         data: player
     });
     return response.data;

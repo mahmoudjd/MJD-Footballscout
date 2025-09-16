@@ -8,7 +8,7 @@ interface DeletePlayerMutationType {
   playerId: string;
 }
 async function deletePlayer(id: string) {
-    const response = await apiClient.delete(`${env.NEXT_PUBLIC_API_HOST}/players/${id}`);
+    const response = await apiClient.delete(`/players/${id}`);
     return response.data;
 }
 

@@ -1,11 +1,11 @@
 import { env } from "@/env";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import {PlayerType} from "@/lib/types/type";
 import {apiClient} from "@/lib/hooks/api-client";
 
 export async function updateAllPlayers(): Promise<PlayerType[]> {
   try {
-    const response = await apiClient.put<PlayerType[]>(`${env.NEXT_PUBLIC_API_HOST}/update-players`);
+    const response = await apiClient.put<PlayerType[]>(`/update-players`);
     return response.data;
   } catch (error) {
     console.error("Update all players error:", error);

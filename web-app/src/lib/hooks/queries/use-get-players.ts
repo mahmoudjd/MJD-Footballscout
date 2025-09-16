@@ -11,6 +11,6 @@ export function useGetPlayers() {
 }
 
 async function fetchPlayers() {
-        const response = await axios.get<PlayerType[]>(`${env.NEXT_PUBLIC_API_HOST}/players`);
+        const response = await axios.get<PlayerType[]>(`/players`);
         return response.data;
 }

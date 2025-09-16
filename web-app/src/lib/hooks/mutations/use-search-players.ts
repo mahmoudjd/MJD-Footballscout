@@ -11,6 +11,6 @@ export function useSearchPlayers() {
 }
 
 async function searchPlayers(name: string) {
-    const response = await apiClient.post<PlayerType[]>(`${env.NEXT_PUBLIC_API_HOST}/search`, {name});
+    const response = await apiClient.post<PlayerType[]>(`/search`, {name});
     return response.data;
 }

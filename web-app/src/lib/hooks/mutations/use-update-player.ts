@@ -17,6 +17,6 @@ export function useUpdateMutation(options?: UseMutationOptions<PlayerType, Error
 }
 
 async function updatePlayer(input: UpdatePlayerMutationType) {
-    const res = await apiClient.put<PlayerType>(`${env.NEXT_PUBLIC_API_HOST}/players/${input.playerId}`);
+    const res = await apiClient.put<PlayerType>(`/players/${input.playerId}`);
     return res.data;
 }
