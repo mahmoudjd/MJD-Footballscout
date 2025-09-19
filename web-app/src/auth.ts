@@ -75,7 +75,6 @@ const authOptions: NextAuthOptions = {
                     email: user?.email!,
                     name: name
                 })
-                console.log("Google-User:", googleUser);
                 token.userId = googleUser.id;
                 token.name = googleUser?.name;
                 token.email = googleUser.email;
