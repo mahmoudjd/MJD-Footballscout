@@ -46,3 +46,4 @@ coverage/
 
 # Optional: Next.js telemetry
 .next/telemetry
+.vercel

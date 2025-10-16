@@ -1,5 +1,3 @@
-
-
 import axios from "axios"
 import { env } from "@/env";
 import {getSession} from "next-auth/react";
