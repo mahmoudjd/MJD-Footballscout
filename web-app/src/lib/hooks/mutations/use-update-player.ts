@@ -1,6 +1,4 @@
-import {env} from "@/env";
 import {PlayerType} from "@/lib/types/type";
-import axios from "axios";
 import {useMutation} from "@tanstack/react-query";
 import type {UseMutationOptions} from "@tanstack/react-query";
 import {apiClient} from "@/lib/hooks/api-client";

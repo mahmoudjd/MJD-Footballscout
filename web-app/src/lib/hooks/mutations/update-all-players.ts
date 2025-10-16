@@ -1,4 +1,3 @@
-import { env } from "@/env";
 import { AxiosError } from "axios";
 import {PlayerType} from "@/lib/types/type";
 import {apiClient} from "@/lib/hooks/api-client";

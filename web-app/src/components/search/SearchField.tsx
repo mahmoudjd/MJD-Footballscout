@@ -31,7 +31,7 @@ export function SearchField() {
         if (!players || debouncedName.length === 0) return [];
 
         const searchTerm = debouncedName.toLowerCase();
-        return players.filter((player) =>
+        return players?.filter((player) =>
             [player.name, player.fullName]
                 .map((p) => convert(p).toLowerCase())
                 .some((p) => p.includes(searchTerm))
