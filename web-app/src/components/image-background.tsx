@@ -1,7 +1,7 @@
 "use client";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 
-const images = [
+const images: string[] = [
     "/backgrounds/0.jpg",
     "/backgrounds/1.jpg",
     "/backgrounds/3.jpg",
@@ -14,7 +14,19 @@ const images = [
 export function ImageBackground({ children }: { children: ReactNode }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+    // Preload all images
     useEffect(() => {
+        images.forEach((src) => {
+            const img = new Image();
+            img.src = src;
+        });
+    }, []);
+
+    // Background transition logic
+    useEffect(() => {
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reduceMotion) return;
+
         const interval = setInterval(() => {
             setCurrentImageIndex((prev) => (prev + 1) % images.length);
         }, 15000);

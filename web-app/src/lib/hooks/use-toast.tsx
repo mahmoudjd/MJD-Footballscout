@@ -2,7 +2,6 @@ import toast, { ToastOptions } from "react-hot-toast";
 import {OutlineIcons} from "@/components/outline-icons";
 import {SolidIcons} from "@/components/solid-icons";
 
-// Dynamische Styles nach Typ
 const baseStyles = "rounded-md px-4 py-3 shadow-lg flex items-center justify-between gap-3 text-sm";
 const variants = {
     info: "bg-yellow-100 text-yellow-800",
@@ -10,14 +9,12 @@ const variants = {
     error: "bg-red-100 text-red-800",
 };
 
-// Icons nach Typ
 const icons = {
     info: <OutlineIcons.InformationCircleIcon className="w-5 h-5 text-yellow-600" />,
     success: <SolidIcons.CheckCircleIcon className="w-5 h-5 text-green-600" />,
     error: <SolidIcons.ExclamationTriangleIcon className="w-5 h-5 text-red-600" />,
 };
 
-// Custom Toast-Funktion
 function showCustomToast(
     type: "info" | "success" | "error",
     message: string,
