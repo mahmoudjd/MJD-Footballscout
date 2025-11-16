@@ -38,6 +38,7 @@ export function Player({ player }: Props) {
     function handleAddToFavorites() {
         if (isSaved) {
             toast.info("Player already added to favorites!");
+            queryClient.invalidateQueries({ queryKey: ["players"] });
             return;
         }
         savePlayer({ player });
