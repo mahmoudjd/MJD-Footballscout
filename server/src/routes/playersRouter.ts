@@ -21,13 +21,8 @@ import {
     upsertPlayerReport,
 } from "../controllers/scoutingController";
 import {ZodError} from "zod";
-
-type AuthenticatedRequest = Request & {
-    user?: {
-        userId?: string;
-        email?: string;
-    };
-};
+import {AuthenticatedRequest} from "../models/auth";
+import {requireRole} from "../middleware/role-middleware";
 
 function getUserId(req: Request) {
     return (req as AuthenticatedRequest).user?.userId || null;
@@ -86,7 +81,7 @@ const createPlayersRouter = (context: AppContext) => {
         }
     });
 
-    router.get("/players/compare", async (req: Request, res: Response) => {
+    router.get("/players/compare", authMiddleware, async (req: Request, res: Response) => {
         try {
             const comparison = await comparePlayers(context, req.query as Record<string, unknown>);
             return res.status(200).json(comparison);
@@ -203,7 +198,7 @@ const createPlayersRouter = (context: AppContext) => {
         }
     });
 
-    router.delete("/players/:id", authMiddleware, async (req: Request, res: Response): Promise<any> => {
+    router.delete("/players/:id", authMiddleware, requireRole(context, ["admin"]), async (req: Request, res: Response): Promise<any> => {
         const playerId = req.params.id;
         try {
             const player = await deletePlayerById(context, playerId);

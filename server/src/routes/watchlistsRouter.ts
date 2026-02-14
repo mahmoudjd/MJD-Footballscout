@@ -14,13 +14,7 @@ import {
     updateWatchlist,
 } from "../controllers/watchlistController";
 import {ApiError} from "../controllers/scoutingController";
-
-type AuthenticatedRequest = Request & {
-    user?: {
-        userId?: string;
-        email?: string;
-    };
-};
+import {AuthenticatedRequest} from "../models/auth";
 
 function getUserId(req: Request) {
     return (req as AuthenticatedRequest).user?.userId || null;
