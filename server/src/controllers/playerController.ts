@@ -5,6 +5,51 @@ import {extractPlayerData} from "../scraper/scrapingData";
 import {convert, isPlayerMatch, normalizeDate, normalizeName} from "../scraper/utils";
 import logger from "../logger/logger";
 
+function normalizePositionForStats(position: string | undefined) {
+    const value = (position || "").toLowerCase();
+    if (value.includes("forward")) return "Forward";
+    if (value.includes("midfielder")) return "Midfielder";
+    if (value.includes("defender")) return "Defender";
+    if (value.includes("goalkeeper")) return "Goalkeeper";
+    if (value.includes("manager")) return "Manager";
+    return position?.trim() || "Unknown";
+}
+
+function incrementCounter(map: Map<string, number>, key: string) {
+    map.set(key, (map.get(key) || 0) + 1);
+}
+
+function parseCompactCurrency(value: string | undefined) {
+    if (!value) return 0;
+
+    const cleaned = value.trim().replace(",", ".");
+    const matched = cleaned.match(/^(\d+(?:\.\d+)?)([MK])?$/i);
+    if (!matched) return 0;
+
+    const amount = Number(matched[1]);
+    const unit = matched[2]?.toUpperCase();
+
+    if (!Number.isFinite(amount)) return 0;
+    if (unit === "M") return Math.round(amount * 1_000_000);
+    if (unit === "K") return Math.round(amount * 1_000);
+    return Math.round(amount);
+}
+
+function toHighlightPlayer(player: any) {
+    return {
+        _id: String(player?._id || ""),
+        name: player?.name || "",
+        age: typeof player?.age === "number" ? player.age : 0,
+        country: player?.country || "Unknown",
+        position: normalizePositionForStats(player?.position),
+        elo: typeof player?.elo === "number" ? player.elo : 0,
+        image: player?.image || "",
+        currentClub: player?.currentClub || "",
+        value: player?.value || "",
+        currency: player?.currency || "",
+    };
+}
+
 export async function getPlayerById(context: AppContext, id: string) {
     try {
         logger.debug(`Fetching player by ID: ${id}`);
@@ -222,6 +267,130 @@ export async function getPlayers(context: AppContext) {
     } catch (error: any) {
         logger.error(`Error fetching players: ${error.stack || error.message}`);
         throw new Error("Failed to fetch players");
+    }
+}
+
+export async function getPlayersStats(context: AppContext) {
+    try {
+        logger.debug("Calculating players stats");
+        const players = await context.players.find({}, {
+            projection: {
+                age: 1,
+                elo: 1,
+                position: 1,
+                country: 1,
+                timestamp: 1,
+            },
+        }).toArray();
+
+        if (players.length === 0) {
+            return {
+                totalPlayers: 0,
+                averageAge: 0,
+                averageElo: 0,
+                positions: [],
+                topCountries: [],
+                latestUpdate: null,
+            };
+        }
+
+        let ageSum = 0;
+        let ageCount = 0;
+        let eloSum = 0;
+        let eloCount = 0;
+        let latestUpdateMs: number | null = null;
+
+        const positionCount = new Map<string, number>();
+        const countryCount = new Map<string, number>();
+
+        for (const player of players) {
+            if (typeof player.age === "number" && Number.isFinite(player.age)) {
+                ageSum += player.age;
+                ageCount += 1;
+            }
+
+            if (typeof player.elo === "number" && Number.isFinite(player.elo)) {
+                eloSum += player.elo;
+                eloCount += 1;
+            }
+
+            incrementCounter(positionCount, normalizePositionForStats(player.position));
+            incrementCounter(countryCount, player.country || "Unknown");
+
+            const parsedTimestamp = player.timestamp ? new Date(player.timestamp).getTime() : Number.NaN;
+            if (!Number.isNaN(parsedTimestamp) && (latestUpdateMs === null || parsedTimestamp > latestUpdateMs)) {
+                latestUpdateMs = parsedTimestamp;
+            }
+        }
+
+        const positions = Array.from(positionCount.entries())
+            .map(([position, count]) => ({position, count}))
+            .sort((a, b) => b.count - a.count);
+
+        const topCountries = Array.from(countryCount.entries())
+            .map(([country, count]) => ({country, count}))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+        return {
+            totalPlayers: players.length,
+            averageAge: ageCount > 0 ? Number((ageSum / ageCount).toFixed(1)) : 0,
+            averageElo: eloCount > 0 ? Math.round(eloSum / eloCount) : 0,
+            positions,
+            topCountries,
+            latestUpdate: latestUpdateMs ? new Date(latestUpdateMs).toISOString() : null,
+        };
+    } catch (error: any) {
+        logger.error(`Error calculating players stats: ${error.stack || error.message}`);
+        throw new Error("Failed to calculate players stats");
+    }
+}
+
+export async function getPlayersHighlights(context: AppContext) {
+    try {
+        logger.debug("Calculating players highlights");
+        const players = await context.players.find({}, {
+            projection: {
+                name: 1,
+                age: 1,
+                country: 1,
+                position: 1,
+                elo: 1,
+                image: 1,
+                currentClub: 1,
+                value: 1,
+                currency: 1,
+            },
+        }).toArray();
+
+        if (players.length === 0) {
+            return {
+                topEloPlayers: [],
+                youngTalents: [],
+                marketLeaders: [],
+            };
+        }
+
+        const byEloDesc = [...players].sort((a, b) => (b.elo || 0) - (a.elo || 0));
+        const byMarketValueDesc = [...players].sort(
+            (a, b) => parseCompactCurrency(b.value) - parseCompactCurrency(a.value),
+        );
+
+        const topEloPlayers = byEloDesc.slice(0, 5).map(toHighlightPlayer);
+        const youngTalents = byEloDesc
+            .filter((p) => typeof p.age === "number" && p.age <= 23)
+            .slice(0, 5)
+            .map(toHighlightPlayer);
+        const marketLeaders = byMarketValueDesc.slice(0, 5).map(toHighlightPlayer);
+
+        return {
+            topEloPlayers,
+            youngTalents,
+            marketLeaders,
+        };
+    } catch (error: any) {
+        logger.error(`Error calculating players highlights: ${error.stack || error.message}`);
+        throw new Error("Failed to calculate players highlights");
     }
 }
 

@@ -2,7 +2,9 @@ import express, {Request, Response} from "express";
 import {
     createPlayer, deletePlayerById,
     getPlayerById,
+    getPlayersHighlights,
     getPlayers,
+    getPlayersStats,
     searchPlayers, updateAllPlayers,
     updatePlayerFromWebSites
 } from "../controllers/playerController";
@@ -19,6 +21,26 @@ const createPlayersRouter = (context: AppContext) => {
             res.status(200).json(players);
         } catch (error) {
             logger.error("Failed to get players: ", error);
+            res.status(500).json({error: "Internal server error"});
+        }
+    });
+
+    router.get("/players/stats", async (_req: Request, res: Response) => {
+        try {
+            const stats = await getPlayersStats(context);
+            res.status(200).json(stats);
+        } catch (error) {
+            logger.error("Failed to get players stats: ", error);
+            res.status(500).json({error: "Internal server error"});
+        }
+    });
+
+    router.get("/players/highlights", async (_req: Request, res: Response) => {
+        try {
+            const highlights = await getPlayersHighlights(context);
+            res.status(200).json(highlights);
+        } catch (error) {
+            logger.error("Failed to get players highlights: ", error);
             res.status(500).json({error: "Internal server error"});
         }
     });
