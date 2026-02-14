@@ -3,10 +3,10 @@ import winston from "winston";
 const logger = winston.createLogger({
     level: "info",
     format: winston.format.combine(
-        winston.format.colorize(),  // <<< Farben aktivieren
+        winston.format.colorize(),
         winston.format.timestamp(),
         winston.format.printf(({level, message, timestamp}) => {
-            return `${timestamp} [${level}]: ${message}`;  // level ist hier schon gefärbt
+            return `${timestamp} [${level}]: ${message}`;
         })
     ),
     transports: [

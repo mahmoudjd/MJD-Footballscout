@@ -97,7 +97,7 @@ export default function createAuthRouter(context: AppContext) {
                 return res.status(400).json({error: "Google login must provide an email"});
             }
 
-            const existingUser = await context.users.findOne({email: input.email});
+            const existingUser = await context.users.findOne({email: input.email, googleId: input.googleId});
             let user = !existingUser ?
                 await createGoogleUser(context, input)
                 : existingUser;
