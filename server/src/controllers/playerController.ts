@@ -19,34 +19,110 @@ function incrementCounter(map: Map<string, number>, key: string) {
     map.set(key, (map.get(key) || 0) + 1);
 }
 
-export function parseCompactCurrency(value: unknown) {
-    if (value === null || value === undefined) return 0;
+export function parseCompactCurrency(value: unknown, unitHint?: unknown) {
+    return parseCompactCurrencyWithUnit(value, unitHint);
+}
 
-    if (typeof value === "number") {
-        return Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+function detectUnitMultiplier(input: unknown) {
+    if (input === null || input === undefined) return 1;
+
+    const unitTokens = String(input)
+        .toLowerCase()
+        .replace(/[0-9.,'’`+\-_/]/g, " ")
+        .replace(/[€$£¥]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (unitTokens.some((token) =>
+        token === "mrd" ||
+        token === "bn" ||
+        token === "b" ||
+        token.startsWith("billion") ||
+        token.startsWith("milliard"),
+    )) {
+        return 1_000_000_000;
     }
 
-    if (typeof value !== "string") {
-        return 0;
+    if (unitTokens.some((token) =>
+        token === "m" ||
+        token === "mio" ||
+        token.startsWith("million"),
+    )) {
+        return 1_000_000;
     }
 
-    const cleaned = value
+    if (unitTokens.some((token) =>
+        token === "k" ||
+        token === "tsd" ||
+        token === "th" ||
+        token.startsWith("thousand") ||
+        token.startsWith("tausend"),
+    )) {
+        return 1_000;
+    }
+
+    return 1;
+}
+
+function extractNumberPart(input: string) {
+    const matched = input.match(/[-+]?\d[\d.,'’`\s]*/);
+    return matched ? matched[0] : "";
+}
+
+function normalizeNumberString(input: string) {
+    let normalized = input
         .trim()
         .replace(/\s+/g, "")
-        .replace("€", "")
-        .replace(",", ".")
-        .toUpperCase();
+        .replace(/['’`]/g, "");
 
-    const matched = cleaned.match(/^(\d+(?:\.\d+)?)([MK])?$/);
-    if (!matched) return 0;
+    if (!normalized) return "";
 
-    const amount = Number(matched[1]);
-    const unit = matched[2];
+    const hasComma = normalized.includes(",");
+    const hasDot = normalized.includes(".");
+
+    if (hasComma && hasDot) {
+        const decimalSeparator = normalized.lastIndexOf(",") > normalized.lastIndexOf(".") ? "," : ".";
+        const thousandSeparatorRegex = decimalSeparator === "," ? /\./g : /,/g;
+        normalized = normalized.replace(thousandSeparatorRegex, "");
+        if (decimalSeparator === ",") normalized = normalized.replace(",", ".");
+        return normalized;
+    }
+
+    if (hasComma) {
+        const parts = normalized.split(",");
+        if (parts.length > 2) return parts.join("");
+        const [left, right] = parts;
+        if (!right) return left;
+        if (right.length === 3 && left.length <= 3) return left + right;
+        return `${left}.${right}`;
+    }
+
+    if (hasDot) {
+        const parts = normalized.split(".");
+        if (parts.length > 2) return parts.join("");
+        const [left, right] = parts;
+        if (!right) return left;
+        if (right.length === 3 && left.length <= 3) return left + right;
+        return `${left}.${right}`;
+    }
+
+    return normalized;
+}
+
+function parseCompactCurrencyWithUnit(value: unknown, unitHint: unknown) {
+    if (value === null || value === undefined) return 0;
+
+    const valueUnitMultiplier = detectUnitMultiplier(value);
+    const hintUnitMultiplier = detectUnitMultiplier(unitHint);
+    const multiplier = valueUnitMultiplier !== 1 ? valueUnitMultiplier : hintUnitMultiplier;
+
+    const amount = typeof value === "number"
+        ? value
+        : Number(normalizeNumberString(extractNumberPart(String(value)) || String(value)));
 
     if (!Number.isFinite(amount)) return 0;
-    if (unit === "M") return Math.round(amount * 1_000_000);
-    if (unit === "K") return Math.round(amount * 1_000);
-    return Math.round(amount);
+    const total = Math.round(amount * multiplier);
+    return Math.max(0, total);
 }
 
 function normalizeOptionalString(value: unknown): string | null {
@@ -434,7 +510,7 @@ export async function getPlayersHighlights(context: AppContext) {
 
         const byEloDesc = [...players].sort((a, b) => (b.elo || 0) - (a.elo || 0));
         const byMarketValueDesc = [...players].sort(
-            (a, b) => parseCompactCurrency(b.value) - parseCompactCurrency(a.value),
+            (a, b) => parseCompactCurrency(b.value, b.currency) - parseCompactCurrency(a.value, a.currency),
         );
 
         const topEloPlayers = byEloDesc.slice(0, 5).map(toHighlightPlayer);

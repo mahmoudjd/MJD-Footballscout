@@ -93,7 +93,7 @@ export async function getAdvancedPlayers(context: AppContext, query: Record<stri
     const filtered = players.filter((player) => {
         const age = typeof player.age === "number" ? player.age : null;
         const elo = typeof player.elo === "number" ? player.elo : null;
-        const value = parseCompactCurrency(player.value);
+        const value = parseCompactCurrency(player.value, player.currency);
 
         if (searchedPosition && !normalizeForSearch(player.position).includes(searchedPosition)) {
             return false;
@@ -133,7 +133,9 @@ export async function getAdvancedPlayers(context: AppContext, query: Record<stri
             return sortDirection * String(a.name || "").localeCompare(String(b.name || ""));
         }
         if (parsedQuery.sortBy === "value") {
-            return sortDirection * (parseCompactCurrency(a.value) - parseCompactCurrency(b.value));
+            return sortDirection * (
+                parseCompactCurrency(a.value, a.currency) - parseCompactCurrency(b.value, b.currency)
+            );
         }
         if (parsedQuery.sortBy === "age") {
             const aAge = typeof a.age === "number" ? a.age : Number.POSITIVE_INFINITY;
@@ -237,7 +239,11 @@ export async function comparePlayers(context: AppContext, query: Record<string, 
     const orderedPlayers = ids.map((id) => playersById.get(id)).filter(Boolean);
 
     const byElo = pickLeaders(orderedPlayers, (player) => player.elo, "max");
-    const byValue = pickLeaders(orderedPlayers, (player) => parseCompactCurrency(player.value), "max");
+    const byValue = pickLeaders(
+        orderedPlayers,
+        (player) => parseCompactCurrency(player.value, player.currency),
+        "max",
+    );
     const byAge = pickLeaders(orderedPlayers, (player) => player.age, "min");
     const byTimestamp = pickLeaders(
         orderedPlayers,
