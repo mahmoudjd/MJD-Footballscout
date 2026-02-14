@@ -11,6 +11,38 @@ import {
 import {AppContext} from "../models/context";
 import logger from "../logger/logger";
 import {authMiddleware} from "../middleware/auth-middleware";
+import {comparePlayers, getAdvancedPlayers} from "../controllers/playerQueryController";
+import {
+    ApiError,
+    deleteScoutingReport,
+    getPlayerHistory,
+    getPlayerReports,
+    updateScoutingReport,
+    upsertPlayerReport,
+} from "../controllers/scoutingController";
+import {ZodError} from "zod";
+
+type AuthenticatedRequest = Request & {
+    user?: {
+        userId?: string;
+        email?: string;
+    };
+};
+
+function getUserId(req: Request) {
+    return (req as AuthenticatedRequest).user?.userId || null;
+}
+
+function handleControllerError(error: unknown, res: Response) {
+    if (error instanceof ApiError) {
+        return res.status(error.status).json({error: error.message});
+    }
+    if (error instanceof ZodError) {
+        return res.status(400).json({error: "Invalid input", details: error.issues});
+    }
+    logger.error("Request failed: ", error);
+    return res.status(500).json({error: "Internal server error"});
+}
 
 const createPlayersRouter = (context: AppContext) => {
     const router = express.Router();
@@ -45,6 +77,24 @@ const createPlayersRouter = (context: AppContext) => {
         }
     });
 
+    router.get("/players/advanced", async (req: Request, res: Response) => {
+        try {
+            const result = await getAdvancedPlayers(context, req.query as Record<string, unknown>);
+            return res.status(200).json(result);
+        } catch (error) {
+            return handleControllerError(error, res);
+        }
+    });
+
+    router.get("/players/compare", async (req: Request, res: Response) => {
+        try {
+            const comparison = await comparePlayers(context, req.query as Record<string, unknown>);
+            return res.status(200).json(comparison);
+        } catch (error) {
+            return handleControllerError(error, res);
+        }
+    });
+
     // Authentifizierte Routen
     router.post("/players", authMiddleware, async (req: Request, res: Response): Promise<any> => {
         const {data} = req.body;
@@ -57,6 +107,15 @@ const createPlayersRouter = (context: AppContext) => {
         }
     });
 
+    router.get("/players/:id/history", authMiddleware, async (req: Request, res: Response): Promise<any> => {
+        try {
+            const history = await getPlayerHistory(context, req.params.id, req.query as Record<string, unknown>);
+            return res.status(200).json(history);
+        } catch (error) {
+            return handleControllerError(error, res);
+        }
+    });
+
     router.get("/players/:id", authMiddleware, async (req: Request, res: Response): Promise<any> => {
         const playerId = req.params.id;
         try {
@@ -66,6 +125,54 @@ const createPlayersRouter = (context: AppContext) => {
         } catch (error) {
             logger.error("Failed to get player: ", error);
             res.status(500).json({error: "Internal server error"});
+        }
+    });
+
+    router.get("/players/:id/reports", authMiddleware, async (req: Request, res: Response): Promise<any> => {
+        try {
+            const reports = await getPlayerReports(context, req.params.id);
+            return res.status(200).json(reports);
+        } catch (error) {
+            return handleControllerError(error, res);
+        }
+    });
+
+    router.post("/players/:id/reports", authMiddleware, async (req: Request, res: Response): Promise<any> => {
+        const userId = getUserId(req);
+        if (!userId) {
+            return res.status(401).json({error: "Unauthorized"});
+        }
+        try {
+            const report = await upsertPlayerReport(context, req.params.id, userId, req.body);
+            return res.status(201).json(report);
+        } catch (error) {
+            return handleControllerError(error, res);
+        }
+    });
+
+    router.put("/reports/:reportId", authMiddleware, async (req: Request, res: Response): Promise<any> => {
+        const userId = getUserId(req);
+        if (!userId) {
+            return res.status(401).json({error: "Unauthorized"});
+        }
+        try {
+            const report = await updateScoutingReport(context, req.params.reportId, userId, req.body);
+            return res.status(200).json(report);
+        } catch (error) {
+            return handleControllerError(error, res);
+        }
+    });
+
+    router.delete("/reports/:reportId", authMiddleware, async (req: Request, res: Response): Promise<any> => {
+        const userId = getUserId(req);
+        if (!userId) {
+            return res.status(401).json({error: "Unauthorized"});
+        }
+        try {
+            await deleteScoutingReport(context, req.params.reportId, userId);
+            return res.status(204).send();
+        } catch (error) {
+            return handleControllerError(error, res);
         }
     });
 

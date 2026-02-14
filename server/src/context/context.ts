@@ -3,6 +3,9 @@ import axios from "axios";
 import {PlayerType} from "../models/player";
 import {User} from "../models/user";
 import { AppContext, Config} from "../models/context"
+import {ScoutingReport} from "../models/scoutingReport";
+import {PlayerHistory} from "../models/playerHistory";
+import {Watchlist} from "../models/watchlist";
 
 export async function createContext({
                                             mongoURI,
@@ -17,6 +20,9 @@ export async function createContext({
     }
     const players = db.collection<PlayerType>("players");
     const users = db.collection<User>("users");
+    const scoutingReports = db.collection<ScoutingReport>("scoutingReports");
+    const playerHistories = db.collection<PlayerHistory>("playerHistories");
+    const watchlists = db.collection<Watchlist>("watchlists");
     const defaultConfig: Config = {
         env: process.env.NODE_ENV ?? "development",
         clientUrl: process.env.CLIENT_URL ?? "*",
@@ -38,6 +44,12 @@ export async function createContext({
         players,
         // @ts-ignore
         users,
+        // @ts-ignore
+        scoutingReports,
+        // @ts-ignore
+        playerHistories,
+        // @ts-ignore
+        watchlists,
         config,
         httpClient
     };
