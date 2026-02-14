@@ -12,8 +12,11 @@ export async function createContext({
     configOverrides?: Partial<Config>;
 }): Promise<AppContext> {
     const db = await connectDB(mongoURI);
-    const players = db?.collection<PlayerType>("players");
-    const users = db?.collection<User>("users");
+    if (!db) {
+        throw new Error("Database connection failed");
+    }
+    const players = db.collection<PlayerType>("players");
+    const users = db.collection<User>("users");
     const defaultConfig: Config = {
         env: process.env.NODE_ENV ?? "development",
         clientUrl: process.env.CLIENT_URL ?? "*",
@@ -39,4 +42,3 @@ export async function createContext({
         httpClient
     };
 }
-

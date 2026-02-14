@@ -13,8 +13,11 @@ async function startServer() {
     if (process.env.NODE_ENV !== "production") dotenv.config();
     const PORT = process.env.PORT ?? 8080;
     const MONGOURI = process.env.MONGOURI;
+    if (!MONGOURI) {
+        throw new Error("MONGOURI is missing in server/.env");
+    }
 
-    const context = await createContext({ mongoURI: MONGOURI! });
+    const context = await createContext({ mongoURI: MONGOURI });
 
     const server = express();
 
@@ -39,4 +42,7 @@ async function startServer() {
     });
 }
 
-startServer();
+startServer().catch((error) => {
+    logger.error(`❌ [server]: Startup failed: ${error}`);
+    process.exit(1);
+});
