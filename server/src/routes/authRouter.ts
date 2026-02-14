@@ -13,20 +13,21 @@ import {
     UserGoogleLoginInput, UserGoogleLoginInputSchema,
 
 } from "../models/user";
+import {UserRole} from "../models/auth";
 
 
 export default function createAuthRouter(context: AppContext) {
     const router = express.Router();
     const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret";
 
-    const generateTokens = (user: { _id: string; email: string }) => {
+    const generateTokens = (user: { _id: string; email: string; role: UserRole }) => {
         const accessToken = jwt.sign(
-            {userId: user._id, email: user.email},
+            {userId: user._id, email: user.email, role: user.role, tokenType: "access"},
             JWT_SECRET,
             {expiresIn: "1h"}
         );
         const refreshToken = jwt.sign(
-            {userId: user._id},
+            {userId: user._id, role: user.role, tokenType: "refresh"},
             JWT_SECRET,
             {expiresIn: "7d"}
         );
@@ -38,13 +39,15 @@ export default function createAuthRouter(context: AppContext) {
             const input: UserRegisterInput = UserRegisterInputSchema.parse(req.body);
             const user = await createUser(context, input);
 
-            const tokens = generateTokens({_id: user._id!.toString(), email: user.email});
+            const userRole = user.role || "user";
+            const tokens = generateTokens({_id: user._id!.toString(), email: user.email, role: userRole});
 
             return res.status(201).json({
                 ...tokens,
                 name: user.name,
                 email: user.email,
                 id: user._id,
+                role: userRole,
             });
         } catch (err) {
             if (err instanceof z.ZodError) {
@@ -67,18 +70,24 @@ export default function createAuthRouter(context: AppContext) {
                 return res.status(401).json({error: "Invalid credentials"});
             }
 
+            if (!user.password) {
+                return res.status(401).json({error: "Invalid credentials"});
+            }
+
             const validPassword = await bcrypt.compare(input.password, user.password);
             if (!validPassword) {
                 return res.status(401).json({error: "Invalid credentials"});
             }
 
-            const tokens = generateTokens({_id: user._id!.toString(), email: user.email});
+            const userRole = user.role || "user";
+            const tokens = generateTokens({_id: user._id!.toString(), email: user.email, role: userRole});
 
             return res.status(200).json({
                 ...tokens,
                 name: user.name,
                 email: user.email,
                 id: user._id,
+                role: userRole,
             });
         } catch (err) {
             if (err instanceof z.ZodError) {
@@ -106,9 +115,11 @@ export default function createAuthRouter(context: AppContext) {
                 : existingUser;
 
             // 3️⃣ Token generieren
+            const userRole = user.role || "user";
             const tokens = generateTokens({
                 _id: user._id!.toString(),
                 email: user.email,
+                role: userRole,
             });
 
             return res.status(200).json({
@@ -116,6 +127,7 @@ export default function createAuthRouter(context: AppContext) {
                 name: user.name,
                 email: user.email,
                 id: user._id,
+                role: userRole,
             });
         } catch (err) {
             if (err instanceof z.ZodError) {
@@ -135,8 +147,8 @@ export default function createAuthRouter(context: AppContext) {
         }
 
         try {
-            const payload = jwt.verify(refreshToken, JWT_SECRET) as { userId: string };
-            if (!payload.userId) {
+            const payload = jwt.verify(refreshToken, JWT_SECRET) as { userId?: string; tokenType?: string };
+            if (!payload.userId || payload.tokenType !== "refresh") {
                 return res.status(401).json({error: "Invalid token payload"});
             }
 
@@ -147,8 +159,9 @@ export default function createAuthRouter(context: AppContext) {
 
             logger.info("[REFRESH TOKEN] Refresh token", user.email);
 
+            const userRole = user.role || "user";
             const accessToken = jwt.sign(
-                {userId: user._id.toString(), email: user.email},
+                {userId: user._id.toString(), email: user.email, role: userRole, tokenType: "access"},
                 JWT_SECRET,
                 {expiresIn: "1h"}
             );
@@ -156,6 +169,7 @@ export default function createAuthRouter(context: AppContext) {
             return res.status(200).json({
                 accessToken,
                 refreshToken,
+                role: userRole,
             });
         } catch (err) {
             logger.error("Refresh token error", err);

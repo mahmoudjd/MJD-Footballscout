@@ -1,138 +1,116 @@
-# Backend Server – Football Player Management API
+# MJD Football Scout Backend
 
-This is a Node.js + TypeScript + Express server that provides a RESTful API for managing football players, authentication, data scraping, and more.
+REST API fuer Spielerverwaltung, Authentifizierung, Watchlists, Vergleich und Scouting-Reports.
 
----
+## Stack
+- Node.js + TypeScript + Express
+- MongoDB (native driver)
+- Zod (Input-Validierung)
+- JWT (Access/Refresh Tokens)
+- Winston (Logging)
 
-## 🚀 Features
+## Kernfunktionen
+- Spielerlisten, Statistiken, Highlights, Advanced Search
+- Auth mit E-Mail/Passwort und Google Login
+- Rollenmodell (`admin`, `user`)
+- Geschuetzte Bereiche: Profil, Compare, Reports, Watchlists
+- Admin-only Loeschen von Spielern
 
-- RESTful API for players and user authentication
-- Integration with MongoDB using Mongoose
-- Schema validation with Zod for request payloads
-- Centralized structured logging with Winston
-- Authentication via JWT tokens for secured endpoints
-- Middleware for authentication, cross-origin requests, error handling, and validation
-- Web scraping module powered by Cheerio.js for automated player data extraction
-- Clean and modular project structure following MVC principles
-- Docker configurations for easy deployment and scaling
+## Rollen & Zugriff
+- `public`: Search, Player-Liste, Stats, Highlights, Advanced
+- `authenticated (user/admin)`: Compare, Player-Detail, History, Reports, Watchlists
+- `admin`: `DELETE /players/:id`
 
----
+## Voraussetzungen
+- Node.js 20+ (empfohlen: 24)
+- MongoDB (lokal oder remote)
+- npm oder pnpm
 
-## 📁 Project Structure
-```
-server/
-├── .env                  # Environment variables
-├── logs/                 # Winston logs
-├── src/                  # Application source code
-│   ├── config/           # App configuration files
-│   ├── context/          # Application context & dependency injection
-│   ├── controllers/      # Route handlers
-│   │   ├── authController.ts
-│   │   └── playerController.ts
-│   ├── logger/           # Winston logging setup
-│   ├── middleware/       # Middleware for auth, error handling, etc.
-│   ├── models/           # Mongoose schemas
-│   ├── routes/           # Express routes
-│   │   ├── authRouter.ts
-│   │   └── playerRouter.ts
-│   ├── scraper/          # Player data scraping utilities
-│   └── index.ts          # Entry point – Express app init
-├── package.json
-├── Dockerfile
-├── tsconfig.json
-└── .gitignore
-```
-
----
-
-## 🛠️ Tech Stack
-
-- **Runtime**: Node.js 18+
-- **Language**: TypeScript
-- **Framework**: Express.js
-- **Database**: MongoDB (Mongoose)
-- **Validation**: Zod
-- **Authentication**: JWT
-- **Logging**: Winston
-- **Containerization**: Docker
-
----
-
-## 🔧 Installation & Setup
-
-### 1. Clone & Install Dependencies
-
+## Installation
 ```bash
-  git clone https://github.com/mahmoudjd/abschlussarbeit.git
-  cd server
-  pnpm install
+cd server
+npm install
 ```
-### 2. Configure Environment Variables
 
-Create a `.env` file in the root of the `server/` folder with the following variables:
+## Umgebungsvariablen
+Datei: `server/.env`
 
+```env
+NODE_ENV=local
+PORT=8080
+MONGOURI=mongodb://127.0.0.1:27017/PlayersDB
+JWT_SECRET=replace-with-a-long-random-secret
+# optional fuer Production CORS
+CLIENT_URL=http://localhost:3000
 ```
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/your-database
-JWT_SECRET=your_jwt_secret_key
-```
-> Ensure your MongoDB server is running before proceeding.
 
-### 3. Start the Development Server
+Hinweis: Im Code wird `MONGOURI` verwendet (nicht `MONGO_URI`).
 
+## Scripts
 ```bash
-   pnpm dev
+npm run dev    # tsx watch src/index.ts
+npm run build  # esbuild -> dist/index.js
+npm start      # node dist/index.js
 ```
----
 
-## 🐳 Running the Server with Docker
-
-### 1. Build the Docker Image
+## Lokaler Start
 ```bash
-  docker build -t backend-server
+npm run dev
+```
+Server laeuft standardmaessig auf `http://localhost:8080`.
+
+## API Uebersicht
+### Auth
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/google-login`
+- `POST /auth/refresh`
+
+### Players
+- `GET /players`
+- `GET /players/stats`
+- `GET /players/highlights`
+- `GET /players/advanced`
+- `GET /players/compare` (auth)
+- `GET /players/:id` (auth)
+- `GET /players/:id/history` (auth)
+- `POST /players` (auth)
+- `PUT /players/:id` (auth)
+- `DELETE /players/:id` (admin)
+- `PUT /update-players` (auth)
+- `POST /search` (public)
+
+### Scouting Reports
+- `GET /players/:id/reports` (auth)
+- `POST /players/:id/reports` (auth)
+- `PUT /reports/:reportId` (auth)
+- `DELETE /reports/:reportId` (auth)
+
+### Watchlists (alle auth)
+Basis: `/watchlists`
+- `GET /`
+- `POST /`
+- `GET /:id`
+- `PUT /:id`
+- `DELETE /:id`
+- `POST /:id/players`
+- `DELETE /:id/players/:playerId`
+- `PUT /:id/players/reorder`
+
+## Auth Header
+Bei geschuetzten Routen:
+```http
+Authorization: Bearer <access_token>
 ```
 
-### 2. Run the Docker Container
-
+## Docker
 ```bash
-  docker run -p 5000:5000 --env-file .env backend-server
+cd server
+docker build -t mjd-football-scout-backend .
+docker run --env-file .env -p 8080:8080 mjd-football-scout-backend
 ```
 
----
-
-## 🔐 API Endpoints
-
-### Authentication:
-- **POST /auth/register** → Create a new user
-- **POST /auth/login** → Authenticate a user and generate a JWT token
-
-### Players:
-- **GET /players** → Fetch all players
-- **POST /players** → Add a new player (authentication required)
-- **PUT /players/:id** → Update an existing player (authentication required)
-- **DELETE /players/:id** → Delete a player (authentication required)
-
-> Note: Most routes require an `Authorization: Bearer <token>` header.
-
----
-
-## 🆕 What's New (v2.0.0 – June 28, 2025)
-
-- Dependency Injection added with Context Layer
-- Zod-based input validation for robust API endpoints
-- Logging using Winston with daily log rotation
-- Enhanced JWT authentication system
-- Modular and maintainable project refactor
-- Unicode-aware football player search and normalization
-- Docker support for streamlined deployment on any platform
-- Comprehensive update to controller and route structure
-
----
-
-## 📃 License
-
-This project is licensed under the [MIT License](LICENSE).
-
-
-
-
+## Troubleshooting
+- `esbuild: command not found`: zuerst `npm install` im `server` ausfuehren.
+- `Invalid token type`: es wird ein Refresh Token statt Access Token genutzt.
+- CORS Fehler in Production: `CLIENT_URL` korrekt setzen.
