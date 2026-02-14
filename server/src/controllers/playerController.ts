@@ -19,7 +19,7 @@ function incrementCounter(map: Map<string, number>, key: string) {
     map.set(key, (map.get(key) || 0) + 1);
 }
 
-function parseCompactCurrency(value: unknown) {
+export function parseCompactCurrency(value: unknown) {
     if (value === null || value === undefined) return 0;
 
     if (typeof value === "number") {
@@ -47,6 +47,49 @@ function parseCompactCurrency(value: unknown) {
     if (unit === "M") return Math.round(amount * 1_000_000);
     if (unit === "K") return Math.round(amount * 1_000);
     return Math.round(amount);
+}
+
+function normalizeOptionalString(value: unknown): string | null {
+    if (value === null || value === undefined) return null;
+    if (typeof value === "string") {
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : null;
+    }
+    const asString = String(value).trim();
+    return asString.length > 0 ? asString : null;
+}
+
+async function persistPlayerHistoryIfChanged(context: AppContext, oldPlayer: any, newPlayer: any) {
+    const oldElo = typeof oldPlayer?.elo === "number" ? oldPlayer.elo : null;
+    const newElo = typeof newPlayer?.elo === "number" ? newPlayer.elo : null;
+    const eloDelta = oldElo !== null && newElo !== null ? newElo - oldElo : null;
+    const eloChanged = eloDelta !== null && eloDelta !== 0;
+
+    const oldValue = normalizeOptionalString(oldPlayer?.value);
+    const newValue = normalizeOptionalString(newPlayer?.value);
+    const valueChanged = oldValue !== newValue;
+
+    const oldClub = normalizeOptionalString(oldPlayer?.currentClub);
+    const newClub = normalizeOptionalString(newPlayer?.currentClub);
+    const clubChanged = oldClub !== newClub;
+
+    if (!eloChanged && !valueChanged && !clubChanged) {
+        return;
+    }
+
+    await context.playerHistories.insertOne({
+        playerId: String(oldPlayer?._id || newPlayer?._id || ""),
+        timestamp: new Date(),
+        oldElo,
+        newElo,
+        eloDelta,
+        oldValue,
+        newValue,
+        valueChanged,
+        oldClub,
+        newClub,
+        clubChanged,
+    } as any);
 }
 
 function toHighlightPlayer(player: any) {
@@ -180,6 +223,10 @@ export async function updatePlayerFromWebSites(context: AppContext, playerId: st
 
         const result = await context.players
             .findOneAndUpdate({_id: new ObjectId(playerId)}, {$set: mergedPlayer}, {returnDocument: "after"});
+
+        if (result) {
+            await persistPlayerHistoryIfChanged(context, oldPlayer, result);
+        }
 
         logger.info(`Player updated: ${playerId}`);
 

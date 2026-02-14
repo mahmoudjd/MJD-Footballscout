@@ -8,6 +8,7 @@ import { createContext } from "./context/context";
 import logger from "./logger/logger";
 import createPlayersRouter from "./routes/playersRouter";
 import createAuthRouter from "./routes/authRouter";
+import createWatchlistsRouter from "./routes/watchlistsRouter";
 
 async function startServer() {
     if (process.env.NODE_ENV !== "production") dotenv.config();
@@ -35,6 +36,7 @@ async function startServer() {
     server.use(express.urlencoded({ extended: true }));
 
     server.use("/", createPlayersRouter(context));
+    server.use("/watchlists", createWatchlistsRouter(context));
     server.use("/auth", createAuthRouter(context));
 
     server.listen(PORT, () => {
