@@ -15,6 +15,7 @@ export async function createUser(context: AppContext, input: UserRegisterInput):
         email: input.email,
         name: input.name,
         password: passwordHash,
+        role: "user",
         createdAt: new Date(),
     };
 
@@ -27,7 +28,9 @@ export async function createGoogleUser(context: AppContext, input: UserGoogleLog
     const newUser = {
         email: input.email,
         name: input.name,
+        googleId: input.googleId,
         authProvider: "google",
+        role: "user",
         createdAt: new Date(),
     }
     const result = await context.users.insertOne(newUser as any);

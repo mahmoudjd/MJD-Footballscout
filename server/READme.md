@@ -116,12 +116,6 @@ JWT_SECRET=your_jwt_secret_key
 
 ---
 
-## 📄 API Documentation
-
-Full documentation and usage examples are provided in the Postman Collection. Import the collection and configure it with your server's URL and authentication tokens to explore the available endpoints.
-
----
-
 ## 🆕 What's New (v2.0.0 – June 28, 2025)
 
 - Dependency Injection added with Context Layer

@@ -10,6 +10,7 @@ export const UserRegisterInputSchema = z.object({
 export const UserGoogleLoginInputSchema = z.object({
     email: z.string().email(),
     name: z.string().min(2),
+    googleId: z.string().required(),
 })
 
 export const UserLoginInputSchema = z.object({
@@ -21,6 +22,7 @@ export const UserSchema = z.object({
     _id: z.custom<ObjectId>(),
     email: z.string().email(),
     name: z.string(),
+    role: z.enum(["admin", "user"]).default("user"),
     password: z.string(),
     createdAt: z.date(),
 })
