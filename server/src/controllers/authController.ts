@@ -28,10 +28,10 @@ export async function createGoogleUser(context: AppContext, input: UserGoogleLog
     const newUser = {
         email: input.email,
         name: input.name,
-        googleId: input.googleId,
         authProvider: "google",
         role: "user",
         createdAt: new Date(),
+        ...(input.googleId ? {googleId: input.googleId} : {}),
     }
     const result = await context.users.insertOne(newUser as any);
     return {...newUser, _id: result.insertedId};
