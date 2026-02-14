@@ -19,15 +19,29 @@ function incrementCounter(map: Map<string, number>, key: string) {
     map.set(key, (map.get(key) || 0) + 1);
 }
 
-function parseCompactCurrency(value: string | undefined) {
-    if (!value) return 0;
+function parseCompactCurrency(value: unknown) {
+    if (value === null || value === undefined) return 0;
 
-    const cleaned = value.trim().replace(",", ".");
-    const matched = cleaned.match(/^(\d+(?:\.\d+)?)([MK])?$/i);
+    if (typeof value === "number") {
+        return Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+    }
+
+    if (typeof value !== "string") {
+        return 0;
+    }
+
+    const cleaned = value
+        .trim()
+        .replace(/\s+/g, "")
+        .replace("€", "")
+        .replace(",", ".")
+        .toUpperCase();
+
+    const matched = cleaned.match(/^(\d+(?:\.\d+)?)([MK])?$/);
     if (!matched) return 0;
 
     const amount = Number(matched[1]);
-    const unit = matched[2]?.toUpperCase();
+    const unit = matched[2];
 
     if (!Number.isFinite(amount)) return 0;
     if (unit === "M") return Math.round(amount * 1_000_000);
@@ -45,8 +59,8 @@ function toHighlightPlayer(player: any) {
         elo: typeof player?.elo === "number" ? player.elo : 0,
         image: player?.image || "",
         currentClub: player?.currentClub || "",
-        value: player?.value || "",
-        currency: player?.currency || "",
+        value: player?.value === null || player?.value === undefined ? "" : String(player.value),
+        currency: player?.currency === null || player?.currency === undefined ? "" : String(player.currency),
     };
 }
 
