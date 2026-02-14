@@ -210,7 +210,7 @@ const createPlayersRouter = (context: AppContext) => {
         }
     });
 
-    router.put("/update-players", authMiddleware, async (_req: Request, res: Response) => {
+    router.put("/update-players", authMiddleware, requireRole(context, ["admin"]), async (_req: Request, res: Response) => {
         try {
             const updatedPlayers = await updateAllPlayers(context);
             res.status(200).json({
