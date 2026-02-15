@@ -1,30 +1,28 @@
-import {apiClient} from "@/lib/hooks/api-client";
-import {signOut} from "next-auth/react";
+import axios from "axios"
+import { env } from "@/env"
 
 export async function refreshAccessToken(refreshToken: string) {
-    try {
-        const response = await apiClient.post("/auth/refresh", {refreshToken});
+  try {
+    const response = await axios.post(`${env.NEXT_PUBLIC_API_HOST}/auth/refresh`, { refreshToken })
 
-        const refreshedTokens = response.data;
+    const refreshedTokens = response.data
 
-        if (response.status === 401 || !refreshedTokens?.accessToken) {
-            throw new Error("RefreshTokenError");
-        }
-
-        return {
-            accessToken: refreshedTokens.accessToken,
-            refreshToken: refreshedTokens.refreshToken ?? refreshToken,
-            expiresAt: Date.now() + (refreshedTokens.expiresIn || 3600) * 1000,
-        };
-    } catch (error: any) {
-        console.error('Fehler beim Token-Refresh:', error);
-
-        // When 401 → singout user and redirect to login
-        if (error.response?.status === 401) {
-            await signOut({callbackUrl: '/login'});
-            return;
-        }
-
-        throw error;
+    if (response.status === 401 || !refreshedTokens?.accessToken) {
+      throw new Error("RefreshTokenError")
     }
+
+    return {
+      accessToken: refreshedTokens.accessToken,
+      refreshToken: refreshedTokens.refreshToken ?? refreshToken,
+      expiresAt: Date.now() + (refreshedTokens.expiresIn || 3600) * 1000,
+      role: refreshedTokens.role,
+    }
+  } catch (error: any) {
+    console.error("Token refresh failed:", error)
+    if (error?.response?.status === 401) {
+      throw new Error("RefreshTokenError")
+    }
+
+    throw error
+  }
 }
