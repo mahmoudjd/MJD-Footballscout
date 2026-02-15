@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MJD Football Scout Web App
 
-## Getting Started
+Next.js Frontend fuer die Football-Scout Plattform mit Suche, Vergleich, Profilen und Watchlists.
 
-First, run the development server:
+## Stack
+
+- Next.js (App Router)
+- React + TypeScript
+- NextAuth (Credentials + Google)
+- TanStack Query
+- Axios
+
+## Features
+
+- Oeffentliche Suche (`/search`) und Spielerlisten (`/players`)
+- Advanced Search (`/advanced-search`)
+- Compare (`/compare`) fuer eingeloggte Nutzer
+- Spielerprofil (`/players/[playerId]`) nur fuer eingeloggte Nutzer
+- Watchlists (`/watchlists`) nur fuer eingeloggte Nutzer
+- Rollenbasierte UI (Delete nur fuer `admin` sichtbar/aktiv)
+
+## Voraussetzungen
+
+- Node.js 20+ (empfohlen: 24)
+- laufendes Backend (`NEXT_PUBLIC_API_HOST`)
+
+## Installation
+
+```bash
+cd web-app
+npm install
+```
+
+## Umgebungsvariablen
+
+Datei: `web-app/.env.local`
+
+```env
+NEXT_PUBLIC_API_HOST=http://localhost:8080
+NEXTAUTH_SECRET=replace-with-a-long-random-secret-min-32-chars
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+# optional empfohlen fuer Deployments
+NEXTAUTH_URL=http://localhost:3000
+```
+
+## Scripts
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run typecheck
+npm run lint
+npm run lint:fix
+npm run format
+npm run format:check
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Lokaler Start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Backend starten (`server`, Port `8080`)
+2. Frontend starten:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev
+```
 
-## Learn More
+3. App oeffnen: `http://localhost:3000`
 
-To learn more about Next.js, take a look at the following resources:
+## Auth & Zugriff
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `public`: Home, Players, Search, Advanced Search
+- `authenticated`: Compare, Player Profile, Watchlists
+- `admin`: Delete Action in Player-Listen
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Projektstruktur (relevant)
 
-## Deploy on Vercel
+- `src/app` Routen (App Router)
+- `src/components` UI und Feature-Komponenten
+- `src/lib/hooks` API-Queries/Mutations
+- `src/auth.ts` NextAuth Konfiguration
+- `src/env.ts` Runtime Env-Validierung (zod)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Hinweise
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Wenn Compare/Profile/Watchlists ohne Login geoeffnet werden, fuehrt die App zum Login.
+- Nach Login wird per `callbackUrl` zur angefragten Seite zuruecknavigiert.
+
+## Troubleshooting
+
+- `next: command not found`: `npm install` in `web-app` ausfuehren.
+- `NEXT_PUBLIC_API_HOST muss eine gueltige URL sein`: `.env.local` pruefen.
+- 401 bei geschuetzten Seiten: Session abgelaufen, neu einloggen.
