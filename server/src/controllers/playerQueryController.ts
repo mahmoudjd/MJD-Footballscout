@@ -177,26 +177,27 @@ export async function getAdvancedPlayers(context: AppContext, query: Record<stri
 }
 
 function parseCompareIds(query: Record<string, unknown>) {
-    const rawIds = toOptionalString(query.ids);
-    if (!rawIds) {
-        throw new Error("Query parameter ids is required");
+    const rawIdsValue = query.ids;
+    let parsedIds: string[] = [];
+    if (Array.isArray(rawIdsValue)) {
+        parsedIds = rawIdsValue
+            .map((id) => String(id).trim())
+            .filter(Boolean);
+    } else {
+        const rawIds = toOptionalString(rawIdsValue);
+        if (!rawIds) {
+            throw new Error("Query parameter ids is required");
+        }
+        parsedIds = rawIds
+            .split(",")
+            .map((id) => id.trim())
+            .filter(Boolean);
     }
 
-    const uniqueIds = Array.from(
-        new Set(
-            rawIds
-                .split(",")
-                .map((id) => id.trim())
-                .filter(Boolean),
-        ),
-    );
+    const uniqueIds = Array.from(new Set(parsedIds));
 
     if (uniqueIds.length < 2) {
         throw new Error("At least two players are required for comparison");
-    }
-
-    if (uniqueIds.length > 4) {
-        throw new Error("Maximum of four players can be compared at once");
     }
 
     if (uniqueIds.some((id) => !ObjectId.isValid(id))) {

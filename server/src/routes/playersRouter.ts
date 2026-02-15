@@ -90,6 +90,15 @@ const createPlayersRouter = (context: AppContext) => {
         }
     });
 
+    router.post("/players/compare", authMiddleware, async (req: Request, res: Response) => {
+        try {
+            const comparison = await comparePlayers(context, req.body as Record<string, unknown>);
+            return res.status(200).json(comparison);
+        } catch (error) {
+            return handleControllerError(error, res);
+        }
+    });
+
     // Authentifizierte Routen
     router.post("/players", authMiddleware, async (req: Request, res: Response): Promise<any> => {
         const {data} = req.body;
