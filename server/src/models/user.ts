@@ -8,10 +8,8 @@ export const UserRegisterInputSchema = z.object({
 });
 
 export const UserGoogleLoginInputSchema = z.object({
-    email: z.string().email(),
-    name: z.string().min(2),
-    googleId: z.string().min(1).optional(),
-})
+    idToken: z.string().min(1),
+});
 
 export const UserLoginInputSchema = z.object({
     email: z.string().email(),
@@ -24,8 +22,10 @@ export const UserSchema = z.object({
     name: z.string(),
     role: z.enum(["admin", "user"]).default("user"),
     password: z.string().optional(),
+    authProvider: z.enum(["credentials", "google"]).optional(),
+    googleId: z.string().optional(),
     createdAt: z.date(),
-})
+});
 
 export type User = z.infer<typeof UserSchema>;
 export type UserRegisterInput = z.infer<typeof UserRegisterInputSchema>;

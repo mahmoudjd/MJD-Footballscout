@@ -1,6 +1,7 @@
 import express, {Request, Response} from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import axios from "axios";
 import {z} from "zod";
 import {ObjectId} from "mongodb";
 
@@ -18,7 +19,43 @@ import {UserRole} from "../models/auth";
 
 export default function createAuthRouter(context: AppContext) {
     const router = express.Router();
-    const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret";
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+        throw new Error("JWT_SECRET is missing in environment");
+    }
+    const GOOGLE_CLIENT_IDS = (process.env.GOOGLE_CLIENT_ID || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+    const GoogleTokenInfoSchema = z.object({
+        aud: z.string().min(1),
+        sub: z.string().min(1),
+        email: z.string().email(),
+        email_verified: z.union([z.boolean(), z.string()]),
+        name: z.string().optional(),
+    });
+
+    const isEmailVerified = (value: boolean | string) => value === true || value === "true";
+
+    const verifyGoogleIdToken = async (idToken: string) => {
+        const response = await axios.get("https://oauth2.googleapis.com/tokeninfo", {
+            params: {id_token: idToken},
+            timeout: 5000,
+        });
+        const payload = GoogleTokenInfoSchema.parse(response.data);
+        if (!isEmailVerified(payload.email_verified)) {
+            throw new Error("Google token email is not verified");
+        }
+        if (GOOGLE_CLIENT_IDS.length > 0 && !GOOGLE_CLIENT_IDS.includes(payload.aud)) {
+            throw new Error("Google token audience mismatch");
+        }
+        return {
+            email: payload.email,
+            name: payload.name?.trim() || payload.email.split("@")[0],
+            googleId: payload.sub,
+        };
+    };
 
     const generateTokens = (user: { _id: string; email: string; role: UserRole }) => {
         const accessToken = jwt.sign(
@@ -100,21 +137,44 @@ export default function createAuthRouter(context: AppContext) {
 
     router.post("/google-login", async (req: Request, res: Response): Promise<any> => {
         try {
-            const input: UserGoogleLoginInput = UserGoogleLoginInputSchema.parse(req.body);
-
-            if (!input.email) {
-                return res.status(400).json({error: "Google login must provide an email"});
+            if (GOOGLE_CLIENT_IDS.length === 0) {
+                logger.error("GOOGLE_CLIENT_ID is missing. Google login is disabled.");
+                return res.status(503).json({error: "Google login is not configured"});
             }
 
-            const existingUser = await context.users.findOne({
-                email: input.email,
-                ...(input.googleId ? {googleId: input.googleId} : {}),
-            });
-            let user = !existingUser ?
-                await createGoogleUser(context, input)
-                : existingUser;
+            const input: UserGoogleLoginInput = UserGoogleLoginInputSchema.parse(req.body);
+            const verifiedGoogleUser = await verifyGoogleIdToken(input.idToken);
 
-            // 3️⃣ Token generieren
+            let user = await context.users.findOne({googleId: verifiedGoogleUser.googleId});
+            if (!user) {
+                const userByEmail = await context.users.findOne({email: verifiedGoogleUser.email});
+                if (userByEmail) {
+                    if (userByEmail.authProvider !== "google" && userByEmail.password) {
+                        return res.status(409).json({
+                            error: "Account already exists with email/password. Please login with credentials.",
+                        });
+                    }
+
+                    user = await context.users.findOneAndUpdate(
+                        {_id: userByEmail._id},
+                        {
+                            $set: {
+                                googleId: verifiedGoogleUser.googleId,
+                                authProvider: "google",
+                                name: userByEmail.name || verifiedGoogleUser.name,
+                            },
+                        },
+                        {returnDocument: "after"},
+                    );
+                } else {
+                    user = await createGoogleUser(context, verifiedGoogleUser);
+                }
+            }
+
+            if (!user) {
+                return res.status(500).json({error: "Unable to complete Google login"});
+            }
+
             const userRole = user.role || "user";
             const tokens = generateTokens({
                 _id: user._id!.toString(),
@@ -133,6 +193,15 @@ export default function createAuthRouter(context: AppContext) {
             if (err instanceof z.ZodError) {
                 return res.status(400).json({error: "Invalid input", details: err.errors});
             }
+            if (err instanceof Error && err.message === "User already exists") {
+                return res.status(409).json({error: err.message});
+            }
+            if (err instanceof Error && err.message.includes("Google token")) {
+                return res.status(401).json({error: err.message});
+            }
+            if (axios.isAxiosError(err)) {
+                return res.status(401).json({error: "Invalid Google token"});
+            }
 
             logger.error("Google login failed", err);
             return res.status(500).json({error: "Google login failed"});
@@ -149,6 +218,9 @@ export default function createAuthRouter(context: AppContext) {
         try {
             const payload = jwt.verify(refreshToken, JWT_SECRET) as { userId?: string; tokenType?: string };
             if (!payload.userId || payload.tokenType !== "refresh") {
+                return res.status(401).json({error: "Invalid token payload"});
+            }
+            if (!ObjectId.isValid(payload.userId)) {
                 return res.status(401).json({error: "Invalid token payload"});
             }
 

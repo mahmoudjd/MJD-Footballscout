@@ -6,6 +6,7 @@ import { AppContext, Config} from "../models/context"
 import {ScoutingReport} from "../models/scoutingReport";
 import {PlayerHistory} from "../models/playerHistory";
 import {Watchlist} from "../models/watchlist";
+import logger from "../logger/logger";
 
 export async function createContext({
                                             mongoURI,
@@ -23,6 +24,15 @@ export async function createContext({
     const scoutingReports = db.collection<ScoutingReport>("scoutingReports");
     const playerHistories = db.collection<PlayerHistory>("playerHistories");
     const watchlists = db.collection<Watchlist>("watchlists");
+    await users.createIndex({email: 1}, {unique: true});
+    await users.createIndex(
+        {googleId: 1},
+        {
+            unique: true,
+            partialFilterExpression: {googleId: {$type: "string"}},
+        },
+    );
+    logger.info("User indexes ensured");
     const defaultConfig: Config = {
         env: process.env.NODE_ENV ?? "development",
         clientUrl: process.env.CLIENT_URL ?? "*",

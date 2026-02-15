@@ -14,8 +14,12 @@ async function startServer() {
     if (process.env.NODE_ENV !== "production") dotenv.config();
     const PORT = process.env.PORT ?? 8080;
     const MONGOURI = process.env.MONGOURI;
+    const JWT_SECRET = process.env.JWT_SECRET;
     if (!MONGOURI) {
         throw new Error("MONGOURI is missing in server/.env");
+    }
+    if (!JWT_SECRET) {
+        throw new Error("JWT_SECRET is missing in server/.env");
     }
 
     const context = await createContext({ mongoURI: MONGOURI });

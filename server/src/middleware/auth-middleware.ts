@@ -9,8 +9,14 @@ export const authMiddleware: RequestHandler = (req: Request, res: Response, next
         return;
     }
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+        res.status(500).json({error: "JWT secret is not configured"});
+        return;
+    }
+
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as AuthTokenPayload;
+        const decoded = jwt.verify(token, jwtSecret) as AuthTokenPayload;
         if (!decoded?.userId || typeof decoded.userId !== "string") {
             res.status(401).json({error: "Invalid token payload"});
             return;

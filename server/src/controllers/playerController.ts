@@ -4,6 +4,7 @@ import {ObjectId} from "mongodb";
 import {extractPlayerData} from "../scraper/scrapingData";
 import {convert, isPlayerMatch, normalizeDate, normalizeName} from "../scraper/utils";
 import logger from "../logger/logger";
+import {ApiError} from "./scoutingController";
 
 function normalizePositionForStats(position: string | undefined) {
     const value = (position || "").toLowerCase();
@@ -186,14 +187,20 @@ function toHighlightPlayer(player: any) {
 export async function getPlayerById(context: AppContext, id: string) {
     try {
         logger.debug(`Fetching player by ID: ${id}`);
+        if (!ObjectId.isValid(id)) {
+            throw new ApiError(400, "Invalid player id");
+        }
         const playerId = new ObjectId(id);
-        const player = await context.players.findOne({_id: new ObjectId(playerId)});
+        const player = await context.players.findOne({_id: playerId});
         if (!player) {
             logger.warn(`Player not found with ID: ${id}`);
             return null;
         }
         return player;
     } catch (error: any) {
+        if (error instanceof ApiError) {
+            throw error;
+        }
         logger.error(`Failed to fetch player by ID ${id}: ${error.stack || error.message}`);
         throw new Error("Failed to fetch player by ID");
     }
@@ -236,19 +243,25 @@ export async function createPlayer(context: AppContext, player: any) {
 export async function deletePlayerById(context: AppContext, id: string) {
     try {
         logger.info(`Deleting player by ID: ${id}`);
+        if (!ObjectId.isValid(id)) {
+            throw new ApiError(400, "Invalid player id");
+        }
         const playerId = new ObjectId(id);
-        const player = await context.players.findOne({_id: new ObjectId(playerId)});
+        const player = await context.players.findOne({_id: playerId});
         if (!player) {
             logger.warn(`Player not found with ID: ${id}`);
             return null;
         }
-        const deletedPlayer = await context.players.deleteOne({_id: new ObjectId(id)});
+        const deletedPlayer = await context.players.deleteOne({_id: playerId});
         if (!deletedPlayer.acknowledged) {
             logger.warn(`Failed to delete player with ID (${id})`);
             return null;
         }
         return deletedPlayer;
     } catch (error: any) {
+        if (error instanceof ApiError) {
+            throw error;
+        }
         logger.error(`Failed to delete player by ID ${id}: ${error.stack || error.message}`);
         throw new Error("Failed to delete player by ID");
     }
@@ -257,6 +270,9 @@ export async function deletePlayerById(context: AppContext, id: string) {
 export async function updatePlayerFromWebSites(context: AppContext, playerId: string) {
     try {
         logger.info(`Updating player from websites: ${playerId}`);
+        if (!ObjectId.isValid(playerId)) {
+            throw new ApiError(400, "Invalid player id");
+        }
 
         const oldPlayer = await context.players
             .findOne({_id: new ObjectId(playerId)});
@@ -308,6 +324,9 @@ export async function updatePlayerFromWebSites(context: AppContext, playerId: st
 
         return result;
     } catch (error: any) {
+        if (error instanceof ApiError) {
+            throw error;
+        }
         logger.error(`Failed to update player ${playerId}: ${error.stack || error.message}`);
         throw new Error("Failed to update player");
     }
@@ -329,13 +348,14 @@ export function mergePlayerData(oldPlayer: any, newPlayer: any): any {
                         transfers: "season",
                         playerAttributes: "name",
                     }[key];
+                    const oldArray = Array.isArray(oldValue) ? oldValue : [];
 
                     const combined = [
-                        ...oldValue,
+                        ...oldArray,
                         ...newValue.filter(
                             (item: any) =>
                                 // @ts-ignore
-                                !oldValue.some((oldItem: any) => oldItem[uniqueKey] === item[uniqueKey])
+                                !oldArray.some((oldItem: any) => oldItem[uniqueKey] === item[uniqueKey])
                         ),
                     ];
 
@@ -540,17 +560,25 @@ export async function updateAllPlayers(context: AppContext) {
             throw new Error("No players found");
         }
 
-        const updatePromises = players.map(async (player) => {
-            try {
-                return await updatePlayerFromWebSites(context, (player._id?.toString())!);
-            } catch (error: any) {
-                logger.error(`Error updating player ${player._id}: ${error.message}`);
-                return null;
-            }
-        });
+        const configuredConcurrency = Number(process.env.UPDATE_ALL_PLAYERS_CONCURRENCY || 5);
+        const concurrency = Number.isFinite(configuredConcurrency) && configuredConcurrency > 0
+            ? Math.min(Math.floor(configuredConcurrency), 20)
+            : 5;
 
+        const updatedPlayers: Array<any> = [];
+        for (let index = 0; index < players.length; index += concurrency) {
+            const batch = players.slice(index, index + concurrency);
+            const batchResults = await Promise.all(batch.map(async (player) => {
+                try {
+                    return await updatePlayerFromWebSites(context, (player._id?.toString())!);
+                } catch (error: any) {
+                    logger.error(`Error updating player ${player._id}: ${error.message}`);
+                    return null;
+                }
+            }));
+            updatedPlayers.push(...batchResults.filter((player) => player));
+        }
 
-        const updatedPlayers = await Promise.all(updatePromises);
         return updatedPlayers.filter((p) => p);
     } catch (error: any) {
         logger.error(`Error updating all players: ${error.stack || error.message}`);
