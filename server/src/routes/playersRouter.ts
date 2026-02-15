@@ -116,10 +116,9 @@ const createPlayersRouter = (context: AppContext) => {
         try {
             const player = await getPlayerById(context, playerId);
             if (!player) return res.status(404).json("not found player");
-            res.status(200).json(player);
+            return res.status(200).json(player);
         } catch (error) {
-            logger.error("Failed to get player: ", error);
-            res.status(500).json({error: "Internal server error"});
+            return handleControllerError(error, res);
         }
     });
 
@@ -176,10 +175,9 @@ const createPlayersRouter = (context: AppContext) => {
         try {
             const player = await updatePlayerFromWebSites(context, playerId);
             if (!player) return res.status(404).json("not found player");
-            res.status(202).json(player);
+            return res.status(202).json(player);
         } catch (error) {
-            logger.error("Failed to update player: ", error);
-            res.status(500).json({error: "Internal server error"});
+            return handleControllerError(error, res);
         }
     });
 
@@ -203,10 +201,9 @@ const createPlayersRouter = (context: AppContext) => {
         try {
             const player = await deletePlayerById(context, playerId);
             if (!player) return res.status(404).json("not found player");
-            res.status(204).json({message: "Successfully deleted player"});
+            return res.status(204).send();
         } catch (error) {
-            logger.error("Failed to delete player: ", error);
-            res.status(500).json({error: "Internal server error"});
+            return handleControllerError(error, res);
         }
     });
 
