@@ -40,6 +40,16 @@ function toOptionalNumber(value: unknown) {
     return candidate;
 }
 
+function toOptionalBoolean(value: unknown) {
+    const candidate = firstQueryValue(value);
+    if (candidate === undefined || candidate === null) return undefined;
+    if (typeof candidate === "boolean") return candidate;
+    const normalized = String(candidate).trim().toLowerCase();
+    if (normalized === "true" || normalized === "1" || normalized === "yes") return true;
+    if (normalized === "false" || normalized === "0" || normalized === "no") return false;
+    return undefined;
+}
+
 function normalizeForSearch(value: string | undefined) {
     return (value || "").toLowerCase().trim();
 }
@@ -228,16 +238,27 @@ function pickLeaders<T>(players: any[], selector: (player: any) => T, prefer: "m
 }
 
 export async function comparePlayers(context: AppContext, query: Record<string, unknown>) {
-    const ids = parseCompareIds(query);
-    const objectIds = ids.map((id) => new ObjectId(id));
-    const players = await context.players.find({_id: {$in: objectIds}}).toArray();
+    const compareAll = toOptionalBoolean(query.all) === true;
+    let orderedPlayers: any[] = [];
 
-    if (players.length < 2) {
-        throw new Error("Not enough players found for comparison");
+    if (compareAll) {
+        orderedPlayers = await context.players.find().toArray();
+    } else {
+        const ids = parseCompareIds(query);
+        const objectIds = ids.map((id) => new ObjectId(id));
+        const players = await context.players.find({_id: {$in: objectIds}}).toArray();
+
+        if (players.length < 2) {
+            throw new Error("Not enough players found for comparison");
+        }
+
+        const playersById = new Map(players.map((player) => [String(player._id), player]));
+        orderedPlayers = ids.map((id) => playersById.get(id)).filter(Boolean);
     }
 
-    const playersById = new Map(players.map((player) => [String(player._id), player]));
-    const orderedPlayers = ids.map((id) => playersById.get(id)).filter(Boolean);
+    if (orderedPlayers.length < 2) {
+        throw new Error("At least two players are required for comparison");
+    }
 
     const byElo = pickLeaders(orderedPlayers, (player) => player.elo, "max");
     const byValue = pickLeaders(
@@ -275,7 +296,7 @@ export async function comparePlayers(context: AppContext, query: Record<string, 
         }))
         .sort((a, b) => b.score - a.score);
 
-    logger.info(`Compared ${orderedPlayers.length} players`);
+    logger.info(`Compared ${orderedPlayers.length} players${compareAll ? " (all)" : ""}`);
 
     return {
         players: orderedPlayers,
