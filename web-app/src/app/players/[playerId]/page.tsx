@@ -1,14 +1,11 @@
-import { Profile } from "@/components/profile/Profile"
+import { PlayerProfilePageView } from "@/components/profile/PlayerProfilePageView"
 import { notFound } from "next/navigation"
 
-interface ProfileProps {
+interface ProfilePageProps {
   params: Promise<{ playerId: string }>
 }
 
-export default async function ProfilePage({ params }: ProfileProps) {
+export default async function ProfilePage({ params }: ProfilePageProps) {
   const { playerId } = await params
-  if (!playerId) {
-    return notFound()
-  }
-  return <Profile playerId={playerId} />
+  return playerId ? <PlayerProfilePageView playerId={playerId} /> : notFound()
 }

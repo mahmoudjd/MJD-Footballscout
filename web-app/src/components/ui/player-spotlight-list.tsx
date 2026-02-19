@@ -3,32 +3,79 @@
 import Link from "next/link"
 import { PlayerHighlightItemType } from "@/lib/types/type"
 import { useSession } from "next-auth/react"
+import { cn } from "@/lib/cn"
+import { Text } from "@/components/ui/text"
 
 interface PlayerSpotlightListProps {
   title: string
   players: PlayerHighlightItemType[]
   emptyText: string
+  className?: string
+  tone?: "default" | "glass"
 }
 
-export function PlayerSpotlightList({ title, players, emptyText }: PlayerSpotlightListProps) {
+export function PlayerSpotlightList({
+  title,
+  players,
+  emptyText,
+  className,
+  tone = "default",
+}: PlayerSpotlightListProps) {
   const { data: session } = useSession()
   const isLoggedIn = !!session?.user?.email
+  const toneClasses = {
+    default: {
+      container: "border-slate-200 bg-white",
+      title: "text-slate-700",
+      row: "border-slate-200 bg-slate-50/70",
+      name: "text-slate-900",
+      meta: "text-slate-500",
+      badge: "border-cyan-200 bg-cyan-50 text-cyan-700",
+      link: "border-cyan-300 text-cyan-700 hover:bg-cyan-50",
+      empty: "text-slate-500",
+    },
+    glass: {
+      container: "border-white/30 bg-white/12 text-white backdrop-blur-md",
+      title: "text-slate-100",
+      row: "border-white/25 bg-white/12",
+      name: "text-white",
+      meta: "text-slate-200",
+      badge: "border-cyan-200/40 bg-cyan-200/20 text-cyan-100",
+      link: "border-cyan-200/50 text-cyan-100 hover:bg-cyan-100/15",
+      empty: "text-slate-200/90",
+    },
+  }[tone]
 
   return (
-    <div className="rounded-xl border border-white/20 bg-black/20 p-4">
-      <h4 className="text-sm font-semibold tracking-wider text-gray-200 uppercase">{title}</h4>
+    <div className={cn("rounded-2xl border p-4 shadow-sm", toneClasses.container, className)}>
+      <Text as="h4" variant="overline" weight="bold" className={cn("tracking-wider", toneClasses.title)}>
+        {title}
+      </Text>
       {players.length > 0 ? (
         <ul className="mt-3 space-y-3">
           {players.map((player) => (
-            <li key={player._id} className="flex items-center justify-between gap-3 text-sm">
-              <div className="min-w-0">
-                <p className="truncate font-semibold text-white">{player.name}</p>
-                <p className="truncate text-xs text-gray-300">
-                  {player.currentClub || player.country}
-                </p>
+            <li
+              key={player._id}
+              className={cn("flex items-center justify-between gap-3 rounded-xl border p-2.5 text-sm", toneClasses.row)}
+            >
+              <div className="flex min-w-0 items-center gap-2.5">
+                <img
+                  src={player.image}
+                  alt={player.name}
+                  className="h-10 w-10 rounded-full border border-white/35 object-cover bg-slate-200"
+                  loading="lazy"
+                />
+                <div className="min-w-0">
+                  <Text as="p" weight="semibold" className={cn("truncate", toneClasses.name)}>
+                    {player.name}
+                  </Text>
+                  <Text as="p" variant="caption" className={cn("truncate", toneClasses.meta)}>
+                    {player.currentClub || player.country}
+                  </Text>
+                </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <span className="rounded-md bg-cyan-500/20 px-2 py-0.5 text-cyan-200">
+                <span className={cn("rounded-full border px-2 py-0.5 text-xs font-semibold", toneClasses.badge)}>
                   ELO {player.elo}
                 </span>
                 <Link
@@ -37,7 +84,10 @@ export function PlayerSpotlightList({ title, players, emptyText }: PlayerSpotlig
                       ? `/players/${player._id}`
                       : `/login?callbackUrl=${encodeURIComponent(`/players/${player._id}`)}`
                   }
-                  className="rounded-md border border-cyan-300/40 px-2 py-0.5 text-xs text-cyan-100 hover:bg-cyan-500/20"
+                  className={cn(
+                    "rounded-lg border px-2 py-0.5 text-xs font-semibold transition",
+                    toneClasses.link,
+                  )}
                 >
                   Open
                 </Link>
@@ -46,7 +96,9 @@ export function PlayerSpotlightList({ title, players, emptyText }: PlayerSpotlig
           ))}
         </ul>
       ) : (
-        <p className="mt-3 text-sm text-gray-300">{emptyText}</p>
+        <Text as="p" className={cn("mt-3", toneClasses.empty)}>
+          {emptyText}
+        </Text>
       )}
     </div>
   )

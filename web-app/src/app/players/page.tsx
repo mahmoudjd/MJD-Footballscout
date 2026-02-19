@@ -1,5 +1,5 @@
-import PlayersList from "@/components/players/players-list"
+import PlayersPageView from "@/components/players/PlayersPageView"
 
 export default function PlayersPage() {
-  return <PlayersList />
+  return <PlayersPageView />
 }

@@ -1,11 +1,19 @@
 import React from "react"
+import { cn } from "@/lib/cn"
 
 interface SkeletonProps {
   className?: string
+  tone?: "default" | "light" | "dark"
 }
 
-export function Skeleton({ className = "" }: SkeletonProps) {
-  return <div className={`animate-pulse rounded-md bg-slate-200 ${className}`} />
+const toneClasses: Record<NonNullable<SkeletonProps["tone"]>, string> = {
+  default: "bg-slate-200",
+  light: "bg-white/20",
+  dark: "bg-slate-700/35",
+}
+
+export function Skeleton({ className, tone = "default" }: SkeletonProps) {
+  return <div className={cn("animate-pulse rounded-md", toneClasses[tone], className)} />
 }
 
 interface PlayersTableSkeletonProps {

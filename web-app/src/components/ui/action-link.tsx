@@ -1,17 +1,26 @@
 import Link from "next/link"
+import { ReactNode } from "react"
+import { buttonVariants } from "@/components/ui/button"
 
 interface ActionLinkProps {
   href: string
-  children: string
+  children: ReactNode
   className?: string
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger"
+  size?: "sm" | "md" | "lg"
+  fullWidth?: boolean
 }
 
-export function ActionLink({ href, children, className = "" }: ActionLinkProps) {
+export function ActionLink({
+  href,
+  children,
+  className,
+  variant = "primary",
+  size = "lg",
+  fullWidth = true,
+}: ActionLinkProps) {
   return (
-    <Link
-      href={href}
-      className={`inline-flex w-full items-center justify-center rounded-xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500 sm:text-base ${className}`.trim()}
-    >
+    <Link href={href} className={buttonVariants({ variant, size, fullWidth, className })}>
       {children}
     </Link>
   )

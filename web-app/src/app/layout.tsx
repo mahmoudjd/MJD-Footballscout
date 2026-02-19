@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 import Header from "@/components/header/header"
+import { MobileTabBar } from "@/components/header/mobile-tab-bar"
 import { Footer } from "@/components/footer"
 import { Providers } from "./providers"
 import { getServerSession } from "next-auth"
@@ -26,7 +27,8 @@ export default async function RootLayout({
       <body className="min-h-screen font-sans antialiased">
         <Providers session={session}>
           <Header />
-          <main className="min-h-[calc(100vh-7.5rem)]">{children}</main>
+          <main className="min-h-[calc(100vh-7.5rem)] pb-28 md:pb-0">{children}</main>
+          <MobileTabBar />
           <Footer />
         </Providers>
       </body>

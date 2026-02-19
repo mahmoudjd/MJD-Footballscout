@@ -1,5 +1,5 @@
-import { CompareView } from "@/components/compare/compare-view"
+import { ComparePageView } from "@/components/compare/ComparePageView"
 
 export default function ComparePage() {
-  return <CompareView />
+  return <ComparePageView />
 }

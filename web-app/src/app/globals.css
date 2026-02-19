@@ -7,22 +7,24 @@
 }
 
 :root {
-  --app-bg: #f2f6f8;
+  --app-bg: #eef4f7;
   --app-surface: #ffffff;
   --app-text: #0f172a;
-  --app-font: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+  --app-font: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
 }
 
 body,
 html {
   font-family: var(--app-font);
   background:
-    radial-gradient(circle at 12% 8%, rgba(8, 145, 178, 0.12), transparent 35%),
-    radial-gradient(circle at 88% 5%, rgba(14, 116, 144, 0.08), transparent 30%), var(--app-bg);
+    radial-gradient(circle at 12% 8%, rgba(8, 145, 178, 0.13), transparent 35%),
+    radial-gradient(circle at 88% 5%, rgba(14, 116, 144, 0.09), transparent 30%),
+    radial-gradient(circle at 50% 95%, rgba(20, 184, 166, 0.08), transparent 40%), var(--app-bg);
   color: var(--app-text);
   overflow-x: hidden;
   overflow-y: auto;
   min-height: 100%;
+  text-rendering: optimizeLegibility;
 }
 
 img {

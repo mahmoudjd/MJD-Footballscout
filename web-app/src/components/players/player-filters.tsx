@@ -3,6 +3,9 @@ import { SolidIcons } from "@/components/solid-icons"
 import { OutlineIcons } from "@/components/outline-icons"
 import { Select } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Button } from "@/components/ui/button"
+import { Text } from "@/components/ui/text"
+import { Input } from "@/components/ui/input"
 
 interface Props {
   selectedPosition: string
@@ -36,16 +39,20 @@ interface Props {
 function FilterLabel({ label, hint }: { label: string; hint: string }) {
   return (
     <div className="flex items-center gap-1">
-      <label className="text-sm font-medium text-gray-600">{label}</label>
+      <Text as="span" weight="semibold" className="text-slate-700">
+        {label}
+      </Text>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
+          <Button
             type="button"
-            className="rounded text-gray-400 transition hover:text-cyan-700"
+            variant="ghost"
+            size="icon-sm"
+            className="h-6 w-6 rounded text-slate-400 hover:bg-transparent hover:text-cyan-700"
             aria-label={`${label} help`}
           >
             <OutlineIcons.InformationCircleIcon className="h-4 w-4" />
-          </button>
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="top">{hint}</TooltipContent>
       </Tooltip>
@@ -121,17 +128,20 @@ const PlayerFilters = ({
     <TooltipProvider>
       <div className="w-full space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center space-x-2 text-lg font-semibold text-gray-700">
+          <div className="flex items-center space-x-2">
             <SolidIcons.AdjustmentsVerticalIcon className="h-5 w-5 text-cyan-600" />
-            <span>Filter Players</span>
+            <Text as="span" variant="title" weight="bold" className="text-slate-800">
+              Filter Players
+            </Text>
           </div>
-          <button
+          <Button
             type="button"
             onClick={onReset}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-100"
+            variant="outline"
+            size="sm"
           >
             Reset filters
-          </button>
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -170,33 +180,33 @@ const PlayerFilters = ({
 
           <div className="space-y-1">
             <FilterLabel label="Club" hint="Type part of the club name to narrow down the list." />
-            <input
+            <Input
               value={clubQuery}
               onChange={(event) => onClubQueryChange(event.target.value)}
               placeholder="e.g. Barcelona"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none"
+              inputSize="sm"
             />
           </div>
 
           <div className="space-y-1">
             <FilterLabel label="Min Age" hint="Only keep players at or above this age." />
-            <input
+            <Input
               value={minAge}
               onChange={(event) => onMinAgeChange(event.target.value)}
               inputMode="numeric"
               placeholder="e.g. 18"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none"
+              inputSize="sm"
             />
           </div>
 
           <div className="space-y-1">
             <FilterLabel label="Max Age" hint="Only keep players at or below this age." />
-            <input
+            <Input
               value={maxAge}
               onChange={(event) => onMaxAgeChange(event.target.value)}
               inputMode="numeric"
               placeholder="e.g. 32"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none"
+              inputSize="sm"
             />
           </div>
 
@@ -220,23 +230,23 @@ const PlayerFilters = ({
 
           <div className="space-y-1">
             <FilterLabel label="Min ELO" hint="Only keep players at or above this ELO value." />
-            <input
+            <Input
               value={minElo}
               onChange={(event) => onMinEloChange(event.target.value)}
               inputMode="numeric"
               placeholder="e.g. 1500"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none"
+              inputSize="sm"
             />
           </div>
 
           <div className="space-y-1">
             <FilterLabel label="Max ELO" hint="Only keep players at or below this ELO value." />
-            <input
+            <Input
               value={maxElo}
               onChange={(event) => onMaxEloChange(event.target.value)}
               inputMode="numeric"
               placeholder="e.g. 2500"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none"
+              inputSize="sm"
             />
           </div>
 
@@ -245,12 +255,12 @@ const PlayerFilters = ({
               label="Min Market Value"
               hint="Use plain numbers (e.g. 1000000) to set a minimum value."
             />
-            <input
+            <Input
               value={minValue}
               onChange={(event) => onMinValueChange(event.target.value)}
               inputMode="numeric"
               placeholder="e.g. 1000000"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none"
+              inputSize="sm"
             />
           </div>
 
@@ -259,12 +269,12 @@ const PlayerFilters = ({
               label="Max Market Value"
               hint="Use plain numbers (e.g. 50000000) to set a maximum value."
             />
-            <input
+            <Input
               value={maxValue}
               onChange={(event) => onMaxValueChange(event.target.value)}
               inputMode="numeric"
               placeholder="e.g. 50000000"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none"
+              inputSize="sm"
             />
           </div>
         </div>

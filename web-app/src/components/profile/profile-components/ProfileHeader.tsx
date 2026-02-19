@@ -1,60 +1,137 @@
+import { OutlineIcons } from "@/components/outline-icons"
+import { getPlayerDisplayName, safeDecode } from "@/components/profile/profile-components/player-display"
+import { Text } from "@/components/ui/text"
+
 interface HeaderProps {
   position: string
   name: string
   title: string
+  fullName?: string
   image?: string
   number: number
+  age?: number
+  currentClub?: string
 }
 
-const setHeaderGradient = (position: string) => {
-  if (position.includes("Forward")) return "from-rose-600 to-pink-700"
-  if (position.includes("Midfielder")) return "from-emerald-600 to-green-700"
-  if (position.includes("Defender")) return "from-sky-600 to-blue-700"
-  return "from-amber-500 to-yellow-600"
+type HeroTone = {
+  gradient: string
+  badge: string
 }
 
-const setBadgeColor = (position: string) => {
-  if (position.includes("Forward")) return "bg-red-100 text-red-800"
-  if (position.includes("Midfielder")) return "bg-emerald-100 text-emerald-800"
-  if (position.includes("Defender")) return "bg-sky-100 text-sky-800"
-  return "bg-amber-100 text-amber-800"
+const setHeroTone = (position: string): HeroTone => {
+  if (position.includes("Forward")) {
+    return {
+      gradient: "from-rose-700 via-rose-600 to-red-700",
+      badge: "bg-white/18 text-white",
+    }
+  }
+  if (position.includes("Midfielder")) {
+    return {
+      gradient: "from-teal-700 via-emerald-600 to-green-700",
+      badge: "bg-white/18 text-white",
+    }
+  }
+  if (position.includes("Defender")) {
+    return {
+      gradient: "from-sky-700 via-blue-600 to-indigo-700",
+      badge: "bg-white/18 text-white",
+    }
+  }
+  return {
+    gradient: "from-amber-600 via-amber-500 to-orange-600",
+    badge: "bg-white/22 text-white",
+  }
 }
 
-const ProfileHeader = ({ name, title, position, image, number }: HeaderProps) => {
+export default function ProfileHeader({
+  name,
+  title,
+  fullName,
+  position,
+  image,
+  number,
+  age,
+  currentClub,
+}: HeaderProps) {
+  const tone = setHeroTone(position || "")
+  const displayName = getPlayerDisplayName({
+    title,
+    name,
+    fullName: fullName || "",
+  })
+
   return (
     <header
-      className={`grid grid-cols-1 items-center gap-5 rounded-2xl bg-gradient-to-r p-4 text-white shadow-lg sm:p-6 md:grid-cols-[auto_1fr] ${setHeaderGradient(position)}`}
+      className={`relative overflow-hidden rounded-3xl bg-gradient-to-br p-4 text-white shadow-[0_20px_40px_-24px_rgba(15,23,42,0.6)] sm:p-6 ${tone.gradient}`}
     >
-      <div className="mx-auto flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-white shadow-md sm:h-40 sm:w-40 md:mx-0">
-        {image ? (
-          <img src={image} alt={name} className="h-full w-full object-cover" loading="lazy" />
-        ) : (
-          <div className="text-5xl text-gray-300">?</div>
-        )}
-      </div>
+      <div className="pointer-events-none absolute -top-20 -left-14 h-44 w-44 rounded-full bg-white/10" />
+      <div className="pointer-events-none absolute -right-14 -bottom-24 h-52 w-52 rounded-full bg-white/10" />
 
-      <div className="space-y-3">
-        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          {decodeURIComponent(title || name)}
-        </h2>
-
-        <div
-          className={`inline-block rounded-full px-3 py-1 text-sm font-medium ${setBadgeColor(position)} bg-opacity-90 backdrop-blur-sm`}
-        >
-          {position}
+      <div className="relative">
+        <div className="mb-4 flex min-h-7 items-center justify-between gap-2">
+          {number > 0 ? (
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${tone.badge}`}
+            >
+              <OutlineIcons.HashtagIcon className="h-3.5 w-3.5" />
+              {number}
+            </span>
+          ) : (
+            <span />
+          )}
+          {typeof age === "number" ? (
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${tone.badge}`}
+            >
+              <OutlineIcons.CakeIcon className="h-3.5 w-3.5" />
+              {age}y
+            </span>
+          ) : null}
         </div>
 
-        {number > 0 && (
-          <div className="mt-2 flex items-center gap-2 text-base font-medium text-white">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-white/10 font-bold text-white">
-              #{number}
-            </span>
-            <span className="opacity-90">Shirt Number</span>
+        <div className="grid items-center gap-4 sm:grid-cols-[auto_1fr]">
+          <div className="mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white/20 p-1.5 shadow-md sm:mx-0 sm:h-28 sm:w-28">
+            {image ? (
+              <img
+                src={image}
+                alt={displayName}
+                className="h-full w-full rounded-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <Text as="div" variant="display" className="text-white/70">
+                ?
+              </Text>
+            )}
           </div>
-        )}
+
+          <div className="min-w-0 space-y-2">
+            <Text as="h2" variant="h2" weight="extrabold" className="leading-tight tracking-tight text-white sm:text-3xl">
+              {displayName}
+            </Text>
+            {title ? (
+              <Text as="p" className="text-white/85 sm:text-[15px]">
+                {safeDecode(title)}
+              </Text>
+            ) : null}
+
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {position ? (
+                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${tone.badge}`}>
+                  <OutlineIcons.ShieldCheckIcon className="h-3.5 w-3.5" />
+                  {position}
+                </span>
+              ) : null}
+              {currentClub ? (
+                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${tone.badge}`}>
+                  <OutlineIcons.TrophyIcon className="h-3.5 w-3.5" />
+                  {currentClub}
+                </span>
+              ) : null}
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   )
 }
-
-export default ProfileHeader

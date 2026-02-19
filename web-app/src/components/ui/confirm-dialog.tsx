@@ -2,6 +2,9 @@
 
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
 import { Spinner } from "@/components/spinner"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/cn"
+import { Text } from "@/components/ui/text"
 
 interface ConfirmDialogProps {
   open: boolean
@@ -12,6 +15,7 @@ interface ConfirmDialogProps {
   cancelLabel?: string
   onConfirm: () => void
   isConfirming?: boolean
+  confirmTone?: "danger" | "primary"
 }
 
 export function ConfirmDialog({
@@ -23,38 +27,48 @@ export function ConfirmDialog({
   cancelLabel = "Cancel",
   onConfirm,
   isConfirming = false,
+  confirmTone = "danger",
 }: ConfirmDialogProps) {
+  const confirmVariant = confirmTone === "danger" ? "danger" : "primary"
+
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-[1px]" />
-        <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
-          <AlertDialog.Title className="text-lg font-semibold text-slate-900">
-            {title}
+        <AlertDialog.Content
+          className={cn(
+            "fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-6 shadow-xl",
+          )}
+        >
+          <AlertDialog.Title asChild>
+            <Text as="h3" variant="title" weight="semibold">
+              {title}
+            </Text>
           </AlertDialog.Title>
           {description ? (
-            <AlertDialog.Description className="mt-2 text-sm leading-relaxed text-slate-600">
-              {description}
+            <AlertDialog.Description asChild>
+              <Text as="p" variant="body" tone="muted" className="mt-2">
+                {description}
+              </Text>
             </AlertDialog.Description>
           ) : null}
 
           <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <AlertDialog.Cancel asChild>
-              <button
-                type="button"
-                disabled={isConfirming}
-                className="w-full rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-              >
+              <Button type="button" disabled={isConfirming} variant="outline" size="md" fullWidth className="sm:w-auto">
                 {cancelLabel}
-              </button>
+              </Button>
             </AlertDialog.Cancel>
 
             <AlertDialog.Action asChild>
-              <button
+              <Button
                 type="button"
                 onClick={onConfirm}
                 disabled={isConfirming}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                variant={confirmVariant}
+                size="md"
+                fullWidth
+                className="sm:w-auto"
               >
                 {isConfirming ? (
                   <>
@@ -64,7 +78,7 @@ export function ConfirmDialog({
                 ) : (
                   confirmLabel
                 )}
-              </button>
+              </Button>
             </AlertDialog.Action>
           </div>
         </AlertDialog.Content>

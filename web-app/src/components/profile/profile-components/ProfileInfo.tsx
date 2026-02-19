@@ -1,40 +1,52 @@
 import { OutlineIcons } from "@/components/outline-icons"
 import { PlayerType } from "@/lib/types/type"
 import ProfileInfoItem from "@/components/profile/profile-components/ProfileInfoItem"
+import { getPlayerDisplayName, safeDecode } from "@/components/profile/profile-components/player-display"
 
 interface Props {
   player: PlayerType
+  maxItems?: number
 }
 
-const ProfileInfo = ({ player }: Props) => {
+const ProfileInfo = ({ player, maxItems }: Props) => {
   const openWebsite = () =>
     player.website && window.open(player.website, "_blank", "noopener noreferrer")
+
+  const ageValue = typeof player.age === "number" ? `${player.age} years` : "-"
+  const bornValue = [player.born, player.birthCountry].filter(Boolean).join(" / ") || "-"
+  const currentValue = `${player.value || "-"} ${player.currency || ""}`.trim()
+  const capsValue =
+    !player.caps || player.caps === "played  /  Goals"
+      ? "-"
+      : player.position.includes("Goal")
+        ? `${player.caps} conceded`
+        : player.caps
 
   const items = [
     {
       icon: <OutlineIcons.UserIcon />,
       label: "Name",
-      value: decodeURIComponent(player.name),
+      value: getPlayerDisplayName(player),
     },
     {
       icon: <OutlineIcons.SparklesIcon />,
       label: "Title",
-      value: decodeURIComponent(player.title),
+      value: safeDecode(player.title) || "-",
     },
     {
       icon: <OutlineIcons.UserIcon />,
       label: "Full Name",
-      value: decodeURIComponent(player.fullName),
+      value: safeDecode(player.fullName) || "-",
     },
     {
       icon: <OutlineIcons.CakeIcon />,
       label: "Age",
-      value: `${player.age} years`,
+      value: ageValue,
     },
     {
       icon: <OutlineIcons.CalendarIcon />,
       label: "Born",
-      value: `${player.born} / ${player.birthCountry}`,
+      value: bornValue,
     },
     {
       icon: <OutlineIcons.FlagIcon />,
@@ -49,12 +61,12 @@ const ProfileInfo = ({ player }: Props) => {
     {
       icon: <OutlineIcons.ArrowTrendingUpIcon />,
       label: "Highest Market Value",
-      value: player.highstValue,
+      value: player.highstValue || "-",
     },
     {
       icon: <OutlineIcons.CurrencyEuroIcon />,
       label: "Current Market Value",
-      value: `${player.value} ${player.currency}`,
+      value: currentValue || "-",
     },
     {
       icon: <OutlineIcons.ChartBarIcon />,
@@ -84,17 +96,17 @@ const ProfileInfo = ({ player }: Props) => {
     {
       icon: <OutlineIcons.ArrowsRightLeftIcon />,
       label: "Caps",
-      value: player.position.includes("Goal") ? `${player.caps} conceded` : player.caps,
+      value: capsValue,
     },
     {
       icon: <OutlineIcons.ScaleIcon />,
       label: "Weight",
-      value: `${player.weight} kg`,
+      value: typeof player.weight === "number" ? `${player.weight} kg` : "-",
     },
     {
       icon: <OutlineIcons.ArrowTrendingDownIcon />,
       label: "Height",
-      value: `${player.height} cm`,
+      value: typeof player.height === "number" ? `${player.height} cm` : "-",
     },
     {
       icon: <OutlineIcons.LinkIcon />,
@@ -110,24 +122,25 @@ const ProfileInfo = ({ player }: Props) => {
     },
   ]
 
+  const visibleItems = items.filter((item) => {
+    const normalized = String(item.value ?? "").trim()
+    return normalized !== "" && normalized !== "–" && normalized !== "-" && normalized !== "null"
+  })
+  const renderedItems = typeof maxItems === "number" ? visibleItems.slice(0, maxItems) : visibleItems
+
   return (
-    <section className="rounded-2xl bg-gray-50 p-4 shadow-lg sm:p-6">
-      <h2 className="mb-6 text-xl font-bold text-gray-800">Player Information</h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items
-          .filter((item) => item.value && item.value !== "–" && item.value !== 0)
-          .map(({ icon, label, value, clickable, onClick }) => (
-            <ProfileInfoItem
-              key={label}
-              icon={icon}
-              label={label}
-              value={value}
-              clickable={clickable}
-              onClick={onClick}
-            />
-          ))}
-      </div>
-    </section>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {renderedItems.map(({ icon, label, value, clickable, onClick }) => (
+        <ProfileInfoItem
+          key={label}
+          icon={icon}
+          label={label}
+          value={value}
+          clickable={clickable}
+          onClick={onClick}
+        />
+      ))}
+    </div>
   )
 }
 
