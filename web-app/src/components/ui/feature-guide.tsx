@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { OutlineIcons } from "@/components/outline-icons"
 import { SolidIcons } from "@/components/solid-icons"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { hasSeenHelpGuide, markHelpGuideAsSeen } from "@/lib/cookies"
+import { cn } from "@/lib/cn"
+import { Text } from "@/components/ui/text"
 
 export interface GuideSection {
   id: string
@@ -62,21 +65,19 @@ export function FeatureGuide({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <button
-              type="button"
-              onClick={reopenGuide}
-              className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
+            <Button type="button" onClick={reopenGuide} variant="outline" size="sm">
               <OutlineIcons.QuestionMarkCircleIcon className="h-4 w-4 text-cyan-700" />
-              <span>{triggerLabel}</span>
-            </button>
+              <Text as="span" weight="medium">
+                {triggerLabel}
+              </Text>
+            </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">Open quick usage guide for this page.</TooltipContent>
         </Tooltip>
       </TooltipProvider>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent size="md">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>{description}</DialogDescription>
@@ -94,13 +95,21 @@ export function FeatureGuide({
 
               {sections.map((section) => (
                 <TabsContent key={section.id} value={section.id}>
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-sm text-slate-700">{section.description}</p>
+                  <div
+                    className={cn(
+                      "rounded-lg border border-slate-200 bg-linear-to-br from-slate-50 to-white p-4",
+                    )}
+                  >
+                    <Text as="p" tone="muted">
+                      {section.description}
+                    </Text>
                     <ul className="mt-3 space-y-2">
                       {section.points.map((point) => (
-                        <li key={point} className="flex items-start gap-2 text-sm text-slate-700">
+                        <li key={point} className="flex items-start gap-2">
                           <SolidIcons.CheckCircleIcon className="mt-0.5 h-4 w-4 text-cyan-700" />
-                          <span>{point}</span>
+                          <Text as="span" tone="muted">
+                            {point}
+                          </Text>
                         </li>
                       ))}
                     </ul>
@@ -111,21 +120,18 @@ export function FeatureGuide({
           ) : null}
 
           <DialogFooter>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-            >
+            <Button type="button" onClick={() => setOpen(false)} variant="outline" size="md">
               Close
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={markAsSeen}
               disabled={!initialized}
-              className="rounded-md bg-cyan-700 px-3 py-2 text-sm font-semibold text-white hover:bg-cyan-600"
+              variant="primary"
+              size="md"
             >
               Got it, do not auto-show
-            </button>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

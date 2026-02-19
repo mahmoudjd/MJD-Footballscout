@@ -1,3 +1,6 @@
+import { cn } from "@/lib/cn"
+import { Text } from "@/components/ui/text"
+
 interface SpinnerProps {
   size?: "sm" | "md" | "lg"
   tone?: "brand" | "light"
@@ -19,16 +22,17 @@ const toneClasses: Record<NonNullable<SpinnerProps["tone"]>, string> = {
 export function Spinner({ size = "md", tone = "brand", label, className = "" }: SpinnerProps) {
   return (
     <div
-      className={`flex items-center justify-center gap-2 ${className}`}
+      className={cn("flex items-center justify-center gap-2", className)}
       role="status"
       aria-live="polite"
       aria-label={label || "Loading"}
     >
-      <div
-        className={`${sizeClasses[size]} ${toneClasses[tone]} animate-spin rounded-full`}
-        aria-hidden="true"
-      />
-      {label ? <span className="text-sm text-slate-600">{label}</span> : null}
+      <div className={cn(sizeClasses[size], toneClasses[tone], "animate-spin rounded-full")} aria-hidden="true" />
+      {label ? (
+        <Text as="span" variant="body" tone="muted">
+          {label}
+        </Text>
+      ) : null}
     </div>
   )
 }

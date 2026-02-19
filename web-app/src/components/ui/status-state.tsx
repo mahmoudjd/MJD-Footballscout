@@ -1,3 +1,6 @@
+import { cn } from "@/lib/cn"
+import { Text } from "@/components/ui/text"
+
 interface StatusStateProps {
   title: string
   description?: string
@@ -5,22 +8,41 @@ interface StatusStateProps {
   className?: string
 }
 
-const toneStyles = {
-  loading: "border-cyan-200 bg-cyan-50 text-cyan-900",
+const toneStyles: Record<NonNullable<StatusStateProps["tone"]>, string> = {
+  loading: "border-cyan-200 bg-cyan-50/80 text-cyan-900",
   error: "border-red-200 bg-red-50 text-red-900",
-  empty: "border-gray-200 bg-gray-50 text-gray-900",
+  empty: "border-slate-200 bg-slate-50/90 text-slate-900",
+}
+
+const toneIcon: Record<NonNullable<StatusStateProps["tone"]>, string> = {
+  loading: "⏳",
+  error: "⚠️",
+  empty: "ℹ️",
 }
 
 export function StatusState({
   title,
   description,
   tone = "empty",
-  className = "",
+  className,
 }: StatusStateProps) {
   return (
-    <div className={`rounded-xl border p-4 ${toneStyles[tone]} ${className}`.trim()}>
-      <p className="text-sm font-semibold">{title}</p>
-      {description && <p className="mt-1 text-sm opacity-90">{description}</p>}
+    <div className={cn("rounded-xl border p-4", toneStyles[tone], className)}>
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 text-base" aria-hidden>
+          {toneIcon[tone]}
+        </span>
+        <div>
+          <Text as="p" variant="body" weight="semibold" tone="inherit">
+            {title}
+          </Text>
+          {description ? (
+            <Text as="p" variant="body" tone="inherit" className="mt-1 opacity-90">
+              {description}
+            </Text>
+          ) : null}
+        </div>
+      </div>
     </div>
   )
 }

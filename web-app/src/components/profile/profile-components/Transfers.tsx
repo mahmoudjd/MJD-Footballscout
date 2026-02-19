@@ -1,6 +1,7 @@
 import { OutlineIcons } from "@/components/outline-icons"
 import { TransferType } from "@/lib/types/type"
 import { JSX } from "react"
+import { Text } from "@/components/ui/text"
 
 interface Props {
   transfers: Array<TransferType>
@@ -53,36 +54,47 @@ function parseAmount(amount: string): { display: string; fullValue?: string; ico
 
 export default function Transfers({ transfers }: Props) {
   return (
-    <section className="rounded-2xl bg-gray-50 p-4 shadow-lg sm:p-6">
-      <h3 className="mb-6 pb-2 text-xl font-semibold text-gray-800 sm:text-2xl">Transfers</h3>
+    <section className="space-y-4">
+      <Text as="h3" variant="h3" weight="semibold" className="text-slate-900">
+        Transfers
+      </Text>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="space-y-2">
         {transfers.map((t, idx) => {
           const { display, fullValue, icon } = parseAmount(t.amount)
+          const isLast = idx === transfers.length - 1
 
           return (
             <div
               key={`${t.season}-${t.team}-${t.amount}-${idx}`}
-              className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
+              className="flex items-stretch gap-3"
             >
-              {/* Season */}
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <OutlineIcons.CalendarIcon className="h-5 w-5 text-cyan-600" />
-                <span className="font-medium">{t.season}</span>
+              <div className="flex w-4 flex-col items-center pt-1">
+                <span className="h-2.5 w-2.5 rounded-full bg-cyan-600" />
+                {!isLast ? <span className="mt-1 h-full w-0.5 rounded-full bg-slate-200" /> : null}
               </div>
 
-              {/* Team */}
-              <div className="flex items-center gap-2">
-                <OutlineIcons.ArrowsRightLeftIcon className="h-6 w-6 text-indigo-600" />
-                <span className="text-base font-semibold text-indigo-700">{t.team}</span>
-              </div>
+              <div className="flex-1 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <OutlineIcons.CalendarIcon className="h-5 w-5 text-cyan-600" />
+                  <Text as="span" weight="medium">
+                    {t.season || "-"}
+                  </Text>
+                </div>
 
-              {/* Amount */}
-              <div className="mt-auto flex items-center gap-2 text-sm text-gray-600">
-                {icon}
-                <span className="font-bold text-gray-800" title={fullValue ?? ""}>
-                  {display}
-                </span>
+                <div className="mt-2 flex items-center gap-2">
+                  <OutlineIcons.ArrowsRightLeftIcon className="h-5 w-5 text-indigo-600" />
+                  <Text as="span" weight="semibold" className="text-slate-800">
+                    {t.team || "-"}
+                  </Text>
+                </div>
+
+                <div className="mt-2 flex items-center gap-2 text-sm text-slate-600">
+                  <span className="h-5 w-5 text-green-700">{icon}</span>
+                  <Text as="span" weight="semibold" className="text-slate-800" title={fullValue ?? ""}>
+                    {display}
+                  </Text>
+                </div>
               </div>
             </div>
           )

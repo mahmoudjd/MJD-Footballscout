@@ -1,11 +1,5 @@
-import { SearchField } from "@/components/search/SearchField"
-import { ScrollToTopButton } from "@/components/scroll-to-top-button"
+import { SearchPageView } from "@/components/search/SearchPageView"
 
 export default function SearchPage() {
-  return (
-    <>
-      <SearchField />
-      <ScrollToTopButton />
-    </>
-  )
+  return <SearchPageView />
 }

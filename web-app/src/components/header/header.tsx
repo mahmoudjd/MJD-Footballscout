@@ -1,10 +1,8 @@
 "use client"
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { SolidIcons } from "@/components/solid-icons"
 import { OutlineIcons } from "@/components/outline-icons"
-import { Navbar } from "@/components/header/navbar"
+import { navLinks } from "@/components/header/nav-links"
 import { useSession, signOut, signIn } from "next-auth/react"
 import {
   DropdownMenu,
@@ -14,88 +12,41 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-type NavLink = {
-  href: string
-  label: string
-  icon: keyof typeof OutlineIcons
-  authRequired?: boolean
-}
-
-const navLinks: NavLink[] = [
-  { href: "/", label: "Home", icon: "GlobeAltIcon" },
-  { href: "/players", label: "Players", icon: "UserIcon" },
-  { href: "/search", label: "Search", icon: "SparklesIcon" },
-  { href: "/compare", label: "Compare", icon: "ArrowsRightLeftIcon", authRequired: true },
-  { href: "/watchlists", label: "Watchlists", icon: "HeartIcon", authRequired: true },
-]
+import { Button } from "@/components/ui/button"
+import { Text } from "@/components/ui/text"
 
 const Header = () => {
-  const [open, setOpen] = useState(false)
   const { status, data: session } = useSession()
   const userName = session?.user?.name || "Account"
   const userInitial = userName.charAt(0).toUpperCase() || "A"
   const userRole = session?.user?.role === "admin" ? "Admin" : "User"
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false)
-      }
-    }
-
-    document.addEventListener("keydown", onKeyDown)
-    return () => document.removeEventListener("keydown", onKeyDown)
-  }, [])
-
-  useEffect(() => {
-    const onResize = () => {
-      if (window.innerWidth >= 1024) {
-        setOpen(false)
-      }
-    }
-
-    window.addEventListener("resize", onResize)
-    return () => window.removeEventListener("resize", onResize)
-  }, [])
-
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : ""
-    return () => {
-      document.body.style.overflow = ""
-    }
-  }, [open])
-
   return (
-    <header className="sticky top-0 z-50 w-full bg-linear-to-r from-cyan-800 to-cyan-600 text-white shadow-md">
+    <header className="sticky top-0 z-50 w-full border-b border-cyan-300/30 bg-linear-to-r from-cyan-900 via-cyan-800 to-teal-700 text-white shadow-lg backdrop-blur">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link
           href="/"
           prefetch={false}
-          onClick={() => setOpen(false)}
-          className="flex items-center gap-3 rounded-md focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:outline-none"
+          className="group flex items-center gap-3 rounded-xl px-1 py-0.5 focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:outline-none"
         >
           <Image
             src="/mjd-logo.png"
             alt="Logo"
             width={52}
             height={52}
-            className="rounded-full shadow-md"
+            className="rounded-full shadow-md ring-2 ring-white/30 transition group-hover:ring-white/50"
             priority
           />
-          <span className="text-lg font-extrabold tracking-wide select-none sm:text-xl">MJD</span>
+          <Text
+            as="span"
+            variant="title"
+            tone="inherit"
+            weight="extrabold"
+            className="tracking-wide select-none sm:text-xl"
+          >
+            MJD
+          </Text>
         </Link>
-
-        <button
-          type="button"
-          className="rounded-md p-2 transition hover:bg-cyan-500 md:hidden"
-          onClick={() => setOpen((prev) => !prev)}
-          aria-label="Toggle navigation"
-          aria-expanded={open}
-          aria-controls="mobile-navigation"
-        >
-          <SolidIcons.Bars4Icon className="h-7 w-7 text-white" />
-        </button>
 
         <nav className="hidden items-center gap-5 text-sm font-semibold md:flex xl:gap-7 xl:text-base">
           {navLinks.map((link) => {
@@ -109,10 +60,12 @@ const Header = () => {
                     : link.href
                 }
                 prefetch={false}
-                className="inline-flex items-center gap-1.5 rounded-md transition hover:text-cyan-300 focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:outline-none"
+                className="inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 transition hover:bg-white/10 hover:text-cyan-100 focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:outline-none"
               >
                 <Icon className="h-4 w-4" />
-                <span>{link.label}</span>
+                <Text as="span" tone="inherit">
+                  {link.label}
+                </Text>
               </Link>
             )
           })}
@@ -120,15 +73,19 @@ const Header = () => {
           {status === "authenticated" ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
+                <Button
                   type="button"
-                  className="inline-flex items-center gap-2 rounded-md px-2 py-1 transition hover:bg-cyan-700/60 focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:outline-none"
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/10 hover:text-white focus-visible:ring-cyan-200"
                 >
                   <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-sm font-bold text-cyan-800">
                     {userInitial}
                   </span>
-                  <span className="hidden max-w-32 truncate text-sm lg:inline">{userName}</span>
-                </button>
+                  <Text as="span" tone="inherit" className="hidden max-w-32 truncate lg:inline">
+                    {userName}
+                  </Text>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>{userName}</DropdownMenuLabel>
@@ -157,27 +114,18 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <button
+            <Button
               type="button"
               onClick={() => signIn()}
-              className="cursor-pointer rounded-md transition hover:text-cyan-300 focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:outline-none"
+              variant="ghost"
+              size="sm"
+              className="text-white hover:bg-white/10 hover:text-cyan-100 focus-visible:ring-cyan-200"
             >
               Login
-            </button>
+            </Button>
           )}
         </nav>
       </div>
-
-      {open && (
-        <button
-          type="button"
-          aria-label="Close mobile navigation"
-          onClick={() => setOpen(false)}
-          className="fixed inset-0 z-30 bg-black/35 lg:hidden"
-        />
-      )}
-
-      <Navbar status={status} open={open} setOpen={setOpen} />
     </header>
   )
 }

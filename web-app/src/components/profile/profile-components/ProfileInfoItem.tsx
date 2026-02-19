@@ -1,4 +1,6 @@
 import { JSX } from "react"
+import { Button } from "@/components/ui/button"
+import { Text } from "@/components/ui/text"
 
 interface InfoItemProps {
   icon: JSX.Element
@@ -8,19 +10,42 @@ interface InfoItemProps {
   onClick?: () => void
 }
 
-const ProfileInfoItem = ({ icon, label, value, clickable, onClick }: InfoItemProps) => (
-  <div
-    onClick={clickable ? onClick : undefined}
-    className={`flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm ${
-      clickable ? "cursor-pointer transition hover:bg-cyan-50" : ""
-    }`}
-  >
-    <div className="mt-1 h-6 w-6 text-cyan-600">{icon}</div>
-    <div className="flex flex-col text-sm">
-      <span className="text-gray-500">{label}</span>
-      <span className="font-medium break-words text-gray-900">{value}</span>
-    </div>
-  </div>
-)
+const baseClassName =
+  "group flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition"
+
+const ProfileInfoItem = ({ icon, label, value, clickable, onClick }: InfoItemProps) => {
+  const content = (
+    <>
+      <div className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700">
+        <span className="h-5 w-5">{icon}</span>
+      </div>
+      <div className="min-w-0">
+        <Text as="p" variant="overline" weight="semibold" tone="subtle">
+          {label}
+        </Text>
+        <Text as="p" variant="body" weight="semibold" className="mt-1 break-words text-slate-900">
+          {value}
+        </Text>
+      </div>
+    </>
+  )
+
+  if (clickable && onClick) {
+    return (
+      <Button
+        type="button"
+        onClick={onClick}
+        variant="ghost"
+        size="md"
+        fullWidth
+        className={`${baseClassName} justify-start bg-white p-4 text-left hover:border-cyan-200 hover:bg-cyan-50/60`}
+      >
+        {content}
+      </Button>
+    )
+  }
+
+  return <div className={baseClassName}>{content}</div>
+}
 
 export default ProfileInfoItem

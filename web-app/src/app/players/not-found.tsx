@@ -1,22 +1,20 @@
-import Link from "next/link"
+import { Text } from "@/components/ui/text"
+import { ActionLink } from "@/components/ui/action-link"
 
 export default function NotFound() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 py-12">
       <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        <Text as="h2" variant="h1" weight="bold" className="tracking-tight">
           Players Not Found
-        </h2>
-        <p className="mt-4 text-base text-gray-500">
+        </Text>
+        <Text as="p" variant="body-lg" tone="subtle" className="mt-4">
           Sorry, we couldn't find the player you're looking for.
-        </p>
+        </Text>
         <div className="mt-10">
-          <Link
-            href="/"
-            className="rounded-md bg-cyan-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cyan-600 focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-          >
+          <ActionLink href="/" size="md" fullWidth={false}>
             Go back home
-          </Link>
+          </ActionLink>
         </div>
       </div>
     </div>

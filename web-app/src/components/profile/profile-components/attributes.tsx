@@ -8,6 +8,7 @@ import {
   ArrowsPointingOutIcon,
 } from "@heroicons/react/24/outline"
 import { JSX } from "react"
+import { Text } from "@/components/ui/text"
 
 interface Props {
   attributes: AttributeType[]
@@ -22,35 +23,53 @@ const iconMap: Record<string, JSX.Element> = {
   physical: <FireIcon className="h-6 w-6 text-orange-500" />,
 }
 
-const getColor = (value: string) => {
-  const numOfValue = parseInt(value, 10)
-  if (numOfValue >= 80) return "bg-green-500"
-  if (numOfValue >= 60) return "bg-yellow-400"
-  return "bg-red-500"
+const toScore = (value: string) => {
+  const parsed = Number.parseInt(value, 10)
+  if (!Number.isFinite(parsed)) return 0
+  return Math.max(0, Math.min(100, parsed))
+}
+
+const getColor = (score: number) => {
+  if (score >= 80) return "bg-emerald-500"
+  if (score >= 60) return "bg-amber-400"
+  return "bg-rose-500"
 }
 
 export default function Attributes({ attributes }: Props) {
   return (
-    <section className="rounded-2xl bg-gray-50 p-4 shadow-lg sm:p-6">
-      <h3 className="mb-4 text-xl font-semibold text-gray-800">Player Attributes</h3>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-6">
+    <section className="space-y-3">
+      <Text as="h3" variant="h3" weight="semibold" className="text-slate-900">
+        Player Attributes
+      </Text>
+      <div className="space-y-2">
         {attributes.map((attr, index) => {
           const name = attr.name.toLowerCase()
           const icon = iconMap[name] ?? <FireIcon className="h-6 w-6 text-gray-400" />
+          const score = toScore(attr.value)
+          const barColor = getColor(score)
 
           return (
             <div
               key={`${attr.name}-${attr.value}-${index}`}
-              className="mx-auto flex h-24 w-24 flex-col items-center justify-center rounded-full border border-gray-200 bg-white p-3 shadow-md sm:h-28 sm:w-28 sm:p-4"
+              className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
             >
-              <div className="mb-1">{icon}</div>
-              <span className="text-sm font-semibold text-gray-700 capitalize">{attr.name}</span>
-              <span
-                className={`mt-1 text-xl font-bold ${getColor(attr.value)} rounded-full px-3 py-1 text-white`}
-              >
-                {attr.value}
-              </span>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="h-5 w-5 text-cyan-700">{icon}</span>
+                  <Text as="span" weight="semibold" className="truncate text-slate-700 capitalize">
+                    {attr.name}
+                  </Text>
+                </div>
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold text-white ${barColor}`}>
+                  {score}
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className={`h-full rounded-full ${barColor}`}
+                  style={{ width: `${score}%` }}
+                />
+              </div>
             </div>
           )
         })}
