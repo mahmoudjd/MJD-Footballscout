@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { OutlineIcons } from "@/components/outline-icons"
+import { Button } from "@/components/ui/button"
 
 export function ScrollToTopButton() {
   const [visible, setVisible] = useState(false)
@@ -23,12 +24,14 @@ export function ScrollToTopButton() {
   if (!visible) return null
 
   return (
-    <button
+    <Button
       onClick={scrollToTop}
       aria-label="Scroll to top"
-      className="fixed right-6 bottom-6 z-50 cursor-pointer rounded-full bg-cyan-600 p-3 text-white shadow-lg transition hover:bg-cyan-700"
+      variant="primary"
+      size="icon"
+      className="fixed right-4 bottom-24 z-40 rounded-full shadow-lg md:right-6 md:bottom-6 md:z-50"
     >
       <OutlineIcons.ArrowUpIcon className="h-6 w-6" />
-    </button>
+    </Button>
   )
 }
