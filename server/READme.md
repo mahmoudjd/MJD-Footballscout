@@ -42,9 +42,22 @@ MONGOURI=mongodb://127.0.0.1:27017/PlayersDB
 JWT_SECRET=replace-with-a-long-random-secret
 # optional fuer Production CORS
 CLIENT_URL=http://localhost:3000
+# optional: auto-update all players in background
+PLAYERS_AUTO_UPDATE_ENABLED=true
+PLAYERS_AUTO_UPDATE_INTERVAL_HOURS=12
+PLAYERS_AUTO_UPDATE_RUN_ON_STARTUP=false
 ```
 
 Hinweis: Im Code wird `MONGOURI` verwendet (nicht `MONGO_URI`).
+
+### Scheduler fuer automatische Player-Updates
+- Der Backend-Prozess kann `updateAllPlayers` automatisch im Hintergrund ausfuehren.
+- Standard-Intervall: alle `12` Stunden.
+- Der Job macht nur das Player-Update (keine anderen Aufgaben).
+- Steuerung ueber ENV:
+  - `PLAYERS_AUTO_UPDATE_ENABLED` (default: `true`)
+  - `PLAYERS_AUTO_UPDATE_INTERVAL_HOURS` (default: `12`)
+  - `PLAYERS_AUTO_UPDATE_RUN_ON_STARTUP` (default: `false`)
 
 ## Scripts
 ```bash

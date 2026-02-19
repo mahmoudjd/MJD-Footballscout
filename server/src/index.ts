@@ -9,6 +9,7 @@ import logger from "./logger/logger";
 import createPlayersRouter from "./routes/playersRouter";
 import createAuthRouter from "./routes/authRouter";
 import createWatchlistsRouter from "./routes/watchlistsRouter";
+import { startPlayersAutoUpdateScheduler } from "./jobs/playersAutoUpdateScheduler";
 
 async function startServer() {
     if (process.env.NODE_ENV !== "production") dotenv.config();
@@ -43,9 +44,23 @@ async function startServer() {
     server.use("/watchlists", createWatchlistsRouter(context));
     server.use("/auth", createAuthRouter(context));
 
-    server.listen(PORT, () => {
+    const stopPlayersAutoUpdateScheduler = startPlayersAutoUpdateScheduler(context);
+
+    const httpServer = server.listen(PORT, () => {
         logger.info(`✅ [server]: Server is running on PORT: ${PORT}`);
     });
+
+    const gracefulShutdown = (signal: string) => {
+        logger.info(`🛑 [server]: Received ${signal}. Shutting down...`);
+        stopPlayersAutoUpdateScheduler();
+        httpServer.close(() => {
+            logger.info("✅ [server]: HTTP server closed.");
+            process.exit(0);
+        });
+    };
+
+    process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+    process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 }
 
 startServer().catch((error) => {
