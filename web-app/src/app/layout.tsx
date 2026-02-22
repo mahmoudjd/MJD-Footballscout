@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer"
 import { Providers } from "./providers"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/auth"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata: Metadata = {
   title: "MJD-FootballScout",
@@ -31,6 +32,7 @@ export default async function RootLayout({
           <MobileTabBar />
           <Footer />
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   )
