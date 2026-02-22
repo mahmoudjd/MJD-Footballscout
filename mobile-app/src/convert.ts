@@ -1,4 +1,5 @@
-export function convert(name: string) {
+export function convert(value: unknown) {
+  const name = typeof value === "string" ? value : "";
   return name
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
