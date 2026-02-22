@@ -79,6 +79,20 @@ Server laeuft standardmaessig auf `http://localhost:8080`.
 - `POST /auth/google-login`
 - `POST /auth/refresh`
 
+### Auth Flow (3 Cases: Credentials + Google)
+1. Case 1: User registriert mit Credentials und loggt sich spaeter mit Google ein
+   Voraussetzung: Google-E-Mail ist verifiziert und gleich wie beim Credentials-Account.
+   Ergebnis: `POST /auth/google-login` liefert `200` und verknuepft `googleId` mit dem bestehenden User.
+
+2. Case 2: Neuer User loggt sich direkt mit Google ein
+   Voraussetzung: Google-E-Mail ist verifiziert.
+   Ergebnis: `POST /auth/google-login` erstellt einen neuen Google-User und liefert `200`.
+
+3. Case 3: Konfliktfall (E-Mail bereits mit anderem Google-Account verknuepft)
+   Voraussetzung: Die E-Mail existiert schon mit einer anderen `googleId`.
+   Ergebnis: `POST /auth/google-login` liefert `409` mit:
+   `"This email is already linked to another Google account."`
+
 ### Players
 - `GET /players`
 - `GET /players/stats`
