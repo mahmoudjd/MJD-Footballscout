@@ -1,6 +1,8 @@
 import { OutlineIcons } from "@/components/outline-icons"
 import { getPlayerDisplayName, safeDecode } from "@/components/profile/profile-components/player-display"
 import { Text } from "@/components/ui/text"
+import Image from "next/image"
+import { getPlayerImageSrc } from "@/lib/player-image"
 
 interface HeaderProps {
   position: string
@@ -92,11 +94,13 @@ export default function ProfileHeader({
         <div className="grid items-center gap-4 sm:grid-cols-[auto_1fr]">
           <div className="mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white/20 p-1.5 shadow-md sm:mx-0 sm:h-28 sm:w-28">
             {image ? (
-              <img
-                src={image}
+              <Image
+                src={getPlayerImageSrc(image)}
                 alt={displayName}
+                width={112}
+                height={112}
                 className="h-full w-full rounded-full object-cover"
-                loading="lazy"
+                sizes="(max-width: 640px) 96px, 112px"
               />
             ) : (
               <Text as="div" variant="display" className="text-white/70">

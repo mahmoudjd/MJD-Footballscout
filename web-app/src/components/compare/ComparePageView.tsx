@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { usePlayersQuery } from "@/lib/hooks/queries/usePlayersQuery"
 import { usePlayerComparisonQuery } from "@/lib/hooks/queries/usePlayerComparisonQuery"
+import Image from "next/image"
 import { PageContainer } from "@/components/ui/page-container"
 import { SectionHeader } from "@/components/ui/section-header"
 import { Panel } from "@/components/ui/panel"
@@ -27,6 +28,7 @@ import {
   parseIds,
   selectionsEqual,
 } from "@/components/compare/compare-config"
+import { getPlayerImageSrc } from "@/lib/player-image"
 
 type MobileTab = "selection" | "results"
 
@@ -327,11 +329,13 @@ export function ComparePageView() {
                       const selected = selectedSet.has(player._id)
                       return (
                         <li key={player._id} className="flex items-center gap-3 px-3 py-3">
-                          <img
-                            src={player.image}
+                          <Image
+                            src={getPlayerImageSrc(player.image)}
                             alt={player.name}
+                            width={40}
+                            height={40}
                             className="h-10 w-10 rounded-full object-cover"
-                            loading="lazy"
+                            sizes="40px"
                           />
                           <div className="min-w-0 flex-1">
                             <Text as="p" weight="semibold" className="truncate text-slate-900">
