@@ -2,10 +2,10 @@
   "expo": {
     "name": "MJD-FootballScout",
     "slug": "MJD-FootballScout",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/mjd-icon.png",
-    "scheme": "myapp",
+    "scheme": "mjd-football-scout",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -15,14 +15,34 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "mjd.football.de"
+      "bundleIdentifier": "mjd.football.de",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.987915428075-cch1jb13c5i0ee98dia4qgudeoni6t0n"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/mjd-android.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "mjd.football.de"
+      "package": "mjd.football.de",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "category": ["BROWSABLE", "DEFAULT"],
+          "data": [
+            {
+              "scheme": "com.googleusercontent.apps.987915428075-cch1jb13c5i0ee98dia4qgudeoni6t0n"
+            }
+          ]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
