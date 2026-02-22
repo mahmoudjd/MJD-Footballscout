@@ -3,12 +3,12 @@
 import { memo } from "react"
 import PlayerTableRow from "./PlayerTableRow"
 import { PlayerType } from "@/lib/types/type"
-import { useSession } from "next-auth/react"
 import { OutlineIcons } from "@/components/outline-icons"
 import { Button } from "@/components/ui/button"
 import { Text } from "@/components/ui/text"
 import { ActionLink } from "@/components/ui/action-link"
 import { Chip } from "@/components/ui/chip"
+import Image from "next/image"
 import {
   formatAge,
   formatElo,
@@ -18,17 +18,16 @@ import {
   normalizePosition,
   toText,
 } from "@/components/players/player-utils"
+import { getPlayerImageSrc } from "@/lib/player-image"
 
 interface PlayersTableProps {
   players: Array<PlayerType>
   handleDeleteAndUpdate: (id: string) => void
+  isLoggedIn: boolean
+  isAdmin: boolean
 }
 
-const PlayersTable = memo(({ players, handleDeleteAndUpdate }: PlayersTableProps) => {
-  const { data: session } = useSession()
-  const isLoggedIn = !!session?.user?.email
-  const isAdmin = session?.user?.role === "admin"
-
+const PlayersTable = memo(({ players, handleDeleteAndUpdate, isLoggedIn, isAdmin }: PlayersTableProps) => {
   if (players.length === 0) {
     return (
       <div className="p-8 text-center">
@@ -56,11 +55,13 @@ const PlayersTable = memo(({ players, handleDeleteAndUpdate }: PlayersTableProps
               className="rounded-2xl border border-cyan-100 bg-linear-to-br from-white to-cyan-50/55 p-3 shadow-[0_12px_28px_-22px_rgba(14,116,144,0.55)]"
             >
               <div className="flex items-center gap-3">
-                <img
-                  src={player.image}
+                <Image
+                  src={getPlayerImageSrc(player.image)}
                   alt={`${displayName}'s profile`}
+                  width={64}
+                  height={64}
                   className="h-16 w-16 rounded-full border border-cyan-200/70 object-cover"
-                  loading="lazy"
+                  sizes="64px"
                 />
                 <div className="min-w-0 flex-1">
                   <Text as="p" variant="body-lg" weight="semibold" className="truncate text-slate-800">
@@ -146,6 +147,8 @@ const PlayersTable = memo(({ players, handleDeleteAndUpdate }: PlayersTableProps
                 key={player._id}
                 player={player}
                 handleDelete={handleDeleteAndUpdate}
+                isLoggedIn={isLoggedIn}
+                isAdmin={isAdmin}
               />
             ))}
           </tbody>
