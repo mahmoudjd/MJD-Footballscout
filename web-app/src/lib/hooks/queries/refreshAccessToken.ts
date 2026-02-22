@@ -1,9 +1,18 @@
 import axios from "axios"
 import { env } from "@/env"
 
+interface RefreshTokenResponse {
+  accessToken?: string
+  refreshToken?: string
+  role?: "admin" | "user"
+  expiresIn?: number
+}
+
 export async function refreshAccessToken(refreshToken: string) {
   try {
-    const response = await axios.post(`${env.NEXT_PUBLIC_API_HOST}/auth/refresh`, { refreshToken })
+    const response = await axios.post<RefreshTokenResponse>(`${env.NEXT_PUBLIC_API_HOST}/auth/refresh`, {
+      refreshToken,
+    })
 
     const refreshedTokens = response.data
 
@@ -17,9 +26,9 @@ export async function refreshAccessToken(refreshToken: string) {
       expiresAt: Date.now() + (refreshedTokens.expiresIn || 3600) * 1000,
       role: refreshedTokens.role,
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Token refresh failed:", error)
-    if (error?.response?.status === 401) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
       throw new Error("RefreshTokenError")
     }
 

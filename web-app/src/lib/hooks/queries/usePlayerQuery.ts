@@ -9,7 +9,7 @@ async function fetchPlayerById(id: string) {
 
 export function usePlayerQuery(playerId: string, enabled = true) {
   return useQuery<PlayerType>({
-    queryKey: ["player", { playerId }],
+    queryKey: ["players", playerId],
     queryFn: () => fetchPlayerById(playerId),
     enabled: enabled && Boolean(playerId),
   })
