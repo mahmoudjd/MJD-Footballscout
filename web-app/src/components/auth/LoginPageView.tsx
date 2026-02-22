@@ -11,23 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Text } from "@/components/ui/text"
 import { useToast } from "@/lib/hooks/useToast"
-
-function mapAuthError(errorCode: string | null) {
-  switch (errorCode) {
-    case "GoogleAccountConflict":
-      return "This email already exists with password login. Please sign in with email and password."
-    case "GoogleNotConfigured":
-      return "Google login is currently not configured."
-    case "GoogleTokenMissing":
-      return "Google authentication token is missing. Please try again."
-    case "GoogleLoginError":
-      return "Google login failed. Please try again."
-    case "RefreshAccessTokenError":
-      return "Your session expired. Please sign in again."
-    default:
-      return ""
-  }
-}
+import { getLoginAuthErrorMessage } from "@/lib/auth-errors"
 
 interface LoginFormState {
   email: string
@@ -42,7 +26,7 @@ export function LoginPageView() {
   const [error, setError] = useState("")
 
   const callbackUrl = searchParams.get("callbackUrl") || "/"
-  const providerError = mapAuthError(searchParams.get("error"))
+  const providerError = getLoginAuthErrorMessage(searchParams.get("error"))
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target

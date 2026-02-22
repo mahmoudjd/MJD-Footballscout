@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google"
 import { env } from "@/env"
 import { AuthApiError, googleLogin, loginUser } from "@/lib/hooks/authApi"
 import { refreshAccessToken } from "@/lib/hooks/queries/refreshAccessToken"
+import { AUTH_SESSION_ERRORS, type AuthSessionError } from "@/lib/auth-errors"
 
 export type { Session } from "next-auth"
 
@@ -20,6 +21,7 @@ declare module "next-auth" {
 
   export interface Session {
     user: User
+    error?: AuthSessionError
   }
 }
 
@@ -30,8 +32,31 @@ declare module "next-auth/jwt" {
     refreshToken?: string
     expiresAt?: number
     role?: "admin" | "user"
-    error?: string
+    error?: AuthSessionError
   }
+}
+
+function mapGoogleAuthError(error: AuthApiError): AuthSessionError {
+  if (error.code === "GOOGLE_ACCOUNT_LINK_CONFLICT" || error.code === "GOOGLE_LOGIN_CONFLICT") {
+    return AUTH_SESSION_ERRORS.GOOGLE_LOGIN_CONFLICT
+  }
+  if (error.code === "GOOGLE_NOT_CONFIGURED") {
+    return AUTH_SESSION_ERRORS.GOOGLE_NOT_CONFIGURED
+  }
+  if (error.code === "GOOGLE_TOKEN_INVALID") {
+    return AUTH_SESSION_ERRORS.GOOGLE_TOKEN_INVALID
+  }
+  return AUTH_SESSION_ERRORS.GOOGLE_LOGIN_ERROR
+}
+
+function resolveUserRole(user: unknown): "admin" | "user" | undefined {
+  if (typeof user === "object" && user !== null && "role" in user) {
+    const role = (user as { role?: unknown }).role
+    if (role === "admin" || role === "user") {
+      return role
+    }
+  }
+  return undefined
 }
 
 const authOptions: NextAuthOptions = {
@@ -79,10 +104,10 @@ const authOptions: NextAuthOptions = {
     async signIn({ account, profile }) {
       if (account?.provider === "google") {
         if (!profile?.email) {
-          return "/login?error=GoogleLoginError"
+          return `/login?error=${AUTH_SESSION_ERRORS.GOOGLE_LOGIN_ERROR}`
         }
         if (!account.id_token) {
-          return "/login?error=GoogleTokenMissing"
+          return `/login?error=${AUTH_SESSION_ERRORS.GOOGLE_TOKEN_MISSING}`
         }
         return true
       }
@@ -94,7 +119,7 @@ const authOptions: NextAuthOptions = {
         if (!idToken) {
           return {
             ...token,
-            error: "GoogleTokenMissing",
+            error: AUTH_SESSION_ERRORS.GOOGLE_TOKEN_MISSING,
           }
         }
         try {
@@ -109,16 +134,10 @@ const authOptions: NextAuthOptions = {
           token.error = undefined
         } catch (error) {
           if (error instanceof AuthApiError) {
-            if (error.code === "GOOGLE_ACCOUNT_CONFLICT") {
-              token.error = "GoogleAccountConflict"
-              return token
-            }
-            if (error.code === "GOOGLE_NOT_CONFIGURED") {
-              token.error = "GoogleNotConfigured"
-              return token
-            }
+            token.error = mapGoogleAuthError(error)
+            return token
           }
-          token.error = "GoogleLoginError"
+          token.error = AUTH_SESSION_ERRORS.GOOGLE_LOGIN_ERROR
           return token
         }
       } else if (user) {
@@ -127,7 +146,7 @@ const authOptions: NextAuthOptions = {
         token.email = user.email
         token.accessToken = user.accessToken
         token.refreshToken = user.refreshToken
-        token.role = (user as any).role || token.role || "user"
+        token.role = resolveUserRole(user) || token.role || "user"
         token.expiresAt = Date.now() + 60 * 60 * 1000
       }
 
@@ -146,7 +165,7 @@ const authOptions: NextAuthOptions = {
           console.error("Failed to refresh accessToken:", error)
           return {
             ...token,
-            error: "RefreshAccessTokenError",
+            error: AUTH_SESSION_ERRORS.REFRESH_ACCESS_TOKEN_ERROR,
           }
         }
       }
@@ -162,7 +181,7 @@ const authOptions: NextAuthOptions = {
         expiresAt: token.expiresAt || Date.now(),
         role: token.role || "user",
       }
-      ;(session as any).error = (token as any)?.error
+      session.error = token.error
       return session
     },
   },

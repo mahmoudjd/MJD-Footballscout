@@ -2,16 +2,12 @@
 
 import { useEffect } from "react"
 import { signOut, useSession } from "next-auth/react"
+import { shouldForceSignOutForSessionError } from "@/lib/auth-errors"
 
 export default function SessionGuard({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()
-  const sessionError = (session as { error?: string } | null)?.error
-  const shouldForceSignOut =
-    sessionError === "RefreshAccessTokenError" ||
-    sessionError === "GoogleLoginError" ||
-    sessionError === "GoogleAccountConflict" ||
-    sessionError === "GoogleNotConfigured" ||
-    sessionError === "GoogleTokenMissing"
+  const sessionError = session?.error
+  const shouldForceSignOut = shouldForceSignOutForSessionError(sessionError)
 
   useEffect(() => {
     if (status === "authenticated" && shouldForceSignOut) {
