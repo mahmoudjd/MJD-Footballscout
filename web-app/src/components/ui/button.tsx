@@ -5,7 +5,7 @@ type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger"
 type ButtonSize = "xs" | "sm" | "md" | "lg" | "icon" | "icon-sm"
 
 const baseClassName =
-  "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/35 disabled:cursor-not-allowed disabled:opacity-60"
+  "inline-flex items-center justify-center gap-2 rounded-xl cursor-pointer font-semibold transition outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/35 disabled:cursor-not-allowed disabled:opacity-60"
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "bg-cyan-700 text-white hover:bg-cyan-600",
