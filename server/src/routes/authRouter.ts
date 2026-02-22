@@ -91,7 +91,7 @@ export default function createAuthRouter(context: AppContext) {
                 return res.status(400).json({error: "Invalid input", details: err.errors});
             }
             if (err instanceof Error && err.message === "User already exists") {
-                return res.status(409).json({error: err.message});
+                return res.status(409).json({error: "This email already has an account. Please log in."});
             }
             logger.error("Registration failed", err);
             return res.status(500).json({error: "Registration failed"});
