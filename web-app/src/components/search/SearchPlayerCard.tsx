@@ -19,8 +19,8 @@ export function SearchPlayerCard({ player }: SearchPlayerCardProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
   const toast = useToast()
-  // Tracks local add-state to avoid duplicate additions in a single view session.
-  const [isSaved, setIsSaved] = useState(!!player._id)
+  const [savedPlayerId, setSavedPlayerId] = useState<string | undefined>(player._id)
+  const isSaved = !!savedPlayerId
 
   const {
     mutate: savePlayer,
@@ -29,7 +29,7 @@ export function SearchPlayerCard({ player }: SearchPlayerCardProps) {
     isPending: isSaving,
   } = useSavePlayerMutation({
     onSuccess: (savedPlayer) => {
-      setIsSaved(true)
+      setSavedPlayerId(savedPlayer._id)
       queryClient.refetchQueries({ queryKey: ["players"] })
       toast.success(`${savedPlayer.name} saved successfully!`)
     },
@@ -52,7 +52,8 @@ export function SearchPlayerCard({ player }: SearchPlayerCardProps) {
   }
 
   function toProfile() {
-    router.push("/players/" + player._id)
+    if (!savedPlayerId) return
+    router.push("/players/" + savedPlayerId)
   }
 
   return (
@@ -90,7 +91,7 @@ export function SearchPlayerCard({ player }: SearchPlayerCardProps) {
       </div>
 
       <div className="flex w-full flex-col space-y-2 sm:w-auto sm:items-end">
-        {!!player._id ? (
+        {isSaved ? (
           <Button
             onClick={toProfile}
             title="Show profile"
