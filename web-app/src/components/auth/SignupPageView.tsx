@@ -4,6 +4,7 @@ import { type ChangeEvent, type FormEvent, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { signIn } from "next-auth/react"
+import axios from "axios"
 import { AuthCard } from "@/components/auth/AuthCard"
 import { AuthDivider } from "@/components/auth/AuthDivider"
 import { Button } from "@/components/ui/button"
@@ -19,6 +20,7 @@ interface SignupFormState {
 
 interface ErrorWithResponseData {
   response?: {
+    status?: number
     data?: {
       error?: string
     }
@@ -26,6 +28,20 @@ interface ErrorWithResponseData {
 }
 
 function resolveSignupError(error: unknown) {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status
+    const apiMessage = error.response?.data?.error
+    const normalizedMessage = apiMessage?.toLowerCase() || ""
+
+    if (status === 409 || normalizedMessage.includes("already exists")) {
+      return "This email already has an account. Please log in."
+    }
+
+    if (apiMessage) {
+      return apiMessage
+    }
+  }
+
   if (
     typeof error === "object" &&
     error !== null &&
