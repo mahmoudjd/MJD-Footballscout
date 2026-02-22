@@ -66,7 +66,7 @@ export function PlayerProfilePageView({ playerId }: PlayerProfilePageViewProps) 
 
   const { mutateAsync: updatePlayerMutation, isPending: isUpdating } = useUpdatePlayerMutation({
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ["player", { playerId }] })
+      await queryClient.refetchQueries({ queryKey: ["players", playerId] })
       toast.success(`${player?.name} data updated successfully!`)
     },
     onError: () => {

@@ -24,7 +24,7 @@ export function usePlayerComparisonQuery(ids: string[], compareAll = false) {
   const normalizedIds = compareAll ? [] : Array.from(new Set(ids)).sort()
 
   return useQuery({
-    queryKey: ["players", "compare", compareAll ? "all" : normalizedIds.join(",")],
+    queryKey: ["players", "compare", compareAll ? "all" : normalizedIds],
     queryFn: () => fetchComparedPlayers(normalizedIds, compareAll),
     enabled: compareAll || normalizedIds.length >= 2,
   })
