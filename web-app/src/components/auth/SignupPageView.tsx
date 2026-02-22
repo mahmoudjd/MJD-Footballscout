@@ -30,10 +30,16 @@ interface ErrorWithResponseData {
 function resolveSignupError(error: unknown) {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status
-    const apiMessage = error.response?.data?.error
-    const normalizedMessage = apiMessage?.toLowerCase() || ""
+    const apiMessage = error.response?.data?.error || error.response?.data?.message || ""
+    const normalizedMessage = apiMessage.toLowerCase()
 
-    if (status === 409 || normalizedMessage.includes("already exists")) {
+    if (
+      status === 409 ||
+      normalizedMessage.includes("already exists") ||
+      normalizedMessage.includes("already has an account") ||
+      normalizedMessage.includes("duplicate key") ||
+      normalizedMessage.includes("e11000")
+    ) {
       return "This email already has an account. Please log in."
     }
 

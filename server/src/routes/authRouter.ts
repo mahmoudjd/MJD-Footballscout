@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import axios from "axios";
 import {z} from "zod";
-import {ObjectId} from "mongodb";
+import {MongoServerError, ObjectId} from "mongodb";
 
 import {createGoogleUser, createUser, findUserByEmail} from "../controllers/authController";
 import logger from "../logger/logger";
@@ -37,6 +37,24 @@ export default function createAuthRouter(context: AppContext) {
     });
 
     const isEmailVerified = (value: boolean | string) => value === true || value === "true";
+
+    const isDuplicateKeyError = (error: unknown) => {
+        if (error instanceof MongoServerError && error.code === 11000) {
+            return true;
+        }
+
+        if (typeof error === "object" && error !== null) {
+            const maybeError = error as { code?: unknown; message?: unknown };
+            if (maybeError.code === 11000) {
+                return true;
+            }
+            if (typeof maybeError.message === "string" && maybeError.message.includes("E11000")) {
+                return true;
+            }
+        }
+
+        return false;
+    };
 
     const verifyGoogleIdToken = async (idToken: string) => {
         const response = await axios.get("https://oauth2.googleapis.com/tokeninfo", {
@@ -90,7 +108,7 @@ export default function createAuthRouter(context: AppContext) {
             if (err instanceof z.ZodError) {
                 return res.status(400).json({error: "Invalid input", details: err.errors});
             }
-            if (err instanceof Error && err.message === "User already exists") {
+            if ((err instanceof Error && err.message === "User already exists") || isDuplicateKeyError(err)) {
                 return res.status(409).json({error: "This email already has an account. Please log in."});
             }
             logger.error("Registration failed", err);
