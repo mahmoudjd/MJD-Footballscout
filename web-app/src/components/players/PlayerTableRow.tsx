@@ -82,7 +82,7 @@ const PlayerTableRow = memo(({ player, handleDelete, isLoggedIn, isAdmin }: Play
     [player.name, player.title],
   )
   const country = useMemo(() => toText(player.country, "Unknown country"), [player.country])
-  const club = useMemo(() => toText(player.currentClub, "Unknown club"), [player.currentClub])
+  const club = useMemo(() => toText(player.currentClub, "-"), [player.currentClub])
   const age = useMemo(() => formatAge(player.age), [player.age])
   const elo = useMemo(() => formatElo(player.elo), [player.elo])
 
