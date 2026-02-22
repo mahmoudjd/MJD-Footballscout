@@ -39,12 +39,19 @@ function toAuthApiError(error: unknown) {
     const axiosError = error as AxiosError<{ error?: string }>
     const status = axiosError.response?.status
     const apiMessage = axiosError.response?.data?.error
+    const normalizedApiMessage = apiMessage?.toLowerCase() || ""
     if (status === 409) {
-      return new AuthApiError(
-        apiMessage || "Account already exists with credentials",
-        "GOOGLE_ACCOUNT_CONFLICT",
-        status,
-      )
+      if (
+        normalizedApiMessage.includes("linked to another google account") ||
+        normalizedApiMessage.includes("already linked")
+      ) {
+        return new AuthApiError(
+          apiMessage ?? "",
+          "GOOGLE_ACCOUNT_LINK_CONFLICT",
+          status,
+        )
+      }
+      return new AuthApiError(apiMessage || "Google login conflict", "GOOGLE_LOGIN_CONFLICT", status)
     }
     if (status === 503) {
       return new AuthApiError(
