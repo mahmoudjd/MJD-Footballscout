@@ -5,6 +5,8 @@ import { PlayerHighlightItemType } from "@/lib/types/type"
 import { useSession } from "next-auth/react"
 import { cn } from "@/lib/cn"
 import { Text } from "@/components/ui/text"
+import Image from "next/image"
+import { getPlayerImageSrc } from "@/lib/player-image"
 
 interface PlayerSpotlightListProps {
   title: string
@@ -59,11 +61,13 @@ export function PlayerSpotlightList({
               className={cn("flex items-center justify-between gap-3 rounded-xl border p-2.5 text-sm", toneClasses.row)}
             >
               <div className="flex min-w-0 items-center gap-2.5">
-                <img
-                  src={player.image}
+                <Image
+                  src={getPlayerImageSrc(player.image)}
                   alt={player.name}
+                  width={40}
+                  height={40}
                   className="h-10 w-10 rounded-full border border-white/35 object-cover bg-slate-200"
-                  loading="lazy"
+                  sizes="40px"
                 />
                 <div className="min-w-0">
                   <Text as="p" weight="semibold" className={cn("truncate", toneClasses.name)}>

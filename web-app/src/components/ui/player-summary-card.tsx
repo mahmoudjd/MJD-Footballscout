@@ -2,6 +2,8 @@ import { ReactNode } from "react"
 import { PlayerType } from "@/lib/types/type"
 import { cn } from "@/lib/cn"
 import { Text } from "@/components/ui/text"
+import Image from "next/image"
+import { getPlayerImageSrc } from "@/lib/player-image"
 
 interface PlayerSummaryCardProps {
   player: PlayerType
@@ -26,11 +28,13 @@ export function PlayerSummaryCard({
   return (
     <article className={cn("rounded-xl border p-4 shadow-sm", toneClasses[tone], className)}>
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
-        <img
-          src={player.image}
+        <Image
+          src={getPlayerImageSrc(player.image)}
           alt={player.name}
+          width={compact ? 56 : 64}
+          height={compact ? 56 : 64}
           className={cn(compact ? "h-14 w-14" : "h-16 w-16", "rounded-full border border-slate-200 object-cover")}
-          loading="lazy"
+          sizes={compact ? "56px" : "64px"}
         />
         <div className="min-w-0 flex-1">
           <Text as="p" weight="semibold" className="truncate text-slate-900">

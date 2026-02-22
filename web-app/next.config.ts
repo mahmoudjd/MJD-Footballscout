@@ -12,6 +12,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "www.playmakerstats.com",
       },
+      {
+        protocol: "https",
+        hostname: "www.besoccer.com",
+      },
+      {
+        protocol: "https",
+        hostname: "img.besoccer.com",
+      },
     ],
   },
 }
