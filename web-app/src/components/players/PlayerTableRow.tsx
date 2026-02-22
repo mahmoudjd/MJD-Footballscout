@@ -3,9 +3,9 @@ import React, { memo, useCallback, useMemo } from "react"
 import { PlayerType } from "@/lib/types/type"
 import { useRouter } from "next/navigation"
 import { OutlineIcons } from "@/components/outline-icons"
-import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Text } from "@/components/ui/text"
+import Image from "next/image"
 import {
   type KnownPosition,
   formatAge,
@@ -15,6 +15,7 @@ import {
   normalizePosition,
   toText,
 } from "@/components/players/player-utils"
+import { getPlayerImageSrc } from "@/lib/player-image"
 
 const positionStyles: Record<KnownPosition, { border: string; badge: string; dot: string }> = {
   Forward: {
@@ -47,12 +48,11 @@ const positionStyles: Record<KnownPosition, { border: string; badge: string; dot
 interface PlayerTableRowProps {
   player: PlayerType
   handleDelete: (id: string) => void
+  isLoggedIn: boolean
+  isAdmin: boolean
 }
 
-const PlayerTableRow = memo(({ player, handleDelete }: PlayerTableRowProps) => {
-  const { data: session } = useSession()
-  const isLoggedIn = !!session?.user?.email
-  const isAdmin = session?.user?.role === "admin"
+const PlayerTableRow = memo(({ player, handleDelete, isLoggedIn, isAdmin }: PlayerTableRowProps) => {
   const router = useRouter()
 
   const navigateToProfile = useCallback(() => {
@@ -103,11 +103,13 @@ const PlayerTableRow = memo(({ player, handleDelete }: PlayerTableRowProps) => {
     >
       <td className="min-w-[320px] px-4 py-3">
         <div className="flex w-full items-center gap-3">
-          <img
-            src={player.image}
+          <Image
+            src={getPlayerImageSrc(player.image)}
             alt={`${displayName}'s profile`}
+            width={56}
+            height={56}
             className="h-14 w-14 rounded-full border border-cyan-200/70 object-cover"
-            loading="lazy"
+            sizes="56px"
           />
           <div className="min-w-0">
             <Text as="p" weight="semibold" className="truncate text-slate-800">

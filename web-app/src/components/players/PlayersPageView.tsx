@@ -23,10 +23,12 @@ import { Button } from "@/components/ui/button"
 import { Text } from "@/components/ui/text"
 import { playersGuideSections } from "@/components/players/players-guide"
 import { Chip } from "@/components/ui/chip"
+import axios from "axios"
 
 export default function PlayersPageView() {
   const queryClient = useQueryClient()
   const { data: session } = useSession()
+  const isLoggedIn = Boolean(session?.user?.id)
   const isAdmin = session?.user?.role === "admin"
   const { data: players, isLoading, isError, error } = usePlayersQuery()
   const [currentPage, setCurrentPage] = useState(1)
@@ -107,6 +109,20 @@ export default function PlayersPageView() {
     return players?.find((player) => player._id === playerToDeleteId)?.name || null
   }, [players, playerToDeleteId])
 
+  const getHttpStatusCode = (error: unknown) => {
+    if (axios.isAxiosError(error)) {
+      return error.response?.status
+    }
+    return undefined
+  }
+
+  const getHttpErrorMessage = (error: unknown) => {
+    if (axios.isAxiosError<{ error?: string; message?: string }>(error)) {
+      return error.response?.data?.error || error.response?.data?.message
+    }
+    return undefined
+  }
+
   const handleDeleteAndUpdate = async () => {
     if (!playerToDeleteId) return
     const deletingPlayerId = playerToDeleteId
@@ -119,8 +135,8 @@ export default function PlayersPageView() {
       if (currentPlayers.length === 1 && currentPage > 1) {
         setCurrentPage((prev) => Math.max(1, prev - 1))
       }
-    } catch (error: any) {
-      if (error?.response?.status === 403) {
+    } catch (error: unknown) {
+      if (getHttpStatusCode(error) === 403) {
         toast.error("Only admins can delete players.")
         return
       }
@@ -143,12 +159,12 @@ export default function PlayersPageView() {
       await queryClient.invalidateQueries({ queryKey: ["players"] })
       toast.success(response.message || "All players updated successfully!")
       setIsUpdateAllDialogOpen(false)
-    } catch (error: any) {
-      if (error?.response?.status === 403) {
+    } catch (error: unknown) {
+      if (getHttpStatusCode(error) === 403) {
         toast.error("Only admins can update all players.")
         return
       }
-      toast.error(error?.message || "Failed to update all players.")
+      toast.error(getHttpErrorMessage(error) || "Failed to update all players.")
     }
   }
 
@@ -260,7 +276,12 @@ export default function PlayersPageView() {
             />
           </div>
         ) : (
-          <PlayersTable players={currentPlayers} handleDeleteAndUpdate={setPlayerToDeleteId} />
+          <PlayersTable
+            players={currentPlayers}
+            handleDeleteAndUpdate={setPlayerToDeleteId}
+            isLoggedIn={isLoggedIn}
+            isAdmin={isAdmin}
+          />
         )}
       </Panel>
 
