@@ -1,9 +1,11 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { PlayerType } from "../data/Types";
 import Colors from "../constants/Colors";
 import { AppContext } from "../context/AppContext";
 import { Link } from "expo-router";
+import { getPlayerDisplayName, safeDecodeURIComponent } from "@/src/utils/playerDisplay";
 
 interface Props {
   player: PlayerType;
@@ -23,62 +25,70 @@ const getPosition = (position: string) => {
 
 const PlayerItem = ({ player }: Props) => {
   const { isDark } = React.useContext(AppContext);
+  const colorKey = isDark ? "dark" : "light";
+  const colors = Colors[colorKey];
+  const displayName = getPlayerDisplayName(player);
+  const fallbackName = safeDecodeURIComponent(player.name) || displayName;
+  const marketValue = `${player.value || "-"} ${player.currency || ""}`.trim() || "-";
+  const badgeBackground = isDark ? "rgba(34,211,238,0.16)" : "rgba(14,165,165,0.11)";
+  const badgeTextColor = isDark ? "#67e8f9" : "#0e7490";
 
   return (
     <View
       style={[
         styles.playerContainer,
         {
-          backgroundColor: Colors[isDark ? "dark" : "light"].card,
-          borderTopColor: Colors[isDark ? "dark" : "light"].border,
-          borderTopWidth: 1,
+          backgroundColor: colors.card,
+          borderColor: colors.border,
+          shadowColor: isDark ? "#000" : "#0f172a",
         },
       ]}
     >
-      <Link href={`/${player._id}`} style={{ flex: 1, width: "100%" }}>
-        <View style={styles.playerInfo}>
+      <Link href={`/${player._id}`} asChild>
+        <Pressable style={styles.playerInfo}>
           <Image
             source={{ uri: player.image }}
-            style={{
-              width: 65,
-              height: 65,
-              borderRadius: 50,
-              objectFit: "fill",
-            }}
+            style={styles.avatar}
           />
-          <View style={{ marginLeft: 10 }}>
-            <View style={{ flexDirection: "row", columnGap: 5 }}>
-              <Text style={styles.playerNumber}>
-                {player.number ? player.number : "-"}
-              </Text>
-
+          <View style={styles.meta}>
+            <View style={styles.nameRow}>
+              <View style={[styles.playerNumberBadge, { backgroundColor: badgeBackground }]}>
+                <Text style={[styles.playerNumber, { color: badgeTextColor }]}>
+                  {player.number ? `#${player.number}` : "#-"}
+                </Text>
+              </View>
               <Text
                 style={[
                   styles.playerName,
-                  { color: Colors[isDark ? "dark" : "light"].text },
+                  { color: colors.text },
                 ]}
+                numberOfLines={1}
               >
-                {player.title}
+                {displayName}
               </Text>
             </View>
             <Text
-              style={{
-                fontSize: 13,
-                color: Colors[isDark ? "dark" : "light"].notification,
-              }}
+              style={[styles.secondaryText, { color: colors.notification }]}
+              numberOfLines={1}
             >
-              {player.country}
+              {fallbackName !== displayName ? `${fallbackName} • ` : ""}
+              {player.currentClub || player.country || "Unknown"}
             </Text>
-            <Text
-              style={{
-                fontSize: 13,
-                color: Colors[isDark ? "dark" : "light"].notification,
-              }}
-            >
-              {getPosition(player.position)}
-            </Text>
+            <View style={styles.metaPills}>
+              <View style={[styles.metaPill, { backgroundColor: badgeBackground }]}>
+                <Text style={[styles.metaPillText, { color: badgeTextColor }]} numberOfLines={1}>
+                  {getPosition(player.position)}
+                </Text>
+              </View>
+              <View style={[styles.metaPill, { backgroundColor: badgeBackground }]}>
+                <Text style={[styles.metaPillText, { color: badgeTextColor }]} numberOfLines={1}>
+                  {marketValue}
+                </Text>
+              </View>
+            </View>
           </View>
-        </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.notification} />
+        </Pressable>
       </Link>
     </View>
   );
@@ -87,37 +97,72 @@ const PlayerItem = ({ player }: Props) => {
 const styles = StyleSheet.create({
   playerContainer: {
     width: "100%",
-    height: 90,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    minHeight: 96,
+    paddingVertical: 9,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderRadius: 14,
+    marginBottom: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
   playerInfo: {
     width: "100%",
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
-    columnGap: 20,
-    paddingLeft: 20,
+    gap: 12,
+  },
+  avatar: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    objectFit: "cover",
+    backgroundColor: "#e2e8f0",
+  },
+  meta: {
+    flex: 1,
+    minWidth: 0,
+  },
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  playerNumberBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
   },
   playerName: {
-    fontSize: 16,
-    fontWeight: "bold",
+    flex: 1,
+    fontSize: 15,
+    fontWeight: "800",
   },
   playerNumber: {
-    color: "#008fb3",
-    fontSize: 18,
-    marginRight: 5,
+    fontSize: 10,
+    fontWeight: "800",
   },
-  show: {
-    padding: 5,
-    borderColor: "#008fb3",
-    borderWidth: 1,
-    borderRadius: 50,
-    alignItems: "center",
+  secondaryText: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  metaPills: {
+    marginTop: 5,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+  },
+  metaPill: {
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    maxWidth: "100%",
+  },
+  metaPillText: {
+    fontSize: 10,
+    fontWeight: "700",
   },
   navItem: {
     alignItems: "center",

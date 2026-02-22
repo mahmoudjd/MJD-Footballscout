@@ -1,82 +1,87 @@
 import * as React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { Linking, StyleSheet, useWindowDimensions, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import ProfileInfoItem from "./ProfileInfoItem";
 import { PlayerType } from "../../data/Types";
-import Colors from "@/src/constants/Colors";
-import { AppContext } from "@/src/context/AppContext";
-import { ExternalLink } from "../ExternalLink";
+import { getPlayerDisplayName, safeDecodeURIComponent } from "@/src/utils/playerDisplay";
 
 interface Props {
   player: PlayerType;
+  maxItems?: number;
 }
 
-const ProfileInfo = ({ player }: Props) => {
-  const { isDark } = React.useContext(AppContext);
+const ProfileInfo = ({ player, maxItems }: Props) => {
+  const displayName = getPlayerDisplayName(player);
+  const { width } = useWindowDimensions();
+  const twoColumns = width >= 430;
+
+  const openWebsite = React.useCallback(async () => {
+    if (!player.website) return;
+    const canOpen = await Linking.canOpenURL(player.website);
+    if (canOpen) {
+      await Linking.openURL(player.website);
+    }
+  }, [player.website]);
+
+  const currentValue = `${player.value || "-"} ${player.currency || ""}`.trim();
+  const ageValue = typeof player.age === "number" ? `${player.age} years` : "-";
+  const weightValue = typeof player.weight === "number" ? `${player.weight} kg` : "-";
+  const heightValue = typeof player.height === "number" ? `${player.height} cm` : "-";
+  const bornValue = [player.born, player.birthCountry].filter(Boolean).join(" / ") || "-";
+  const capsValue =
+    !player.caps || player.caps === "played  /  Goals"
+      ? "-"
+      : player.position.includes("Goal")
+        ? `${player.caps} conceded`
+        : player.caps;
+
+  const items: Array<{
+    icon: React.ComponentProps<typeof Ionicons>["name"];
+    label: string;
+    value: string | number;
+    onPress?: () => void;
+  }> = [
+    { icon: "person-outline", label: "Name", value: displayName },
+    { icon: "sparkles-outline", label: "Title", value: safeDecodeURIComponent(player.title) || "-" },
+    { icon: "id-card-outline", label: "Full Name", value: safeDecodeURIComponent(player.fullName) || "-" },
+    { icon: "hourglass-outline", label: "Age", value: ageValue },
+    { icon: "calendar-outline", label: "Born", value: bornValue },
+    { icon: "flag-outline", label: "Country", value: player.country || "-" },
+    { icon: "globe-outline", label: "Other Nationality", value: player.otherNation || "-" },
+    { icon: "trending-up-outline", label: "Highest Market Value", value: player.highstValue || "-" },
+    { icon: "cash-outline", label: "Current Market Value", value: currentValue || "-" },
+    { icon: "stats-chart-outline", label: "ELO Rating", value: player.elo || "-" },
+    { icon: "shield-outline", label: "Current Club", value: player.currentClub || "-" },
+    { icon: "navigate-outline", label: "Position", value: player.position || "-" },
+    { icon: "walk-outline", label: "Preferred Foot", value: player.preferredFoot || "-" },
+    { icon: "pricetag-outline", label: "Jersey Number", value: player.number || "-" },
+    { icon: "swap-horizontal-outline", label: "Caps", value: capsValue },
+    { icon: "barbell-outline", label: "Weight", value: weightValue },
+    { icon: "resize-outline", label: "Height", value: heightValue },
+    { icon: "link-outline", label: "Website", value: player.website || "-", onPress: openWebsite },
+    { icon: "pulse-outline", label: "Status", value: player.status || "-" },
+  ];
+
+  const visibleItems = items.filter((item) => {
+    const normalized = String(item.value ?? "").trim();
+    return normalized !== "" && normalized !== "-" && normalized !== "null" && normalized !== "undefined";
+  });
+  const renderedItems = typeof maxItems === "number" ? visibleItems.slice(0, maxItems) : visibleItems;
 
   return (
     <View style={styles.profileInfo}>
-      <ProfileInfoItem k="Name:" v={player.name} />
-      <ProfileInfoItem k="Full Name:" v={decodeURIComponent(player.fullName)} />
-      <ProfileInfoItem k="Age:" v={(player.age || "-") + " years"} />
-      <ProfileInfoItem k="Country:" v={player.country} />
-      <ProfileInfoItem k="Number:" v={player.number || "-"} />
-      <ProfileInfoItem k="Weight:" v={(player.weight || "-") + " kg"} />
-      <ProfileInfoItem k="Height:" v={(player.height || "-") + " cm"} />
-      <ProfileInfoItem k="Position:" v={player.position} />
-
-      {player.preferredFoot && (
-        <ProfileInfoItem k="Preferred Foot:" v={player.preferredFoot} />
-      )}
-
-      <ProfileInfoItem k="Value:" v={player.value + player.currency} />
-      {player.highstValue && (
-        <ProfileInfoItem k="Highest value in career:" v={player.highstValue} />
-      )}
-
-      {player.currentClub && (
-        <ProfileInfoItem k={"Current Club:"} v={player.currentClub} />
-      )}
-
-      <ProfileInfoItem k={"ELO:"} v={player.elo} />
-
-      {player.caps !== "played  /  Goals" && (
-        <ProfileInfoItem
-          k={"GAPS:"}
-          v={
-            player.position === "Goalkeeper"
-              ? player.caps + " conceded"
-              : player.caps
-          }
-        />
-      )}
-
-      {player.otherNation && (
-        <ProfileInfoItem k={"Other nationality:"} v={player.otherNation} />
-      )}
-
-      {player.website && (
-        <View style={styles.infoItem}>
-          <Text>
-            <Text
-              style={[
-                styles.strong,
-                { color: Colors[isDark ? "dark" : "light"].notification },
-              ]}
-            >
-              Website:{" "}
-            </Text>
-            <ExternalLink href={player.website}>
-              <Text style={styles.website}>{player.website}</Text>
-            </ExternalLink>
-          </Text>
-        </View>
-      )}
-
-      {player.status && (
-        <ProfileInfoItem k={"Current status: "} v={player.status} />
-      )}
-
-      <ProfileInfoItem k="Born:" v={player.born + "/" + player.birthCountry} />
+      <View style={styles.grid}>
+        {renderedItems.map((item) => (
+          <View key={item.label} style={[styles.gridItem, !twoColumns ? styles.gridItemFull : null]}>
+            <ProfileInfoItem
+              icon={item.icon}
+              label={item.label}
+              value={item.value}
+              onPress={item.onPress}
+            />
+          </View>
+        ))}
+      </View>
     </View>
   );
 };
@@ -85,18 +90,18 @@ export default ProfileInfo;
 
 const styles = StyleSheet.create({
   profileInfo: {
-    marginBottom: 10,
+    marginBottom: 4,
   },
-  infoItem: {
-    marginBottom: 5,
-    paddingVertical: 5,
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    rowGap: 11,
   },
-  strong: {
-    marginRight: 6,
-    fontWeight: "bold",
+  gridItem: {
+    width: "48.5%",
   },
-  website: {
-    color: "#008fb3",
-    textDecorationLine: "underline",
+  gridItemFull: {
+    width: "100%",
   },
 });
