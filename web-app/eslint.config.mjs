@@ -36,7 +36,7 @@ export default [
       ...nextPlugin.configs["core-web-vitals"].rules,
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
@@ -46,7 +46,7 @@ export default [
         },
       ],
       "@typescript-eslint/consistent-type-imports": "off",
-      "@next/next/no-img-element": "off",
+      "@next/next/no-img-element": "warn",
       "no-extra-boolean-cast": "off",
       "no-console": [
         "warn",

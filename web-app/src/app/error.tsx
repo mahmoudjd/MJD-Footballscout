@@ -6,6 +6,23 @@ import { Spinner } from "@/components/spinner"
 import { Button } from "@/components/ui/button"
 import { Text } from "@/components/ui/text"
 
+function isUnauthorizedError(error: Error) {
+  const normalized = error.message.toLowerCase()
+  return normalized.includes("401") || normalized.includes("unauthorized")
+}
+
+function resolveUserFacingErrorMessage(error: Error) {
+  if (isUnauthorizedError(error)) {
+    return "Your session is no longer valid. Please sign in again."
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    return error.message
+  }
+
+  return "An unexpected error occurred. Please try again."
+}
+
 export default function GlobalError({
   error,
   reset,
@@ -14,15 +31,16 @@ export default function GlobalError({
   reset: () => void
 }) {
   const [isResetting, setIsResetting] = useState(false)
+  const shouldSignOut = isUnauthorizedError(error)
+  const userFacingMessage = resolveUserFacingErrorMessage(error)
 
   useEffect(() => {
     console.error("Global Error:", error)
 
-    // Automatisches Signout bei 401
-    if (error.message.includes("401")) {
-      signOut({ callbackUrl: "/login" }) // Leitet nach Logout zur Login-Seite
+    if (shouldSignOut) {
+      void signOut({ callbackUrl: "/login" })
     }
-  }, [error])
+  }, [error, shouldSignOut])
 
   const handleReset = () => {
     setIsResetting(true)
@@ -39,11 +57,11 @@ export default function GlobalError({
   return (
     <div className="flex w-full items-center justify-center p-8">
       <div className="w-full max-w-md rounded-lg border border-red-300 bg-white p-6 text-center shadow-lg">
-        <Text as="h2" variant="h1" weight="bold" className="mb-4">
-          💥 Oops! Something went wrong
+        <Text as="h2" variant="h1" weight="bold" className="mb-4 text-slate-900">
+          Something went wrong
         </Text>
-        <Text as="p" variant="body-lg" className="mb-4">
-          {error.message}
+        <Text as="p" variant="body-lg" className="mb-4 text-slate-700">
+          {userFacingMessage}
         </Text>
         {error.digest && (
           <Text as="p" variant="caption" tone="danger" className="mb-4">
