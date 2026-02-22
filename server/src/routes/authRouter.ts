@@ -149,20 +149,28 @@ export default function createAuthRouter(context: AppContext) {
             if (!user) {
                 const userByEmail = await context.users.findOne({email: verifiedGoogleUser.email});
                 if (userByEmail) {
-                    if (userByEmail.authProvider !== "google" && userByEmail.password) {
+                    if (userByEmail.googleId && userByEmail.googleId !== verifiedGoogleUser.googleId) {
                         return res.status(409).json({
-                            error: "Account already exists with email/password. Please login with credentials.",
+                            error: "This email is already linked to another Google account.",
                         });
+                    }
+
+                    const shouldBackfillName = !userByEmail.name?.trim();
+                    const shouldSetGoogleProvider = !userByEmail.password && userByEmail.authProvider !== "google";
+                    const updateSet: Record<string, string> = {
+                        googleId: verifiedGoogleUser.googleId,
+                    };
+                    if (shouldBackfillName) {
+                        updateSet.name = verifiedGoogleUser.name;
+                    }
+                    if (shouldSetGoogleProvider) {
+                        updateSet.authProvider = "google";
                     }
 
                     user = await context.users.findOneAndUpdate(
                         {_id: userByEmail._id},
                         {
-                            $set: {
-                                googleId: verifiedGoogleUser.googleId,
-                                authProvider: "google",
-                                name: userByEmail.name || verifiedGoogleUser.name,
-                            },
+                            $set: updateSet,
                         },
                         {returnDocument: "after"},
                     );
