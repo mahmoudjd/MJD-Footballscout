@@ -53,9 +53,9 @@ const variantClasses: Record<TextVariant, string> = {
 
 const toneClasses: Record<TextTone, string> = {
   default: "text-slate-900",
-  muted: "text-slate-600",
-  subtle: "text-slate-500",
-  primary: "text-cyan-700",
+  muted: "text-stone-600",
+  subtle: "text-stone-500",
+  primary: "text-amber-700",
   success: "text-emerald-700",
   danger: "text-red-700",
   inverse: "text-white",

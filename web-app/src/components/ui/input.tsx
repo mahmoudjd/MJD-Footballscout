@@ -10,7 +10,7 @@ interface InputVariantProps {
 interface InputProps extends InputHTMLAttributes<HTMLInputElement>, InputVariantProps {}
 
 const baseClassName =
-  "w-full rounded-xl border border-slate-300 bg-white text-sm shadow-sm transition-colors duration-200 hover:border-slate-400 focus:border-cyan-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+  "w-full rounded-xl border border-stone-300 bg-white text-sm text-stone-800 shadow-[0_8px_18px_-14px_rgba(15,23,42,0.3)] transition-all duration-200 placeholder:text-stone-400 hover:border-stone-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
 
 const sizeClasses: Record<InputSize, string> = {
   sm: "px-3 py-2",

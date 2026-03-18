@@ -1,7 +1,7 @@
 "use client"
 
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
-import { Spinner } from "@/components/spinner"
+import { Spinner } from "@/components/common/spinner"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/cn"
 import { Text } from "@/components/ui/text"
@@ -34,10 +34,10 @@ export function ConfirmDialog({
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-[1px]" />
+        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-[2px]" />
         <AlertDialog.Content
           className={cn(
-            "fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-6 shadow-xl",
+            "fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-stone-200 bg-white p-6 shadow-[0_34px_68px_-34px_rgba(15,23,42,0.5)]",
           )}
         >
           <AlertDialog.Title asChild>

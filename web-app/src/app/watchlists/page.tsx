@@ -1,4 +1,4 @@
-import { WatchlistsPageView } from "@/components/watchlists/WatchlistsPageView"
+import { WatchlistsPageView } from "@/features/watchlists/components/WatchlistsPageView"
 
 export default function WatchlistsPage() {
   return <WatchlistsPageView />

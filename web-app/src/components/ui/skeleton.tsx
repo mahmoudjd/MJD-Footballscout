@@ -7,7 +7,7 @@ interface SkeletonProps {
 }
 
 const toneClasses: Record<NonNullable<SkeletonProps["tone"]>, string> = {
-  default: "bg-slate-200",
+  default: "bg-stone-200",
   light: "bg-white/20",
   dark: "bg-slate-700/35",
 }
@@ -26,7 +26,7 @@ export function PlayersTableSkeleton({ rows = 6 }: PlayersTableSkeletonProps) {
       {Array.from({ length: rows }).map((_, index) => (
         <div
           key={index}
-          className="grid grid-cols-12 items-center gap-3 rounded-lg border border-slate-200 p-3"
+          className="grid grid-cols-12 items-center gap-3 rounded-lg border border-stone-200 p-3"
         >
           <Skeleton className="col-span-7 h-12 sm:col-span-6" />
           <Skeleton className="col-span-2 h-6 sm:col-span-2" />
@@ -46,7 +46,7 @@ export function WatchlistsPanelSkeleton({ rows = 5 }: WatchlistsPanelSkeletonPro
   return (
     <div className="space-y-3">
       {Array.from({ length: rows }).map((_, index) => (
-        <div key={index} className="rounded-lg border border-slate-200 p-3">
+        <div key={index} className="rounded-lg border border-stone-200 p-3">
           <Skeleton className="h-4 w-2/3" />
           <Skeleton className="mt-2 h-3 w-1/3" />
         </div>
@@ -65,7 +65,7 @@ export function WatchlistDetailsSkeleton({ rows = 3 }: WatchlistDetailsSkeletonP
       <Skeleton className="h-8 w-48" />
       <Skeleton className="h-24 w-full" />
       {Array.from({ length: rows }).map((_, index) => (
-        <div key={index} className="rounded-lg border border-slate-200 p-3">
+        <div key={index} className="rounded-lg border border-stone-200 p-3">
           <Skeleton className="h-4 w-1/2" />
           <Skeleton className="mt-2 h-3 w-1/3" />
         </div>
@@ -107,7 +107,7 @@ export function HomeInsightsSkeleton({
               {Array.from({ length: listRows }).map((__, rowIndex) => (
                 <div key={rowIndex} className="flex items-center justify-between gap-2">
                   <Skeleton className="h-3 w-28 bg-white/15" />
-                  <Skeleton className="h-5 w-10 bg-cyan-400/30" />
+                  <Skeleton className="h-5 w-10 bg-amber-300/35" />
                 </div>
               ))}
             </div>
@@ -127,8 +127,8 @@ export function HomeInsightsSkeleton({
                     <Skeleton className="mt-1 h-2.5 w-24 bg-white/15" />
                   </div>
                   <div className="flex items-center gap-2">
-                    <Skeleton className="h-5 w-14 bg-cyan-400/30" />
-                    <Skeleton className="h-5 w-10 bg-cyan-300/25" />
+                    <Skeleton className="h-5 w-14 bg-amber-300/35" />
+                    <Skeleton className="h-5 w-10 bg-amber-200/30" />
                   </div>
                 </div>
               ))}
@@ -151,7 +151,7 @@ export function ProfilePageSkeleton({ sections = 5 }: ProfilePageSkeletonProps) 
     <div className="space-y-6">
       <Skeleton className="h-6 w-20" />
 
-      <div className="rounded-xl border border-slate-200 p-5">
+      <div className="rounded-xl border border-stone-200 p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <Skeleton className="h-24 w-24 rounded-full" />
           <div className="flex-1 space-y-2">
@@ -162,7 +162,7 @@ export function ProfilePageSkeleton({ sections = 5 }: ProfilePageSkeletonProps) 
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 p-4">
+      <div className="rounded-xl border border-stone-200 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Skeleton className="h-4 w-52" />
           <Skeleton className="h-8 w-28" />
@@ -170,7 +170,7 @@ export function ProfilePageSkeleton({ sections = 5 }: ProfilePageSkeletonProps) 
       </div>
 
       {Array.from({ length: sections }).map((_, index) => (
-        <div key={index} className="rounded-xl border border-slate-200 p-4">
+        <div key={index} className="rounded-xl border border-stone-200 p-4">
           <Skeleton className="h-5 w-40" />
           <div className="mt-3 space-y-2">
             <Skeleton className="h-4 w-full" />

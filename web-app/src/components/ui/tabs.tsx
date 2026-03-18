@@ -14,13 +14,13 @@ type TabsTriggerProps = ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> &
 type TabsContentProps = ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 
 const listToneClasses: Record<NonNullable<TabsListProps["tone"]>, string> = {
-  default: "border-slate-200 bg-slate-100/90",
+  default: "border-stone-200 bg-stone-100/90",
   glass: "border-white/30 bg-white/12 text-white backdrop-blur-md",
 }
 
 const triggerToneClasses: Record<NonNullable<TabsTriggerProps["tone"]>, string> = {
   default:
-    "text-slate-600 hover:text-slate-900 data-[state=active]:bg-white data-[state=active]:text-cyan-700 data-[state=active]:shadow-sm",
+    "text-stone-600 hover:text-stone-900 data-[state=active]:bg-white data-[state=active]:text-stone-900 data-[state=active]:shadow-sm",
   glass:
     "text-slate-200 hover:text-white data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-none",
 }
@@ -42,7 +42,7 @@ export function TabsTrigger({ className, tone = "default", ...props }: TabsTrigg
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        "inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-1.5 text-sm font-semibold transition",
+        "inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-1.5 text-sm font-semibold tracking-[0.01em] transition",
         triggerToneClasses[tone],
         className,
       )}

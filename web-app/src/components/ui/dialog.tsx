@@ -2,7 +2,7 @@
 
 import type { ComponentPropsWithoutRef, ReactNode } from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { OutlineIcons } from "@/components/outline-icons"
+import { OutlineIcons } from "@/components/icons/outline-icons"
 import { cn } from "@/lib/cn"
 import { Button } from "@/components/ui/button"
 
@@ -31,10 +31,10 @@ const contentSizeClasses: Record<NonNullable<DialogContentProps["size"]>, string
 export function DialogContent({ className, children, size = "md", ...props }: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-[80] bg-slate-950/50 backdrop-blur-[1px]" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-[80] bg-slate-950/45 backdrop-blur-[2px]" />
       <DialogPrimitive.Content
         className={cn(
-          "fixed top-1/2 left-1/2 z-[90] max-h-[85vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl",
+          "fixed top-1/2 left-1/2 z-[90] max-h-[85vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-stone-200 bg-white p-6 shadow-[0_36px_70px_-34px_rgba(15,23,42,0.5)]",
           contentSizeClasses[size],
           className,
         )}
@@ -46,7 +46,7 @@ export function DialogContent({ className, children, size = "md", ...props }: Di
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="absolute top-3 right-3 text-slate-500 hover:text-slate-700"
+            className="absolute top-3 right-3 text-stone-500 hover:bg-stone-100 hover:text-stone-800"
             aria-label="Close dialog"
           >
             <OutlineIcons.XMarkIcon className="h-5 w-5" />
@@ -58,17 +58,19 @@ export function DialogContent({ className, children, size = "md", ...props }: Di
 }
 
 export function DialogHeader({ children }: { children: ReactNode }) {
-  return <div className="space-y-1">{children}</div>
+  return <div className="space-y-1.5">{children}</div>
 }
 
 export function DialogTitle({ className, ...props }: DialogTitleProps) {
-  return <DialogPrimitive.Title className={cn("text-xl font-bold text-slate-900", className)} {...props} />
+  return (
+    <DialogPrimitive.Title className={cn("text-xl font-semibold tracking-tight text-stone-900", className)} {...props} />
+  )
 }
 
 export function DialogDescription({ className, ...props }: DialogDescriptionProps) {
   return (
     <DialogPrimitive.Description
-      className={cn("text-sm leading-relaxed text-slate-600", className)}
+      className={cn("text-sm leading-relaxed text-stone-600", className)}
       {...props}
     />
   )

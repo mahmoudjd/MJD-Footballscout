@@ -11,16 +11,16 @@ interface PanelProps {
 
 const toneClasses: Record<NonNullable<PanelProps["tone"]>, string> = {
   default:
-    "bg-white/95 border border-slate-200/90 shadow-[0_10px_30px_-20px_rgba(15,23,42,0.35)] backdrop-blur-[1px]",
+    "bg-white/96 border border-stone-200/90 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.35)] backdrop-blur-[1px]",
   glass:
-    "bg-white/14 border border-white/35 text-white shadow-[0_14px_38px_-18px_rgba(15,23,42,0.55)] backdrop-blur-sm",
+    "bg-white/14 border border-white/30 text-white shadow-[0_20px_42px_-24px_rgba(15,23,42,0.55)] backdrop-blur-sm",
   soft:
-    "bg-linear-to-br from-cyan-50 via-white to-slate-50 border border-cyan-100/70 shadow-[0_8px_24px_-18px_rgba(14,116,144,0.4)]",
+    "bg-linear-to-br from-stone-50 via-white to-neutral-50 border border-stone-200/80 shadow-[0_14px_28px_-24px_rgba(15,23,42,0.35)]",
 }
 
 const spacingClasses: Record<NonNullable<PanelProps["spacing"]>, string> = {
-  default: "p-4 sm:p-6",
-  compact: "p-3 sm:p-4",
+  default: "p-4 sm:p-5",
+  compact: "p-3.5 sm:p-4",
   none: "p-0",
 }
 

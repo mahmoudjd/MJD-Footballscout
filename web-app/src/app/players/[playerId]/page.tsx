@@ -1,4 +1,4 @@
-import { PlayerProfilePageView } from "@/components/profile/PlayerProfilePageView"
+import { PlayerProfilePageView } from "@/features/profile/components/PlayerProfilePageView"
 import { notFound } from "next/navigation"
 
 interface ProfilePageProps {
