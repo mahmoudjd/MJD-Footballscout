@@ -1,0 +1,16 @@
+export const queryKeys = {
+  players: {
+    all: ["players"] as const,
+    detail: (playerId: string) => ["players", playerId] as const,
+    stats: () => ["players", "stats"] as const,
+    highlights: () => ["players", "highlights"] as const,
+    reports: (playerId: string) => ["players", playerId, "reports"] as const,
+    history: (playerId: string, limit: number) =>
+      ["players", playerId, "history", limit] as const,
+    compare: (scope: "all" | string[]) => ["players", "compare", scope] as const,
+  },
+  watchlists: {
+    all: ["watchlists"] as const,
+    detail: (watchlistId: string) => ["watchlists", watchlistId] as const,
+  },
+} as const
