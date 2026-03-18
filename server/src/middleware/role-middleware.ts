@@ -1,7 +1,7 @@
 import {NextFunction, Request, RequestHandler, Response} from "express";
 import {ObjectId} from "mongodb";
-import {AppContext} from "../models/context";
-import {AuthenticatedRequest, UserRole} from "../models/auth";
+import {AppContext} from "../context/types";
+import {AuthenticatedRequest, UserRole} from "../shared/auth";
 import logger from "../logger/logger";
 
 function getUserId(req: Request) {

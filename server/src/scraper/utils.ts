@@ -1,5 +1,5 @@
 import type * as cheerio from "cheerio";
-import {PlayerType, PlayerTypeSchemaWithoutID} from "../models/player";
+import {PlayerType, PlayerTypeSchemaWithoutID} from "../modules/players/player.model";
 
 
 /**

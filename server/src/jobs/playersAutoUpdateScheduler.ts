@@ -1,6 +1,6 @@
 import logger from "../logger/logger";
-import type { AppContext } from "../models/context";
-import { updateAllPlayers } from "../controllers/playerController";
+import type { AppContext } from "../context/types";
+import { updateAllPlayers } from "../modules/players/players.controller";
 
 function parseBoolean(value: string | undefined, fallback: boolean): boolean {
     if (value === undefined) return fallback;

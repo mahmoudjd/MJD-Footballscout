@@ -6,7 +6,7 @@ import {
     Award,
     Title,
     Transfer,
-} from "../models/player";
+} from "../modules/players/player.model";
 import { normalizeName, toInt, extractText, cleanText } from "./utils";
 import { ScraperError } from "../middleware/customErrors";
 import logger from "../logger/logger";

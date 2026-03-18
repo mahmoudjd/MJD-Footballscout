@@ -1,11 +1,11 @@
 import {connectDB} from "../config/connect";
 import axios from "axios";
-import {PlayerType} from "../models/player";
-import {User} from "../models/user";
-import { AppContext, Config} from "../models/context"
-import {ScoutingReport} from "../models/scoutingReport";
-import {PlayerHistory} from "../models/playerHistory";
-import {Watchlist} from "../models/watchlist";
+import {PlayerType} from "../modules/players/player.model";
+import {User} from "../modules/auth/user.model";
+import { AppContext, Config} from "./types"
+import {ScoutingReport} from "../modules/players/scouting-report.model";
+import {PlayerHistory} from "../modules/players/player-history.model";
+import {Watchlist} from "../modules/watchlists/watchlist.model";
 import logger from "../logger/logger";
 
 export async function createContext({
@@ -24,6 +24,16 @@ export async function createContext({
     const scoutingReports = db.collection<ScoutingReport>("scoutingReports");
     const playerHistories = db.collection<PlayerHistory>("playerHistories");
     const watchlists = db.collection<Watchlist>("watchlists");
+
+    await players.createIndex({fullName: 1});
+    await players.createIndex({name: 1});
+    await players.createIndex({position: 1});
+    await players.createIndex({country: 1});
+    await players.createIndex({currentClub: 1});
+    await players.createIndex({age: 1});
+    await players.createIndex({elo: -1});
+    await players.createIndex({timestamp: -1});
+
     await users.createIndex({email: 1}, {unique: true});
     await users.createIndex(
         {googleId: 1},
@@ -32,7 +42,11 @@ export async function createContext({
             partialFilterExpression: {googleId: {$type: "string"}},
         },
     );
-    logger.info("User indexes ensured");
+    await watchlists.createIndex({userId: 1, updatedAt: -1});
+    await scoutingReports.createIndex({playerId: 1, updatedAt: -1});
+    await scoutingReports.createIndex({userId: 1, updatedAt: -1});
+    await playerHistories.createIndex({playerId: 1, timestamp: -1});
+    logger.info("Database indexes ensured");
     const defaultConfig: Config = {
         env: process.env.NODE_ENV ?? "development",
         clientUrl: process.env.CLIENT_URL ?? "*",
