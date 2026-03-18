@@ -6,9 +6,9 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import { createContext } from "./context/context";
 import logger from "./logger/logger";
-import createPlayersRouter from "./routes/playersRouter";
-import createAuthRouter from "./routes/authRouter";
-import createWatchlistsRouter from "./routes/watchlistsRouter";
+import createPlayersRouter from "./modules/players/players.router";
+import createAuthRouter from "./modules/auth/auth.router";
+import createWatchlistsRouter from "./modules/watchlists/watchlists.router";
 import { startPlayersAutoUpdateScheduler } from "./jobs/playersAutoUpdateScheduler";
 
 async function startServer() {

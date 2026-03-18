@@ -1,7 +1,7 @@
 import * as cheerio from "cheerio";
 import {z} from "zod";
 import axios from "axios";
-import {PlayerTypeSchemaWithoutID, Transfer, Title} from "../models/player";
+import {PlayerTypeSchemaWithoutID, Transfer, Title} from "../modules/players/player.model";
 import iconv from "iconv-lite";
 import {CheerioAPI} from "cheerio";
 import logger from "../logger/logger";

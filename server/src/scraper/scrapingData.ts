@@ -9,7 +9,7 @@ import {
     getLinkPlaymakerstats,
     extractPlayersFromPlayMakerStats
 } from "./extractPlaymaker";
-import type {PlayerTypeSchemaWithoutID, Title} from "../models/player";
+import type {PlayerTypeSchemaWithoutID, Title} from "../modules/players/player.model";
 import {z} from "zod";
 import {convert, normalizeName} from "./utils";
 import {ScraperError} from "../middleware/customErrors";
