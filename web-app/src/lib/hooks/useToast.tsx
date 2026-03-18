@@ -1,6 +1,6 @@
 import toast, { ToastOptions } from "react-hot-toast"
-import { OutlineIcons } from "@/components/outline-icons"
-import { SolidIcons } from "@/components/solid-icons"
+import { OutlineIcons } from "@/components/icons/outline-icons"
+import { SolidIcons } from "@/components/icons/solid-icons"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/cn"
 import { Text } from "@/components/ui/text"

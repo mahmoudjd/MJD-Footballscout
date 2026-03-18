@@ -2,9 +2,9 @@ import NextAuth, { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
 import { env } from "@/env"
-import { AuthApiError, googleLogin, loginUser } from "@/lib/hooks/authApi"
-import { refreshAccessToken } from "@/lib/hooks/queries/refreshAccessToken"
-import { AUTH_SESSION_ERRORS, type AuthSessionError } from "@/lib/auth-errors"
+import { AuthApiError, googleLogin, loginUser } from "@/features/auth/authApi"
+import { refreshAccessToken } from "@/features/auth/refreshAccessToken"
+import { AUTH_SESSION_ERRORS, type AuthSessionError } from "@/features/auth/auth-errors"
 
 export type { Session } from "next-auth"
 

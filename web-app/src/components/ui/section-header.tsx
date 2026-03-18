@@ -1,5 +1,5 @@
 import { ReactNode } from "react"
-import { OutlineIcons } from "@/components/outline-icons"
+import { OutlineIcons } from "@/components/icons/outline-icons"
 import { cn } from "@/lib/cn"
 import { Text } from "@/components/ui/text"
 
@@ -25,28 +25,29 @@ export function SectionHeader({
   const Icon = OutlineIcons[icon]
   const toneClasses = {
     default: {
-      container: "border-slate-200/90 bg-linear-to-br from-white to-slate-50 shadow-sm",
-      iconWrap: "bg-cyan-100 text-cyan-700",
+      container:
+        "border-stone-200/90 bg-linear-to-br from-white via-white to-stone-50 shadow-[0_20px_40px_-32px_rgba(15,23,42,0.35)]",
+      iconWrap: "bg-stone-100 text-stone-700",
       title: "text-slate-900",
-      description: "text-slate-600",
-      badge: "border-cyan-200 bg-cyan-50 text-cyan-700",
+      description: "text-stone-600",
+      badge: "border-amber-200 bg-amber-50 text-amber-700",
     },
     glass: {
       container: "border-white/30 bg-white/12 shadow-[0_16px_40px_-24px_rgba(2,6,23,0.75)] backdrop-blur-md",
-      iconWrap: "bg-white/20 text-cyan-100",
+      iconWrap: "bg-white/20 text-amber-100",
       title: "text-white",
       description: "text-slate-100/90",
-      badge: "border-white/35 bg-white/20 text-cyan-50",
+      badge: "border-white/35 bg-white/20 text-amber-50",
     },
   }[tone]
 
   return (
-    <div className={cn("rounded-2xl border p-4 sm:p-5", toneClasses.container, className)}>
+    <div className={cn("rounded-2xl border p-4 sm:p-6", toneClasses.container, className)}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex min-w-0 items-start gap-3">
           <div
             className={cn(
-              "mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+              "mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200/80",
               toneClasses.iconWrap,
             )}
           >
@@ -65,7 +66,7 @@ export function SectionHeader({
               {badge ? (
                 <span
                   className={cn(
-                    "inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold",
+                    "inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold",
                     toneClasses.badge,
                   )}
                 >

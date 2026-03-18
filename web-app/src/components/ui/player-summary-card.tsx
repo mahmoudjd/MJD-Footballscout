@@ -14,8 +14,8 @@ interface PlayerSummaryCardProps {
 }
 
 const toneClasses: Record<NonNullable<PlayerSummaryCardProps["tone"]>, string> = {
-  default: "border-slate-200 bg-white",
-  soft: "border-cyan-100 bg-linear-to-br from-white to-cyan-50/60",
+  default: "border-stone-200 bg-white",
+  soft: "border-stone-200 bg-linear-to-br from-white to-stone-50/80",
 }
 
 export function PlayerSummaryCard({
@@ -26,14 +26,14 @@ export function PlayerSummaryCard({
   tone = "default",
 }: PlayerSummaryCardProps) {
   return (
-    <article className={cn("rounded-xl border p-4 shadow-sm", toneClasses[tone], className)}>
+    <article className={cn("rounded-xl border p-4 shadow-[0_12px_24px_-22px_rgba(15,23,42,0.5)]", toneClasses[tone], className)}>
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
         <Image
           src={getPlayerImageSrc(player.image)}
           alt={player.name}
           width={compact ? 56 : 64}
           height={compact ? 56 : 64}
-          className={cn(compact ? "h-14 w-14" : "h-16 w-16", "rounded-full border border-slate-200 object-cover")}
+          className={cn(compact ? "h-14 w-14" : "h-16 w-16", "rounded-full border border-stone-200 object-cover")}
           sizes={compact ? "56px" : "64px"}
         />
         <div className="min-w-0 flex-1">

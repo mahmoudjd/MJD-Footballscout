@@ -45,12 +45,12 @@ export function Select({
   const toneClasses = {
     default: {
       trigger:
-        "border-slate-300 bg-white text-slate-800 shadow-[0_6px_18px_-16px_rgba(15,23,42,0.5)] data-[placeholder]:text-slate-500",
-      icon: "text-slate-500",
-      content: "border-slate-200 bg-white",
-      scroll: "bg-white text-slate-600",
+        "border-stone-300 bg-white text-stone-800 shadow-[0_8px_18px_-14px_rgba(15,23,42,0.32)] data-[placeholder]:text-stone-400",
+      icon: "text-stone-500",
+      content: "border-stone-200 bg-white",
+      scroll: "bg-white text-stone-600",
       item:
-        "text-slate-700 data-[highlighted]:bg-cyan-50 data-[highlighted]:text-cyan-800",
+        "text-stone-700 data-[highlighted]:bg-stone-100 data-[highlighted]:text-stone-900",
     },
     glass: {
       trigger:
@@ -71,7 +71,7 @@ export function Select({
     >
       <SelectPrimitive.Trigger
         className={cn(
-          "inline-flex h-10 w-full items-center justify-between rounded-xl border px-3 py-2 text-sm font-medium transition outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 disabled:cursor-not-allowed disabled:opacity-60",
+          "inline-flex h-10 w-full items-center justify-between rounded-xl border px-3 py-2 text-sm font-medium transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60",
           toneClasses.trigger,
           triggerClassName,
         )}
@@ -109,7 +109,7 @@ export function Select({
                 )}
               >
                 <SelectPrimitive.ItemIndicator className="absolute left-2 inline-flex items-center">
-                  <CheckIcon className="h-4 w-4 text-cyan-700" />
+                  <CheckIcon className="h-4 w-4 text-amber-600" />
                 </SelectPrimitive.ItemIndicator>
                 <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
               </SelectPrimitive.Item>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { signOut } from "next-auth/react"
-import { Spinner } from "@/components/spinner"
+import { Spinner } from "@/components/common/spinner"
 import { Button } from "@/components/ui/button"
 import { Text } from "@/components/ui/text"
 

@@ -27,14 +27,14 @@ export function PlayerSpotlightList({
   const isLoggedIn = !!session?.user?.email
   const toneClasses = {
     default: {
-      container: "border-slate-200 bg-white",
-      title: "text-slate-700",
-      row: "border-slate-200 bg-slate-50/70",
-      name: "text-slate-900",
-      meta: "text-slate-500",
-      badge: "border-cyan-200 bg-cyan-50 text-cyan-700",
-      link: "border-cyan-300 text-cyan-700 hover:bg-cyan-50",
-      empty: "text-slate-500",
+      container: "border-stone-200 bg-white",
+      title: "text-stone-700",
+      row: "border-stone-200 bg-stone-50/70",
+      name: "text-stone-900",
+      meta: "text-stone-500",
+      badge: "border-amber-200 bg-amber-50 text-amber-700",
+      link: "border-stone-300 text-stone-700 hover:bg-stone-100",
+      empty: "text-stone-500",
     },
     glass: {
       container: "border-white/30 bg-white/12 text-white backdrop-blur-md",
@@ -42,14 +42,14 @@ export function PlayerSpotlightList({
       row: "border-white/25 bg-white/12",
       name: "text-white",
       meta: "text-slate-200",
-      badge: "border-cyan-200/40 bg-cyan-200/20 text-cyan-100",
-      link: "border-cyan-200/50 text-cyan-100 hover:bg-cyan-100/15",
+      badge: "border-amber-200/45 bg-amber-200/20 text-amber-50",
+      link: "border-white/45 text-white hover:bg-white/15",
       empty: "text-slate-200/90",
     },
   }[tone]
 
   return (
-    <div className={cn("rounded-2xl border p-4 shadow-sm", toneClasses.container, className)}>
+    <div className={cn("rounded-2xl border p-4 shadow-[0_14px_26px_-24px_rgba(15,23,42,0.5)]", toneClasses.container, className)}>
       <Text as="h4" variant="overline" weight="bold" className={cn("tracking-wider", toneClasses.title)}>
         {title}
       </Text>

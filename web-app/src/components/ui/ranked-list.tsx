@@ -24,23 +24,23 @@ export function RankedList({
 }: RankedListProps) {
   const toneClasses = {
     default: {
-      container: "border-slate-200 bg-white",
-      title: "text-slate-700",
-      label: "text-slate-700",
-      value: "border-cyan-200 bg-cyan-50 text-cyan-700",
-      empty: "text-slate-500",
+      container: "border-stone-200 bg-white",
+      title: "text-stone-700",
+      label: "text-stone-700",
+      value: "border-stone-200 bg-stone-100 text-stone-700",
+      empty: "text-stone-500",
     },
     glass: {
       container: "border-white/30 bg-white/12 text-white backdrop-blur-md",
       title: "text-slate-100",
       label: "text-slate-100",
-      value: "border-cyan-200/40 bg-cyan-200/20 text-cyan-100",
+      value: "border-amber-200/40 bg-amber-200/20 text-amber-50",
       empty: "text-slate-200/90",
     },
   }[tone]
 
   return (
-    <div className={cn("rounded-2xl border p-4 shadow-sm", toneClasses.container, className)}>
+    <div className={cn("rounded-2xl border p-4 shadow-[0_14px_26px_-24px_rgba(15,23,42,0.5)]", toneClasses.container, className)}>
       <Text as="h4" variant="overline" weight="bold" className={cn("tracking-wider", toneClasses.title)}>
         {title}
       </Text>

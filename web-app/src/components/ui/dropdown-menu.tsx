@@ -25,7 +25,7 @@ export function DropdownMenuTrigger(props: DropdownMenuTriggerProps) {
 }
 
 const contentToneClasses: Record<NonNullable<DropdownMenuContentProps["tone"]>, string> = {
-  default: "border-slate-200 bg-white",
+  default: "border-stone-200 bg-white",
   glass: "border-white/30 bg-slate-900/80 text-white backdrop-blur-md",
 }
 
@@ -40,7 +40,7 @@ export function DropdownMenuContent({
       <DropdownMenuPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 z-50 min-w-48 overflow-hidden rounded-xl border p-1 shadow-lg",
+          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 z-50 min-w-48 overflow-hidden rounded-xl border p-1 shadow-[0_16px_30px_-18px_rgba(15,23,42,0.45)]",
           contentToneClasses[tone],
           className,
         )}
@@ -57,7 +57,7 @@ export function DropdownMenuItem({
   ...props
 }: DropdownMenuItemProps) {
   const toneClasses = {
-    default: "text-slate-700 data-[highlighted]:bg-cyan-50 data-[highlighted]:text-cyan-800",
+    default: "text-stone-700 data-[highlighted]:bg-stone-100 data-[highlighted]:text-stone-900",
     danger: "text-red-700 data-[highlighted]:bg-red-50 data-[highlighted]:text-red-800",
   }[tone]
 
@@ -77,12 +77,12 @@ export function DropdownMenuItem({
 export function DropdownMenuLabel({ className, ...props }: DropdownMenuLabelProps) {
   return (
     <DropdownMenuPrimitive.Label
-      className={cn("px-2.5 py-2 text-xs font-semibold tracking-wide text-slate-500 uppercase", className)}
+      className={cn("px-2.5 py-2 text-xs font-semibold tracking-wide text-stone-500 uppercase", className)}
       {...props}
     />
   )
 }
 
 export function DropdownMenuSeparator({ className, ...props }: DropdownMenuSeparatorProps) {
-  return <DropdownMenuPrimitive.Separator className={cn("my-1 h-px bg-slate-200", className)} {...props} />
+  return <DropdownMenuPrimitive.Separator className={cn("my-1 h-px bg-stone-200", className)} {...props} />
 }

@@ -22,13 +22,14 @@ export function LoginRequiredState({
   className,
 }: LoginRequiredStateProps) {
   return (
-    <Panel className={cn("space-y-4", className)}>
+    <Panel className={cn("space-y-4 text-center", className)}>
       <StatusState tone="empty" title={title} description={description} />
       <Button
         type="button"
         onClick={() => signIn(undefined, { callbackUrl })}
         variant="primary"
         size="md"
+        className="mx-auto"
       >
         {buttonLabel}
       </Button>
