@@ -83,7 +83,7 @@ const PlayerTableRow = memo(({ player, onRequestDelete, isLoggedIn, isAdmin }: P
 
   return (
     <tr
-      className="group h-24 cursor-pointer border-b border-stone-200/80 bg-white align-middle transition-colors duration-150 even:bg-stone-50/50 hover:bg-stone-100/70"
+      className="group h-[5.4rem] cursor-pointer border-b border-stone-200/80 bg-white align-middle transition-colors duration-150 even:bg-stone-50/45 hover:bg-stone-100/70"
       onClick={navigateToProfile}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -96,7 +96,7 @@ const PlayerTableRow = memo(({ player, onRequestDelete, isLoggedIn, isAdmin }: P
       data-testid={`player-row-${player._id}`}
       aria-label={`Open profile of ${displayName}`}
     >
-      <td className="min-w-[320px] px-4 py-3">
+      <td className="px-5 py-3">
         <div className="flex w-full items-center gap-3">
           <Image
             src={getPlayerImageSrc(player.image)}
@@ -122,8 +122,8 @@ const PlayerTableRow = memo(({ player, onRequestDelete, isLoggedIn, isAdmin }: P
           </div>
         </div>
       </td>
-      <td className="min-w-[180px] px-4 py-3">
-        <Text as="p" variant="body" className="text-slate-700">
+      <td className="px-4 py-3">
+        <Text as="p" variant="body" className="truncate text-slate-700">
           {club}
         </Text>
       </td>
@@ -145,13 +145,13 @@ const PlayerTableRow = memo(({ player, onRequestDelete, isLoggedIn, isAdmin }: P
           {elo}
         </Text>
       </td>
-      <td className="w-[150px] px-4 py-3 text-center">
-        <div className="flex items-center justify-center gap-1.5">
+      <td className="px-5 py-3 text-right">
+        <div className="inline-flex items-center justify-end gap-1.5 whitespace-nowrap rounded-xl border border-stone-200 bg-stone-50/70 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
           <Button
             onClick={onOpen}
-            variant="outline"
+            variant="ghost"
             size="xs"
-            className="rounded-lg border-stone-300 text-stone-700 hover:bg-stone-100"
+            className="min-w-[6rem] rounded-lg border border-stone-200 bg-white/80 text-stone-700 shadow-[0_8px_18px_-16px_rgba(15,23,42,0.6)] hover:border-stone-300 hover:bg-white"
             aria-label={`Open ${displayName} profile`}
           >
             <OutlineIcons.EyeIcon className="h-4 w-4" />
@@ -163,7 +163,7 @@ const PlayerTableRow = memo(({ player, onRequestDelete, isLoggedIn, isAdmin }: P
             title={isAdmin ? "Delete player" : "Only admins can delete players"}
             variant="outline"
             size="icon-sm"
-            className="rounded-lg border-red-200 text-red-700 hover:bg-red-50"
+            className="rounded-lg border-red-200 bg-white/80 text-red-700 hover:border-red-300 hover:bg-red-50"
             aria-label={`Delete ${displayName}`}
           >
             <OutlineIcons.TrashIcon className="h-4 w-4 stroke-red-700" />

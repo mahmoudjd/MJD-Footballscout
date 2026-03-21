@@ -117,26 +117,34 @@ const PlayersTable = memo(({ players, onRequestDelete, isLoggedIn, isAdmin }: Pl
         })}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-stone-200 bg-white shadow-[0_18px_34px_-26px_rgba(15,23,42,0.35)] sm:block">
-        <table className="min-w-[980px] bg-white" aria-label="Players table">
+      <div className="hidden overflow-x-auto rounded-3xl border border-stone-200/90 bg-white/95 shadow-[0_20px_44px_-30px_rgba(15,23,42,0.35)] ring-1 ring-white/80 sm:block">
+        <table className="w-full min-w-[1120px] table-fixed bg-white/95" aria-label="Players table">
+          <colgroup>
+            <col className="w-[33%]" />
+            <col className="w-[23%]" />
+            <col className="w-[8%]" />
+            <col className="w-[12%]" />
+            <col className="w-[8%]" />
+            <col className="w-[16%]" />
+          </colgroup>
           <thead>
-            <tr className="border-b border-stone-200 bg-stone-50 text-left text-xs font-semibold tracking-[0.08em] text-stone-600 uppercase">
-              <th scope="col" className="px-4 py-3">
+            <tr className="border-b border-stone-200 bg-linear-to-r from-stone-50 to-stone-100/65 text-left text-[11px] font-semibold tracking-[0.08em] text-stone-600 uppercase">
+              <th scope="col" className="px-5 py-3.5">
                 Player
               </th>
-              <th scope="col" className="px-4 py-3">
+              <th scope="col" className="px-4 py-3.5">
                 Club
               </th>
-              <th scope="col" className="px-4 py-3 text-center">
+              <th scope="col" className="px-4 py-3.5 text-center">
                 Age
               </th>
-              <th scope="col" className="px-4 py-3 text-center">
+              <th scope="col" className="px-4 py-3.5 text-center">
                 Position
               </th>
-              <th scope="col" className="px-4 py-3 text-center">
+              <th scope="col" className="px-4 py-3.5 text-center">
                 ELO
               </th>
-              <th scope="col" className="px-4 py-3 text-center">
+              <th scope="col" className="px-5 py-3.5 text-right">
                 Actions
               </th>
             </tr>
