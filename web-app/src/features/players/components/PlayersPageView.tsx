@@ -183,7 +183,7 @@ export default function PlayersPageView() {
   }
 
   return (
-    <PageContainer className="space-y-6" size="wide">
+    <PageContainer className="max-w-[92rem] space-y-6 2xl:max-w-[104rem]" size="wide">
       <SectionHeader
         title="All Players"
         description={headerDescription}
