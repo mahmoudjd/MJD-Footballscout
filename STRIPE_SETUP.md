@@ -4,7 +4,7 @@ Shadow Team and Recruitment Workspace require an active MJD Scout Premium subscr
 
 ## Stripe test-mode configuration
 
-1. In Stripe test mode, create a recurring monthly product and price.
+1. In Stripe test mode, create an active recurring price billed once per month. The backend rejects yearly, multi-month and one-time prices.
 2. Configure the following values in the backend environment (for the default local setup, use `server/.env`):
    - `STRIPE_SECRET_KEY` with the test secret key (`sk_test_...`)
    - `STRIPE_PREMIUM_PRICE_ID` with the recurring test Price ID (`price_...`)
