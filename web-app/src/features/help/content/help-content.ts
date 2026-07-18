@@ -176,6 +176,12 @@ export const faqGroups: FaqGroup[] = [
         answer:
           "Open Premium & Billing, then continue to secure Stripe Checkout. After payment, Stripe synchronizes your access automatically. Use Manage subscription on the same page to update payment details or cancel through the Stripe Customer Portal.",
       },
+      {
+        id: "free-plan-advertising",
+        question: "Who sees advertising?",
+        answer:
+          "Guests and users on the Free plan can see clearly labelled advertising on content pages. Premium subscribers and administrators do not receive ad units, and the external advertising script is not loaded for their sessions.",
+      },
     ],
   },
 ]
@@ -202,6 +208,7 @@ export const releaseNotes: ReleaseNote[] = [
       "Save talent searches, monitor changing match counts and surface new-player alerts.",
       "Rank the database with configurable Recruitment Fit Scores combining ELO, age, value and scouting progress.",
       "Unlock Shadow Team and Recruitment Workspace with MJD Scout Premium using secure Stripe Checkout, webhook-synchronized access and self-service subscription management.",
+      "Support the Free plan with clearly labelled, responsive advertising while Premium and administrator sessions remain fully ad-free.",
     ],
     featured: true,
   },
