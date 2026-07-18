@@ -131,6 +131,17 @@ export const ComparePlayersResponseSchema = z.object({
   ranking: z.array(CompareRankingItemSchema),
 })
 
+export const SimilarPlayerSchema = z.object({
+  player: PlayerSchema,
+  similarityScore: z.number().min(0).max(100),
+  reasons: z.array(z.string()),
+})
+
+export const SimilarPlayersResponseSchema = z.object({
+  sourcePlayerId: z.string(),
+  items: z.array(SimilarPlayerSchema),
+})
+
 export const ScoutingDecisionSchema = z.enum(["watch", "sign", "reject"])
 
 export const ScoutingReportSchema = z.object({
@@ -231,6 +242,8 @@ export type AdvancedPlayersResponseType = z.infer<typeof AdvancedPlayersResponse
 export type CompareMetricsType = z.infer<typeof CompareMetricsSchema>
 export type CompareRankingItemType = z.infer<typeof CompareRankingItemSchema>
 export type ComparePlayersResponseType = z.infer<typeof ComparePlayersResponseSchema>
+export type SimilarPlayerType = z.infer<typeof SimilarPlayerSchema>
+export type SimilarPlayersResponseType = z.infer<typeof SimilarPlayersResponseSchema>
 export type ScoutingDecisionType = z.infer<typeof ScoutingDecisionSchema>
 export type ScoutingReportType = z.infer<typeof ScoutingReportSchema>
 export type ScoutingReportInputType = z.infer<typeof ScoutingReportInputSchema>

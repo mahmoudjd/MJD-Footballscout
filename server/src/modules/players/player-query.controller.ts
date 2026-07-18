@@ -4,6 +4,8 @@ import {AppContext} from "../../context/types";
 import {parseCompactCurrency} from "./players.controller";
 import logger from "../../logger/logger";
 import {normalizePosition} from "../../scraper/position";
+import {ApiError} from "./scouting.controller";
+import {calculatePlayerSimilarity, PlayerSimilarityInput} from "./player-similarity";
 
 const AdvancedSearchQuerySchema = z.object({
     position: z.string().trim().min(1).optional(),
@@ -313,5 +315,66 @@ export async function comparePlayers(context: AppContext, query: Record<string, 
             recentlyUpdated: byTimestamp,
         },
         ranking,
+    };
+}
+
+const SimilarPlayersQuerySchema = z.object({
+    limit: z.coerce.number().int().min(1).max(12).default(6),
+});
+
+function toSimilarityInput(player: any): PlayerSimilarityInput {
+    return {
+        position: normalizePosition(player?.position),
+        age: typeof player?.age === "number" ? player.age : null,
+        elo: typeof player?.elo === "number" ? player.elo : null,
+        marketValue: parseCompactCurrency(player?.value, player?.currency),
+        preferredFoot: player?.preferredFoot,
+        country: player?.country,
+    };
+}
+
+export async function findSimilarPlayers(context: AppContext, playerId: string, query: Record<string, unknown>) {
+    if (!ObjectId.isValid(playerId)) {
+        throw new ApiError(400, "Invalid player id");
+    }
+
+    const parsedQuery = SimilarPlayersQuerySchema.parse({
+        limit: firstQueryValue(query.limit),
+    });
+    const objectId = new ObjectId(playerId);
+    const sourcePlayer = await context.players.findOne({_id: objectId});
+    if (!sourcePlayer) {
+        throw new ApiError(404, "Player not found");
+    }
+
+    const sourceInput = toSimilarityInput(sourcePlayer);
+    const candidates = await context.players.find({_id: {$ne: objectId}}).toArray();
+    const items = candidates
+        .map((player) => {
+            const similarity = calculatePlayerSimilarity(sourceInput, toSimilarityInput(player));
+            return {
+                player: {
+                    ...player,
+                    _id: String(player._id),
+                    position: normalizePosition(player.position),
+                },
+                similarityScore: similarity.score,
+                reasons: similarity.reasons,
+            };
+        })
+        .filter((item) => item.similarityScore >= 30)
+        .sort((a, b) => {
+            if (b.similarityScore !== a.similarityScore) {
+                return b.similarityScore - a.similarityScore;
+            }
+            return (b.player.elo || 0) - (a.player.elo || 0);
+        })
+        .slice(0, parsedQuery.limit);
+
+    logger.info(`Found ${items.length} similar players for ${playerId}`);
+
+    return {
+        sourcePlayerId: playerId,
+        items,
     };
 }

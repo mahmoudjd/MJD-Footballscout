@@ -11,7 +11,7 @@ import {
 import {AppContext} from "../../context/types";
 import logger from "../../logger/logger";
 import {authMiddleware} from "../../middleware/auth-middleware";
-import {comparePlayers, getAdvancedPlayers} from "./player-query.controller";
+import {comparePlayers, findSimilarPlayers, getAdvancedPlayers} from "./player-query.controller";
 import {
     ApiError,
     deleteScoutingReport,
@@ -115,6 +115,16 @@ const createPlayersRouter = (context: AppContext) => {
         try {
             const history = await getPlayerHistory(context, req.params.id, req.query as Record<string, unknown>);
             return res.status(200).json(history);
+        } catch (error) {
+            return handleControllerError(error, res);
+        }
+    });
+
+    router.get("/players/:id/similar", authMiddleware, async (req: Request, res: Response): Promise<any> => {
+        try {
+            const playerId = Array.isArray(req.params.id) ? req.params.id[0] || "" : req.params.id || "";
+            const result = await findSimilarPlayers(context, playerId, req.query as Record<string, unknown>);
+            return res.status(200).json(result);
         } catch (error) {
             return handleControllerError(error, res);
         }
