@@ -2,23 +2,23 @@
 
 Meaningful changes to MJD Football Scout are documented here. The in-app version is available under **Help → What’s New**.
 
-## 0.7.0 — 2026-07-18
+## v3.0 — 2026-07-18
 
 ### Added
 
 - Persistent Shadow Teams with 4-3-3, 4-2-3-1, 4-4-2 and 3-5-2 formations.
 - Primary candidates and positional shortlists with automatic squad analytics.
 - Missing-position and duplicate-player signals plus explainable player alternatives.
-
-## 0.6.0 — 2026-07-18
-
-### Added
-
 - Explainable similar-player recommendations in player profiles.
 - Match scores based on position, age, ELO, market value, preferred foot and nationality.
 - Plain-language reasons for each player recommendation.
-
-## 0.5.0 — 2026-07-18
+- Profile & Security page.
+- Forgot-password and password-reset flows.
+- Recoverable account deactivation that preserves the database record.
+- Structured scouting reports and scouting decisions.
+- Player history for ELO, market value and club changes.
+- Watchlists and side-by-side player comparison.
+- Help & What’s New center with workflow guidance and searchable FAQs.
 
 ### Changed
 
@@ -26,21 +26,12 @@ Meaningful changes to MJD Football Scout are documented here. The in-app version
 - Modernized the players table, filters, profile tabs and attribute presentation.
 - Improved buttons, panels, loading states, empty states and mobile navigation.
 
-## 0.4.0 — 2026-07-18
+### Fixed
 
-### Added
-
-- Profile & Security page.
-- Forgot-password and password-reset flows.
-- Recoverable account deactivation that preserves the database record.
-
-## 0.3.0 — 2026-07-18
-
-### Added
-
-- Structured scouting reports and scouting decisions.
-- Player history for ELO, market value and club changes.
-- Watchlists and side-by-side player comparison.
+- Normalized scraped player positions so forwards are stored and displayed correctly.
+- Corrected the ELO progress indicator in the players table.
+- Removed duplicate loading feedback from player search.
+- Normalized Shadow Team API timestamps before formatting dates in the interface.
 
 ## Maintaining This Changelog
 
