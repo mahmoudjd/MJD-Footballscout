@@ -181,36 +181,41 @@ export function RecruitmentToolsPanel({
     )
 
   return (
-    <Panel>
+    <Panel spacing="none" className="overflow-hidden">
       <Tabs value={tab} onValueChange={(value) => setTab(value as ToolTab)}>
-        <TabsList className="flex w-full gap-1 overflow-x-auto" aria-label="Recruitment tools">
-          {tabs.map((item) => (
-            <TabsTrigger key={item.id} value={item.id} className="shrink-0">
-              {item.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        <TabsContent value="templates">
+        <div className="border-b border-emerald-950/8 bg-emerald-950/[0.025] p-3 sm:p-4">
+          <TabsList
+            className="flex w-full gap-1 overflow-x-auto bg-white/80 shadow-sm xl:grid xl:grid-cols-4"
+            aria-label="Recruitment intelligence tools"
+          >
+            {tabs.map((item) => (
+              <TabsTrigger key={item.id} value={item.id} className="shrink-0 xl:w-full">
+                {item.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
+        <TabsContent value="templates" className="m-0 p-4 sm:p-6">
           <TemplatesPanel
             templates={workspace.templates}
             onSave={(templates) => save({ templates }, "Scouting templates updated")}
           />
         </TabsContent>
-        <TabsContent value="replacements">
+        <TabsContent value="replacements" className="m-0 p-4 sm:p-6">
           <ReplacementPanel
             players={players}
             plans={workspace.replacementPlans}
             onSave={(replacementPlans) => save({ replacementPlans }, "Replacement plan updated")}
           />
         </TabsContent>
-        <TabsContent value="searches">
+        <TabsContent value="searches" className="m-0 p-4 sm:p-6">
           <SearchesPanel
             players={players}
             searches={workspace.savedSearches}
             onSave={(savedSearches) => save({ savedSearches }, "Saved searches updated")}
           />
         </TabsContent>
-        <TabsContent value="fit">
+        <TabsContent value="fit" className="m-0 p-4 sm:p-6">
           <FitPanel
             players={players}
             candidates={candidates}
@@ -259,7 +264,10 @@ function TemplatesPanel({
       <Text as="p" variant="body" tone="muted">
         Standardize evaluations with position-specific weighted criteria.
       </Text>
-      <form onSubmit={create} className="mt-4 grid gap-3 sm:grid-cols-[1fr_14rem_auto]">
+      <form
+        onSubmit={create}
+        className="mt-5 grid items-end gap-3 rounded-2xl border border-emerald-950/8 bg-emerald-50/35 p-3 sm:grid-cols-[1fr_14rem_auto] sm:p-4"
+      >
         <label className="text-sm font-semibold">
           Template Name
           <Input
@@ -402,7 +410,10 @@ function ReplacementPanel({
       <Text as="p" variant="body" tone="muted">
         Flag an outgoing or vulnerable squad role and compare immediate successors.
       </Text>
-      <form onSubmit={create} className="mt-4 grid gap-3 sm:grid-cols-[1fr_14rem_auto]">
+      <form
+        onSubmit={create}
+        className="mt-5 grid items-end gap-3 rounded-2xl border border-emerald-950/8 bg-emerald-50/35 p-3 sm:grid-cols-[1fr_14rem_auto] sm:p-4"
+      >
         <div className="space-y-1.5">
           <label htmlFor="replacement-player" className="block text-sm font-semibold">
             Current Player
@@ -519,7 +530,7 @@ function SearchesPanel({
       </Text>
       <form
         onSubmit={create}
-        className="mt-4 grid gap-3 md:grid-cols-4 xl:grid-cols-[1fr_12rem_9rem_9rem_auto]"
+        className="mt-5 grid items-end gap-3 rounded-2xl border border-emerald-950/8 bg-emerald-50/35 p-3 sm:p-4 md:grid-cols-4 xl:grid-cols-[1fr_12rem_9rem_9rem_auto]"
       >
         <label className="text-sm font-semibold">
           Search Name
@@ -645,7 +656,10 @@ function FitPanel({
       <Text as="p" variant="body" tone="muted">
         Rank the database against your club strategy and pipeline evidence.
       </Text>
-      <form onSubmit={create} className="mt-4 flex flex-col gap-3 sm:flex-row">
+      <form
+        onSubmit={create}
+        className="mt-5 flex flex-col gap-3 rounded-2xl border border-emerald-950/8 bg-emerald-50/35 p-3 sm:flex-row sm:items-end sm:p-4"
+      >
         <label className="flex-1 text-sm font-semibold">
           Profile Name
           <Input
