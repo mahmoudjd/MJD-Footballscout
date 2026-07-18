@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useMemo, useState, type FormEvent } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Panel } from "@/components/ui/panel"
+import { Select } from "@/components/ui/select"
 import { StatusState } from "@/components/ui/status-state"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Text } from "@/components/ui/text"
 import {
   useRecruitmentWorkspace,
@@ -31,6 +33,18 @@ const tabs: Array<{ id: ToolTab; label: string }> = [
   { id: "fit", label: "Fit Score" },
 ]
 const positionGroups = ["All", "Goalkeeper", "Defender", "Midfielder", "Forward"] as const
+const positionGroupOptions = positionGroups.map((value) => ({ value, label: value }))
+const searchPositionOptions = [
+  { value: "", label: "All" },
+  ...positionGroups.slice(1).map((value) => ({ value, label: value })),
+]
+const replacementReasonOptions = [
+  { value: "contract_end", label: "Contract End" },
+  { value: "sale", label: "Potential Sale" },
+  { value: "performance", label: "Performance" },
+  { value: "age", label: "Age Profile" },
+  { value: "depth", label: "Squad Depth" },
+]
 const money = new Intl.NumberFormat("en-GB", {
   style: "currency",
   currency: "EUR",
@@ -167,58 +181,44 @@ export function RecruitmentToolsPanel({
     )
 
   return (
-    <Panel className="space-y-5">
-      <div
-        className="flex gap-2 overflow-x-auto pb-1"
-        role="tablist"
-        aria-label="Recruitment tools"
-      >
-        {tabs.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === item.id}
-            onClick={() => setTab(item.id)}
-            className={cn(
-              "min-h-10 shrink-0 touch-manipulation rounded-xl border px-3 py-2 text-sm font-bold transition-[background-color,border-color,color] focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none",
-              tab === item.id
-                ? "border-emerald-950 bg-emerald-950 text-white"
-                : "border-emerald-950/10 bg-white text-emerald-950 hover:bg-emerald-50",
-            )}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-      {tab === "templates" ? (
-        <TemplatesPanel
-          templates={workspace.templates}
-          onSave={(templates) => save({ templates }, "Scouting templates updated")}
-        />
-      ) : null}
-      {tab === "replacements" ? (
-        <ReplacementPanel
-          players={players}
-          plans={workspace.replacementPlans}
-          onSave={(replacementPlans) => save({ replacementPlans }, "Replacement plan updated")}
-        />
-      ) : null}
-      {tab === "searches" ? (
-        <SearchesPanel
-          players={players}
-          searches={workspace.savedSearches}
-          onSave={(savedSearches) => save({ savedSearches }, "Saved searches updated")}
-        />
-      ) : null}
-      {tab === "fit" ? (
-        <FitPanel
-          players={players}
-          candidates={candidates}
-          profiles={workspace.fitProfiles}
-          onSave={(fitProfiles) => save({ fitProfiles }, "Fit profile updated")}
-        />
-      ) : null}
+    <Panel>
+      <Tabs value={tab} onValueChange={(value) => setTab(value as ToolTab)}>
+        <TabsList className="flex w-full gap-1 overflow-x-auto" aria-label="Recruitment tools">
+          {tabs.map((item) => (
+            <TabsTrigger key={item.id} value={item.id} className="shrink-0">
+              {item.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <TabsContent value="templates">
+          <TemplatesPanel
+            templates={workspace.templates}
+            onSave={(templates) => save({ templates }, "Scouting templates updated")}
+          />
+        </TabsContent>
+        <TabsContent value="replacements">
+          <ReplacementPanel
+            players={players}
+            plans={workspace.replacementPlans}
+            onSave={(replacementPlans) => save({ replacementPlans }, "Replacement plan updated")}
+          />
+        </TabsContent>
+        <TabsContent value="searches">
+          <SearchesPanel
+            players={players}
+            searches={workspace.savedSearches}
+            onSave={(savedSearches) => save({ savedSearches }, "Saved searches updated")}
+          />
+        </TabsContent>
+        <TabsContent value="fit">
+          <FitPanel
+            players={players}
+            candidates={candidates}
+            profiles={workspace.fitProfiles}
+            onSave={(fitProfiles) => save({ fitProfiles }, "Fit profile updated")}
+          />
+        </TabsContent>
+      </Tabs>
     </Panel>
   )
 }
@@ -270,18 +270,18 @@ function TemplatesPanel({
             placeholder="Ball-playing centre-back…"
           />
         </label>
-        <label className="text-sm font-semibold">
-          Position
-          <select
+        <div className="space-y-1.5">
+          <label htmlFor="template-position" className="block text-sm font-semibold">
+            Position
+          </label>
+          <Select
+            id="template-position"
             value={position}
-            onChange={(e) => setPosition(e.target.value as typeof position)}
-            className="mt-1 min-h-10 w-full rounded-xl border border-emerald-950/15 bg-white px-3"
-          >
-            {positionGroups.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
-        </label>
+            onValueChange={(value) => setPosition(value as typeof position)}
+            options={positionGroupOptions}
+            ariaLabel="Template position"
+          />
+        </div>
         <Button type="submit" disabled={!name.trim()}>
           Create Template
         </Button>
@@ -383,7 +383,17 @@ function ReplacementPanel({
     ])
     setIncumbent("")
   }
-  const byId = new Map(players.map((player) => [player._id, player]))
+  const byId = useMemo(() => new Map(players.map((player) => [player._id, player])), [players])
+  const playerOptions = useMemo(
+    () => [
+      { value: "", label: "Choose player…" },
+      ...players.map((player) => ({
+        value: player._id,
+        label: `${player.name} · ${player.position}`,
+      })),
+    ],
+    [players],
+  )
   return (
     <section>
       <Text as="h2" variant="h2" weight="extrabold">
@@ -393,35 +403,31 @@ function ReplacementPanel({
         Flag an outgoing or vulnerable squad role and compare immediate successors.
       </Text>
       <form onSubmit={create} className="mt-4 grid gap-3 sm:grid-cols-[1fr_14rem_auto]">
-        <label className="text-sm font-semibold">
-          Current Player
-          <select
+        <div className="space-y-1.5">
+          <label htmlFor="replacement-player" className="block text-sm font-semibold">
+            Current Player
+          </label>
+          <Select
+            id="replacement-player"
             value={incumbent}
-            onChange={(e) => setIncumbent(e.target.value)}
-            className="mt-1 min-h-10 w-full rounded-xl border border-emerald-950/15 bg-white px-3"
-          >
-            <option value="">Choose player…</option>
-            {players.map((player) => (
-              <option key={player._id} value={player._id}>
-                {player.name} · {player.position}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="text-sm font-semibold">
-          Reason
-          <select
+            onValueChange={setIncumbent}
+            options={playerOptions}
+            placeholder="Choose player…"
+            ariaLabel="Current player"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="replacement-reason" className="block text-sm font-semibold">
+            Reason
+          </label>
+          <Select
+            id="replacement-reason"
             value={reason}
-            onChange={(e) => setReason(e.target.value as typeof reason)}
-            className="mt-1 min-h-10 w-full rounded-xl border border-emerald-950/15 bg-white px-3"
-          >
-            <option value="contract_end">Contract End</option>
-            <option value="sale">Potential Sale</option>
-            <option value="performance">Performance</option>
-            <option value="age">Age Profile</option>
-            <option value="depth">Squad Depth</option>
-          </select>
-        </label>
+            onValueChange={(value) => setReason(value as typeof reason)}
+            options={replacementReasonOptions}
+            ariaLabel="Replacement reason"
+          />
+        </div>
         <Button type="submit" disabled={!incumbent}>
           Create Plan
         </Button>
@@ -524,19 +530,18 @@ function SearchesPanel({
             autoComplete="off"
           />
         </label>
-        <label className="text-sm font-semibold">
-          Position
-          <select
+        <div className="space-y-1.5">
+          <label htmlFor="saved-search-position" className="block text-sm font-semibold">
+            Position
+          </label>
+          <Select
+            id="saved-search-position"
             value={position}
-            onChange={(e) => setPosition(e.target.value)}
-            className="mt-1 min-h-10 w-full rounded-xl border border-emerald-950/15 bg-white px-3"
-          >
-            <option value="">All</option>
-            {positionGroups.slice(1).map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
-        </label>
+            onValueChange={setPosition}
+            options={searchPositionOptions}
+            ariaLabel="Search position"
+          />
+        </div>
         <label className="text-sm font-semibold">
           Min ELO
           <Input type="number" value={minElo} onChange={(e) => setMinElo(Number(e.target.value))} />
@@ -657,19 +662,15 @@ function FitPanel({
       {profiles.length ? (
         <div className="mt-4 flex flex-wrap gap-2">
           {profiles.map((profile) => (
-            <button
+            <Button
               key={profile.id}
-              type="button"
               onClick={() => setActiveId(profile.id)}
-              className={cn(
-                "rounded-xl border px-3 py-2 text-sm font-bold",
-                active?.id === profile.id
-                  ? "border-emerald-950 bg-emerald-950 text-white"
-                  : "border-emerald-950/10 bg-white",
-              )}
+              size="sm"
+              variant={active?.id === profile.id ? "primary" : "outline"}
+              aria-pressed={active?.id === profile.id}
             >
               {profile.name}
-            </button>
+            </Button>
           ))}
         </div>
       ) : null}

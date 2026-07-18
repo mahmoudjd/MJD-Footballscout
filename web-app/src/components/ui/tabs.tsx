@@ -14,13 +14,13 @@ type TabsTriggerProps = ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> &
 type TabsContentProps = ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 
 const listToneClasses: Record<NonNullable<TabsListProps["tone"]>, string> = {
-  default: "border-stone-200 bg-stone-100/90",
+  default: "border-emerald-950/10 bg-emerald-950/[0.04]",
   glass: "border-white/30 bg-white/12 text-white backdrop-blur-md",
 }
 
 const triggerToneClasses: Record<NonNullable<TabsTriggerProps["tone"]>, string> = {
   default:
-    "text-stone-600 hover:text-stone-900 data-[state=active]:bg-white data-[state=active]:text-stone-900 data-[state=active]:shadow-sm",
+    "text-stone-600 hover:bg-white/70 hover:text-emerald-950 data-[state=active]:bg-emerald-950 data-[state=active]:text-white data-[state=active]:shadow-sm",
   glass:
     "text-slate-200 hover:text-white data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-none",
 }
@@ -32,7 +32,11 @@ export function Tabs({ className, ...props }: TabsProps) {
 export function TabsList({ className, tone = "default", ...props }: TabsListProps) {
   return (
     <TabsPrimitive.List
-      className={cn("inline-flex items-center rounded-xl border p-1", listToneClasses[tone], className)}
+      className={cn(
+        "inline-flex items-center rounded-xl border p-1",
+        listToneClasses[tone],
+        className,
+      )}
       {...props}
     />
   )
@@ -42,7 +46,7 @@ export function TabsTrigger({ className, tone = "default", ...props }: TabsTrigg
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        "inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-1.5 text-sm font-semibold tracking-[0.01em] transition",
+        "inline-flex min-h-10 touch-manipulation items-center justify-center rounded-lg px-3 py-2 text-sm font-semibold tracking-[0.01em] transition-[background-color,color,box-shadow] focus-visible:ring-2 focus-visible:ring-lime-500/60 focus-visible:outline-none",
         triggerToneClasses[tone],
         className,
       )}
@@ -52,5 +56,10 @@ export function TabsTrigger({ className, tone = "default", ...props }: TabsTrigg
 }
 
 export function TabsContent({ className, ...props }: TabsContentProps) {
-  return <TabsPrimitive.Content className={cn("mt-4", className)} {...props} />
+  return (
+    <TabsPrimitive.Content
+      className={cn("mt-4 focus-visible:outline-none", className)}
+      {...props}
+    />
+  )
 }
