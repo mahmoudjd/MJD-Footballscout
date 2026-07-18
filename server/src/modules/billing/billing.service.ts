@@ -24,6 +24,17 @@ export function createStripeClient() {
   return new Stripe(requiredEnvironmentValue("STRIPE_SECRET_KEY"));
 }
 
+export function isActiveMonthlyPrice(
+  price: Pick<Stripe.Price, "active" | "type" | "recurring">,
+) {
+  return (
+    price.active &&
+    price.type === "recurring" &&
+    price.recurring?.interval === "month" &&
+    price.recurring.interval_count === 1
+  );
+}
+
 function customerId(customer: Stripe.Subscription["customer"]) {
   return typeof customer === "string" ? customer : customer.id;
 }
@@ -105,6 +116,12 @@ export async function createCheckoutSession(context: AppContext, user: User) {
 
   const stripe = createStripeClient();
   const priceId = requiredEnvironmentValue("STRIPE_PREMIUM_PRICE_ID");
+  const price = await stripe.prices.retrieve(priceId);
+  if (!isActiveMonthlyPrice(price)) {
+    throw new BillingConfigurationError(
+      "STRIPE_PREMIUM_PRICE_ID must reference an active monthly recurring price",
+    );
+  }
   let stripeCustomerId = user.stripeCustomerId;
 
   if (!stripeCustomerId) {
