@@ -53,6 +53,12 @@ export const helpSteps: HelpStep[] = [
     href: "/watchlists",
     action: "Open Watchlists",
   },
+  {
+    title: "Plan a Shadow Team",
+    description: "Place primary targets and alternatives into a formation and reveal squad gaps.",
+    href: "/shadow-team",
+    action: "Build Shadow Team",
+  },
 ]
 
 export const faqGroups: FaqGroup[] = [
@@ -112,6 +118,16 @@ export const faqGroups: FaqGroup[] = [
         answer:
           "A watchlist is a private collection of players. Use separate watchlists for transfer targets, position needs or follow-up scouting.",
       },
+      {
+        id: "shadow-team",
+        question: "How does a Shadow Team work?",
+        answer:
+          "Choose a formation and add candidates to each position. The first player is the primary choice; additional players form the positional shortlist. The dashboard then calculates coverage, age, ELO, estimated market value and recommended alternatives.",
+        tips: [
+          "Select Set primary to promote an alternative.",
+          "A player assigned to several positions is highlighted as a duplicate.",
+        ],
+      },
     ],
   },
   {
@@ -142,6 +158,18 @@ export const faqGroups: FaqGroup[] = [
 
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: "0.7.0",
+    date: "2026-07-18",
+    title: "Shadow Team Recruitment Planning",
+    summary: "Build future squads in tactical formations and turn gaps into actionable shortlists.",
+    highlights: [
+      "Added four formation templates with primary candidates and positional alternatives.",
+      "Added coverage, average age, total estimated value and average ELO analytics.",
+      "Added duplicate warnings, missing-position signals and explainable alternatives.",
+    ],
+    featured: true,
+  },
+  {
     version: "0.6.0",
     date: "2026-07-18",
     title: "Explainable Similar Players",
@@ -151,7 +179,6 @@ export const releaseNotes: ReleaseNote[] = [
       "Scores position, age, ELO, market value, preferred foot and nationality.",
       "Displays plain-language reasons for every recommendation.",
     ],
-    featured: true,
   },
   {
     version: "0.5.0",

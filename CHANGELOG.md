@@ -2,6 +2,14 @@
 
 Meaningful changes to MJD Football Scout are documented here. The in-app version is available under **Help → What’s New**.
 
+## 0.7.0 — 2026-07-18
+
+### Added
+
+- Persistent Shadow Teams with 4-3-3, 4-2-3-1, 4-4-2 and 3-5-2 formations.
+- Primary candidates and positional shortlists with automatic squad analytics.
+- Missing-position and duplicate-player signals plus explainable player alternatives.
+
 ## 0.6.0 — 2026-07-18
 
 ### Added
