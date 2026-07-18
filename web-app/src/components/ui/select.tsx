@@ -11,6 +11,9 @@ interface SelectOption {
 }
 
 interface SelectProps {
+  id?: string
+  name?: string
+  ariaLabel?: string
   value: string
   onValueChange: (value: string) => void
   options: SelectOption[]
@@ -32,6 +35,9 @@ function toExternalValue(value: string) {
 }
 
 export function Select({
+  id,
+  name,
+  ariaLabel,
   value,
   onValueChange,
   options,
@@ -45,12 +51,11 @@ export function Select({
   const toneClasses = {
     default: {
       trigger:
-        "border-stone-300 bg-white text-stone-800 shadow-[0_8px_18px_-14px_rgba(15,23,42,0.32)] data-[placeholder]:text-stone-400",
+        "border-emerald-950/15 bg-white text-emerald-950 shadow-[0_9px_22px_-18px_rgba(15,50,36,0.42)] data-[placeholder]:text-stone-400 hover:border-emerald-900/30",
       icon: "text-stone-500",
-      content: "border-stone-200 bg-white",
+      content: "border-emerald-950/10 bg-white",
       scroll: "bg-white text-stone-600",
-      item:
-        "text-stone-700 data-[highlighted]:bg-stone-100 data-[highlighted]:text-stone-900",
+      item: "text-stone-700 data-[highlighted]:bg-emerald-50 data-[highlighted]:text-emerald-950 data-[state=checked]:font-semibold data-[state=checked]:text-emerald-900",
     },
     glass: {
       trigger:
@@ -58,28 +63,29 @@ export function Select({
       icon: "text-slate-100",
       content: "border-white/30 bg-slate-900/90 text-white",
       scroll: "bg-slate-900 text-slate-200",
-      item:
-        "text-slate-100 data-[highlighted]:bg-white/15 data-[highlighted]:text-white",
+      item: "text-slate-100 data-[highlighted]:bg-white/15 data-[highlighted]:text-white",
     },
   }[tone]
 
   return (
     <SelectPrimitive.Root
+      name={name}
       value={internalValue}
       onValueChange={(selectedValue) => onValueChange(toExternalValue(selectedValue))}
       disabled={disabled}
     >
       <SelectPrimitive.Trigger
+        id={id}
         className={cn(
-          "inline-flex h-10 w-full items-center justify-between rounded-xl border px-3 py-2 text-sm font-medium transition-all outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60",
+          "inline-flex h-11 w-full touch-manipulation items-center justify-between rounded-xl border px-3.5 py-2.5 text-sm font-medium transition-[border-color,box-shadow,background-color] [-webkit-tap-highlight-color:transparent] focus-visible:border-emerald-700 focus-visible:ring-3 focus-visible:ring-lime-300/35 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-stone-100 disabled:opacity-70",
           toneClasses.trigger,
           triggerClassName,
         )}
-        aria-label={placeholder}
+        aria-label={ariaLabel || placeholder}
       >
         <SelectPrimitive.Value placeholder={placeholder} />
         <SelectPrimitive.Icon className={toneClasses.icon}>
-          <ChevronDownIcon className="h-4 w-4" />
+          <ChevronDownIcon className="h-4 w-4" aria-hidden="true" />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
 
@@ -88,36 +94,46 @@ export function Select({
           position="popper"
           sideOffset={6}
           className={cn(
-            "z-50 max-h-72 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border shadow-[0_20px_40px_-22px_rgba(15,23,42,0.5)]",
+            "z-50 max-h-72 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-2xl border p-1 shadow-[0_24px_55px_-28px_rgba(15,50,36,0.42)]",
             toneClasses.content,
             contentClassName,
           )}
         >
-          <SelectPrimitive.ScrollUpButton className={cn("flex h-7 cursor-default items-center justify-center", toneClasses.scroll)}>
-            <ChevronUpIcon className="h-4 w-4" />
+          <SelectPrimitive.ScrollUpButton
+            className={cn(
+              "flex h-7 cursor-default items-center justify-center",
+              toneClasses.scroll,
+            )}
+          >
+            <ChevronUpIcon className="h-4 w-4" aria-hidden="true" />
           </SelectPrimitive.ScrollUpButton>
 
-          <SelectPrimitive.Viewport className="p-1">
+          <SelectPrimitive.Viewport>
             {options.map((option) => (
               <SelectPrimitive.Item
                 key={`${option.label}-${option.value}`}
                 value={toInternalValue(option.value)}
                 disabled={option.disabled}
                 className={cn(
-                  "relative flex cursor-pointer items-center rounded-md py-2 pr-2 pl-8 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                  "relative flex min-h-10 cursor-pointer items-center rounded-xl py-2 pr-2 pl-9 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
                   toneClasses.item,
                 )}
               >
                 <SelectPrimitive.ItemIndicator className="absolute left-2 inline-flex items-center">
-                  <CheckIcon className="h-4 w-4 text-amber-600" />
+                  <CheckIcon className="h-4 w-4 text-emerald-700" aria-hidden="true" />
                 </SelectPrimitive.ItemIndicator>
                 <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
               </SelectPrimitive.Item>
             ))}
           </SelectPrimitive.Viewport>
 
-          <SelectPrimitive.ScrollDownButton className={cn("flex h-7 cursor-default items-center justify-center", toneClasses.scroll)}>
-            <ChevronDownIcon className="h-4 w-4" />
+          <SelectPrimitive.ScrollDownButton
+            className={cn(
+              "flex h-7 cursor-default items-center justify-center",
+              toneClasses.scroll,
+            )}
+          >
+            <ChevronDownIcon className="h-4 w-4" aria-hidden="true" />
           </SelectPrimitive.ScrollDownButton>
         </SelectPrimitive.Content>
       </SelectPrimitive.Portal>
