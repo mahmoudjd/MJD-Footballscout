@@ -59,6 +59,12 @@ export const helpSteps: HelpStep[] = [
     href: "/shadow-team",
     action: "Build Shadow Team",
   },
+  {
+    title: "Manage Recruitment",
+    description: "Move candidates through a pipeline and coordinate every recruitment decision.",
+    href: "/recruitment",
+    action: "Open Recruitment",
+  },
 ]
 
 export const faqGroups: FaqGroup[] = [
@@ -128,6 +134,18 @@ export const faqGroups: FaqGroup[] = [
           "A player assigned to several positions is highlighted as a duplicate.",
         ],
       },
+      {
+        id: "recruitment-pipeline",
+        question: "What is the Recruitment Pipeline?",
+        answer:
+          "The pipeline tracks every candidate from discovery through video review, live scouting, shortlist, approval and negotiation. Add an owner, deadline, priority and decision notes to keep the process accountable.",
+      },
+      {
+        id: "recruitment-tools",
+        question: "How do templates, replacements and Fit Score work together?",
+        answer:
+          "Templates standardize scout evaluations, replacement plans identify successors, saved searches monitor the player pool and Fit Score ranks players against your age, value, ELO and scouting priorities.",
+      },
     ],
   },
   {
@@ -172,6 +190,11 @@ export const releaseNotes: ReleaseNote[] = [
       "Manage profile information, reset or change passwords and safely deactivate accounts without deleting database records.",
       "Use the redesigned responsive interface with unified navigation, tables, profiles, filters, buttons and status feedback.",
       "Access the new Help & What’s New center with workflow guidance and searchable FAQs.",
+      "Manage candidates through a seven-stage recruitment pipeline with priorities, owners, deadlines and decision notes.",
+      "Create weighted scouting templates and reusable club-specific evaluation frameworks.",
+      "Plan squad replacements with automatically suggested successors for vulnerable positions.",
+      "Save talent searches, monitor changing match counts and surface new-player alerts.",
+      "Rank the database with configurable Recruitment Fit Scores combining ELO, age, value and scouting progress.",
     ],
     featured: true,
   },
