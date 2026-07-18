@@ -5,15 +5,10 @@ import {extractPlayerData} from "../../scraper/scrapingData";
 import {convert, isPlayerMatch, normalizeDate, normalizeName} from "../../scraper/utils";
 import logger from "../../logger/logger";
 import {ApiError} from "./scouting.controller";
+import {normalizePosition} from "../../scraper/position";
 
 function normalizePositionForStats(position: string | undefined) {
-    const value = (position || "").toLowerCase();
-    if (value.includes("forward")) return "Forward";
-    if (value.includes("midfielder")) return "Midfielder";
-    if (value.includes("defender")) return "Defender";
-    if (value.includes("goalkeeper")) return "Goalkeeper";
-    if (value.includes("manager")) return "Manager";
-    return position?.trim() || "Unknown";
+    return normalizePosition(position) || "Unknown";
 }
 
 function incrementCounter(map: Map<string, number>, key: string) {
@@ -196,7 +191,7 @@ export async function getPlayerById(context: AppContext, id: string) {
             logger.warn(`Player not found with ID: ${id}`);
             return null;
         }
-        return player;
+        return {...player, position: normalizePosition(player.position)};
     } catch (error: any) {
         if (error instanceof ApiError) {
             throw error;
@@ -370,6 +365,8 @@ export function mergePlayerData(oldPlayer: any, newPlayer: any): any {
         }
     }
 
+    merged.position = normalizePosition(merged.position);
+
     return merged;
 }
 
@@ -420,7 +417,10 @@ export async function getPlayers(context: AppContext) {
             logger.warn("No players found");
             return [];
         }
-        return players;
+        return players.map((player) => ({
+            ...player,
+            position: normalizePosition(player.position),
+        }));
     } catch (error: any) {
         logger.error(`Error fetching players: ${error.stack || error.message}`);
         throw new Error("Failed to fetch players");
