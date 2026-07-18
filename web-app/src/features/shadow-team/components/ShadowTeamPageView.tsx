@@ -40,6 +40,11 @@ function playerLabel(player: PlayerType) {
   return player.name || player.fullName || "Unknown player"
 }
 
+function formatUpdatedDate(value: unknown) {
+  const date = value instanceof Date ? value : new Date(String(value))
+  return Number.isNaN(date.getTime()) ? "Unknown date" : date.toLocaleDateString()
+}
+
 function assignmentFor(assignments: ShadowTeamAssignmentType[], slotId: string) {
   return assignments.find((item) => item.slotId === slotId)?.playerIds ?? []
 }
@@ -256,7 +261,10 @@ export function ShadowTeamPageView() {
             </Text>
             <form className="mt-4 space-y-3" onSubmit={handleCreate}>
               <div className="space-y-1.5">
-                <label htmlFor="shadow-team-name" className="block text-sm font-semibold text-emerald-950">
+                <label
+                  htmlFor="shadow-team-name"
+                  className="block text-sm font-semibold text-emerald-950"
+                >
                   Team name <span aria-hidden="true">*</span>
                 </label>
                 <Input
@@ -268,16 +276,23 @@ export function ShadowTeamPageView() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label htmlFor="shadow-team-formation" className="block text-sm font-semibold text-emerald-950">
+                <label
+                  htmlFor="shadow-team-formation"
+                  className="block text-sm font-semibold text-emerald-950"
+                >
                   Formation
                 </label>
                 <select
                   id="shadow-team-formation"
                   value={newFormation}
-                  onChange={(event) => setNewFormation(event.target.value as ShadowTeamFormationType)}
+                  onChange={(event) =>
+                    setNewFormation(event.target.value as ShadowTeamFormationType)
+                  }
                   className="min-h-11 w-full rounded-xl border border-emerald-950/15 bg-white px-3.5 py-2.5 text-sm font-medium text-emerald-950 shadow-sm focus-visible:border-emerald-700 focus-visible:ring-3 focus-visible:ring-lime-300/35 focus-visible:outline-none"
                 >
-                  {formations.map((formation) => <option key={formation}>{formation}</option>)}
+                  {formations.map((formation) => (
+                    <option key={formation}>{formation}</option>
+                  ))}
                 </select>
               </div>
               <Button
@@ -368,7 +383,7 @@ export function ShadowTeamPageView() {
                     {detail.name}
                   </Text>
                   <Text as="p" variant="body" tone="muted" className="mt-1">
-                    {detail.formation} · Updated {detail.updatedAt.toLocaleDateString()}
+                    {detail.formation} · Updated {formatUpdatedDate(detail.updatedAt)}
                   </Text>
                 </div>
                 <Button variant="danger" size="sm" onClick={() => setDeleteOpen(true)}>
@@ -573,7 +588,10 @@ export function ShadowTeamPageView() {
 
                       <div className="mt-6 border-t border-emerald-950/10 pt-5">
                         <div className="space-y-1.5">
-                          <label htmlFor="shadow-player-search" className="block text-sm font-semibold text-emerald-950">
+                          <label
+                            htmlFor="shadow-player-search"
+                            className="block text-sm font-semibold text-emerald-950"
+                          >
                             Find candidates
                           </label>
                           <Input
@@ -584,7 +602,12 @@ export function ShadowTeamPageView() {
                             placeholder="Search name, club or country"
                             aria-describedby="shadow-player-search-hint"
                           />
-                          <Text id="shadow-player-search-hint" as="p" variant="caption" tone="muted">
+                          <Text
+                            id="shadow-player-search-hint"
+                            as="p"
+                            variant="caption"
+                            tone="muted"
+                          >
                             Showing {selectedSlot.positionGroup.toLowerCase()}s sorted by ELO.
                           </Text>
                         </div>
