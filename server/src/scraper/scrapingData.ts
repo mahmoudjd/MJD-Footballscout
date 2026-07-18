@@ -14,6 +14,7 @@ import {z} from "zod";
 import {convert, normalizeName} from "./utils";
 import {ScraperError} from "../middleware/customErrors";
 import logger from "../logger/logger";
+import {normalizePosition} from "./position";
 
 type PlayerTypeSchema = z.infer<typeof PlayerTypeSchemaWithoutID>;
 
@@ -38,7 +39,7 @@ export async function extractPlayerData(name: string, one = false): Promise<Play
             return players ? players : [];
         }
 
-        const urlsToAnalyse = urlsBesoccer.slice(0, 3);
+        const urlsToAnalyse = Array.from(new Set(urlsBesoccer)).slice(0, 3);
         logger.info(`Analyzing the first ${urlsToAnalyse.length} URLs.`);
 
         const results = await Promise.all(
@@ -97,51 +98,36 @@ export async function extractWithBesoccerURL(name: string, besoccerLink: string)
         const normalizedName = normalizeName(name);
         logger.info(`Extracted with Besoccer-Link: ${besoccerLink}`);
 
-        let urlPlaymaker = await getLinkPlaymakerstats(normalizedName);
-        logger.info(`Initialize Playmaker-URL: ${urlPlaymaker}`);
-
-        let [player1, player2] = await Promise.all([
-            extractDataBesoccer(besoccerLink),
-            urlPlaymaker.includes("undefined") ? Promise.resolve(undefined) : extractDataPlaymakerstats(urlPlaymaker),
-        ]);
-
-        if (player1 && !player2) {
-            urlPlaymaker = await getLinkPlaymakerstats(player1.title);
-            logger.info(`Neue Playmaker-URL: ${urlPlaymaker}`);
-            player2 = await extractDataPlaymakerstats(urlPlaymaker);
+        // Read the concrete BeSoccer result first. Searching Playmaker with the
+        // generic user input for every result repeatedly selected the same first
+        // hit and caused unrelated profiles to be merged.
+        const player1 = await extractDataBesoccer(besoccerLink);
+        if (!player1) {
+            const urlPlaymaker = await getLinkPlaymakerstats(normalizedName);
+            return urlPlaymaker ? await extractDataPlaymakerstats(urlPlaymaker) : undefined;
         }
 
-        if (player1 && player2 && isEquals(player1, player2)) {
-            logger.info("Players match (Case 1), Merge data...");
-            return await checkAndUpdate(player1, player2);
-        }
+        const searchTerms = Array.from(new Set([
+            player1.title,
+            player1.fullName,
+            player1.name,
+        ].map((value) => value?.trim()).filter((value): value is string => Boolean(value))));
 
-        if (player1 && player2 && !isEquals(player1, player2)) {
-            urlPlaymaker = await getLinkPlaymakerstats(player1.title);
-            if (!urlPlaymaker.includes("undefined")) {
-                player2 = await extractDataPlaymakerstats(urlPlaymaker);
-                if (player2 && isEquals(player1, player2)) {
-                    logger.info("Players match (Case 2), Merge data...");
-                    return await checkAndUpdate(player1, player2);
-                }
-            }
-        }
+        for (const searchTerm of searchTerms) {
+            const urlPlaymaker = await getLinkPlaymakerstats(searchTerm);
+            if (!urlPlaymaker) continue;
 
-        if (urlPlaymaker.includes("undefined") && player1) {
-            urlPlaymaker = await getLinkPlaymakerstats(normalizeName(player1.name));
-            if (!urlPlaymaker.includes("undefined")) {
-                player2 = await extractDataPlaymakerstats(urlPlaymaker);
-                if (player2 && isEquals(player1, player2)) {
-                    logger.info("Players match (Case 3), Merge data...");
-                    return await checkAndUpdate(player1, player2);
-                }
+            const player2 = await extractDataPlaymakerstats(urlPlaymaker);
+            if (player2 && isEquals(player1, player2)) {
+                logger.info(`Player profiles match for '${searchTerm}', merging data.`);
+                return await checkAndUpdate(player1, player2);
             }
         }
 
         if (player1?.age === 0 && player1?.weight === 0 && player1?.height === 0 && !player1?.preferredFoot && !player1?.currentClub) {
             throw new ScraperError("Missing the base info", "extractWithBesoccerURL");
         }
-        return player1 ?? player2;
+        return player1;
     } catch (error: any) {
         logger.error(`extractWithBesoccerURL error: ${error.message || error}`);
         return undefined;
@@ -161,7 +147,7 @@ async function checkAndUpdate(player1: PlayerTypeSchema, player2: PlayerTypeSche
     if (!player1.currentClub) player1.currentClub = player2.currentClub;
     else if (player2.currentClub?.length > player1.currentClub?.length) player1.currentClub = player2.currentClub;
     if (player1.image?.includes("nofoto") && player2.image) player1.image = player2.image;
-    if (!player1.position || player1.position.length < player2.position.length) player1.position = player2.position;
+    player1.position = normalizePosition(player1.position) || normalizePosition(player2.position);
     if (!player1.born) player1.born = player2.born;
     if (!player1.birthCountry) player1.birthCountry = player2.birthCountry;
     if (player1.transfers.length === 0) player1.transfers = player2.transfers;
@@ -219,8 +205,8 @@ export function isEquals(obj1: PlayerTypeSchema, obj2: PlayerTypeSchema) {
     const age1 = obj1.age;
     const age2 = obj2.age;
 
-    const pos1 = obj1.position?.toLowerCase();
-    const pos2 = obj2.position?.toLowerCase();
+    const pos1 = normalizePosition(obj1.position).toLowerCase();
+    const pos2 = normalizePosition(obj2.position).toLowerCase();
 
     let foot1 = obj1.preferredFoot?.toLowerCase();
     const foot2 = obj2.preferredFoot?.toLowerCase();
@@ -243,7 +229,7 @@ export function isEquals(obj1: PlayerTypeSchema, obj2: PlayerTypeSchema) {
         foot1 === foot2 &&
         height1 === height2 &&
         country1 === country2 &&
-        pos2.includes(pos1)
+        positionsMatch(pos1, pos2)
     ) {
         return true;
     }
@@ -261,8 +247,7 @@ export function isEquals(obj1: PlayerTypeSchema, obj2: PlayerTypeSchema) {
     if (
         age1 === age2 &&
         country1 === country2 &&
-        (pos1.includes(pos2) ||
-            pos2.includes(pos1) ||
+        (positionsMatch(pos1, pos2) ||
             (foot1 === foot2 && height1 === height2))
     ) {
         return true;
@@ -274,6 +259,10 @@ export function isEquals(obj1: PlayerTypeSchema, obj2: PlayerTypeSchema) {
             num1 === num2 &&
             age1 === age2 &&
             foot1 === foot2 &&
-            pos2.includes(pos1))
+            positionsMatch(pos1, pos2))
     );
+}
+
+function positionsMatch(position1: string, position2: string): boolean {
+    return Boolean(position1 && position2 && position1 === position2);
 }
