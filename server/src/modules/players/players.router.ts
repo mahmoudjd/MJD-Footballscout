@@ -193,11 +193,11 @@ const createPlayersRouter = (context: AppContext) => {
     router.post("/search", async (req: Request, res: Response): Promise<any> => {
         const {name} = req.body;
         try {
-            if (!name || typeof name !== "string") {
+            if (typeof name !== "string" || name.trim().length < 2 || name.trim().length > 100) {
                 return res.status(400).json({error: "Invalid name parameter"});
             }
 
-            const foundedPlayers = await searchPlayers(context, name);
+            const foundedPlayers = await searchPlayers(context, name.trim());
             res.status(200).json(foundedPlayers);
         } catch (error) {
             logger.error("Search Failed with error: ", error);

@@ -10,6 +10,7 @@ import {
 import { normalizeName, toInt, extractText, cleanText } from "./utils";
 import { ScraperError } from "../middleware/customErrors";
 import logger from "../logger/logger";
+import {normalizePosition} from "./position";
 
 type PlayerTypeSchema = z.infer<typeof PlayerTypeSchemaWithoutID>;
 
@@ -100,7 +101,7 @@ export const extractDataBesoccer = async (url: string): Promise<PlayerTypeSchema
         const title = extractText($(".head-title > h2.title"));
         const fullName = extractText($("#mod_player_stats > .panel .panel-subtitle"));
         const image = $(".player-head .bottom-row .img-wrapper > img").attr("src");
-        const position = getPosition(extractText($(".stat:nth-child(2) .round-row.mb5 span")));
+        const position = normalizePosition(extractText($(".stat:nth-child(2) .round-row.mb5 span")));
         const age = toInt(extractText($(".stat:nth-child(1) .big-row")));
         const country = extractText($(".stat:nth-child(1) .small-row").eq(1));
         const weight = toInt(extractText($(".stat:nth-child(2) .big-row")));
@@ -226,17 +227,4 @@ const extractTransfers = async (url: string): Promise<Transfer[]> => {
         logger.error(`Error in extractTransfers: ${err.message}`);
         return [];
     }
-};
-
-const getPosition = (position: string): string => {
-    if (!position) return "";
-    return position.includes("For")
-        ? "Forward"
-        : position === "Def"
-            ? "Defender"
-            : position === "Mid"
-                ? "Midfielder"
-                : position === "Goa"
-                    ? "Goalkeeper"
-                    : position;
 };
