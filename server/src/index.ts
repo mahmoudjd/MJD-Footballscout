@@ -12,6 +12,8 @@ import createWatchlistsRouter from "./modules/watchlists/watchlists.router";
 import { startPlayersAutoUpdateScheduler } from "./jobs/playersAutoUpdateScheduler";
 import createShadowTeamsRouter from "./modules/shadow-teams/shadow-teams.router";
 import createRecruitmentRouter from "./modules/recruitment/recruitment.router";
+import createBillingRouter from "./modules/billing/billing.router";
+import { createBillingWebhookHandler } from "./modules/billing/billing.webhook";
 
 async function startServer() {
     if (process.env.NODE_ENV !== "production") dotenv.config();
@@ -39,6 +41,11 @@ async function startServer() {
     server.use(helmet());
     server.use(cookieParser());
     server.use(compression());
+    server.post(
+        "/billing/webhook",
+        express.raw({ type: "application/json" }),
+        createBillingWebhookHandler(context),
+    );
     server.use(express.json());
     server.use(express.urlencoded({ extended: true }));
 
@@ -47,6 +54,7 @@ async function startServer() {
     server.use("/shadow-teams", createShadowTeamsRouter(context));
     server.use("/recruitment", createRecruitmentRouter(context));
     server.use("/auth", createAuthRouter(context));
+    server.use("/billing", createBillingRouter(context));
 
     const stopPlayersAutoUpdateScheduler = startPlayersAutoUpdateScheduler(context);
 

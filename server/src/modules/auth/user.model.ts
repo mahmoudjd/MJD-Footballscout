@@ -24,7 +24,28 @@ export const UserSchema = z.object({
     password: z.string().optional(),
     authProvider: z.enum(["credentials", "google"]).optional(),
     googleId: z.string().optional(),
+    isActive: z.boolean().optional(),
+    billingPlan: z.enum(["free", "premium"]).optional(),
+    subscriptionStatus: z
+        .enum([
+            "inactive",
+            "trialing",
+            "active",
+            "past_due",
+            "canceled",
+            "unpaid",
+            "incomplete",
+            "incomplete_expired",
+            "paused",
+        ])
+        .optional(),
+    stripeCustomerId: z.string().optional(),
+    stripeSubscriptionId: z.string().optional(),
+    stripeProductId: z.string().optional(),
+    subscriptionCurrentPeriodEnd: z.date().optional(),
+    subscriptionCancelAtPeriodEnd: z.boolean().optional(),
     createdAt: z.date(),
+    updatedAt: z.date().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;
