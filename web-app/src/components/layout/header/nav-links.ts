@@ -15,6 +15,13 @@ export const navLinks: NavLink[] = [
   { href: "/compare", label: "Compare", icon: "ArrowsRightLeftIcon", authRequired: true },
   { href: "/watchlists", label: "Watchlists", icon: "HeartIcon", authRequired: true },
   {
+    href: "/shadow-team",
+    label: "Shadow Team",
+    icon: "Squares2X2Icon",
+    authRequired: true,
+    compactUntilWide: true,
+  },
+  {
     href: "/help",
     label: "Help",
     icon: "QuestionMarkCircleIcon",

@@ -34,6 +34,7 @@ import {
   ChevronDownIcon,
   MegaphoneIcon,
   RocketLaunchIcon,
+  Squares2X2Icon,
 } from "@heroicons/react/24/outline"
 export const OutlineIcons = {
   BeakerIcon: BeakerIcon,
@@ -71,4 +72,5 @@ export const OutlineIcons = {
   ChevronDownIcon: ChevronDownIcon,
   MegaphoneIcon: MegaphoneIcon,
   RocketLaunchIcon: RocketLaunchIcon,
+  Squares2X2Icon: Squares2X2Icon,
 }

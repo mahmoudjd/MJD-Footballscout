@@ -5,6 +5,7 @@ import {User} from "../modules/auth/user.model";
 import {ScoutingReport} from "../modules/players/scouting-report.model";
 import {PlayerHistory} from "../modules/players/player-history.model";
 import {Watchlist} from "../modules/watchlists/watchlist.model";
+import {ShadowTeam} from "../modules/shadow-teams/shadow-team.model";
 
 export interface AppContext {
     players: Collection<PlayerType>;
@@ -12,6 +13,7 @@ export interface AppContext {
     scoutingReports: Collection<ScoutingReport>;
     playerHistories: Collection<PlayerHistory>;
     watchlists: Collection<Watchlist>;
+    shadowTeams: Collection<ShadowTeam>;
     config: Config;
     httpClient: AxiosInstance;
 }
