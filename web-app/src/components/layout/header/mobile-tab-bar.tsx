@@ -38,7 +38,9 @@ export function MobileTabBar() {
   const userRole = session?.user?.role === "admin" ? "Admin" : "User"
 
   const moreActive = useMemo(() => {
-    return ["/watchlists", "/login", "/signup"].some((route) => isPathActive(pathname, route))
+    return ["/watchlists", "/login", "/signup", "/help"].some((route) =>
+      isPathActive(pathname, route),
+    )
   }, [pathname])
 
   return (
@@ -105,6 +107,16 @@ export function MobileTabBar() {
           </DialogHeader>
 
           <div className="mt-4 grid gap-2">
+            <Link
+              href="/help"
+              prefetch={false}
+              onClick={() => setIsMoreOpen(false)}
+              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-sm font-semibold text-stone-700 transition-[background-color,border-color,color] hover:border-amber-300 hover:bg-amber-50/60 hover:text-amber-800 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+            >
+              <OutlineIcons.QuestionMarkCircleIcon className="h-5 w-5" aria-hidden="true" />
+              Help & What’s New
+            </Link>
+
             <Link
               href={
                 status === "authenticated"
