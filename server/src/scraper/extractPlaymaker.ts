@@ -6,6 +6,7 @@ import iconv from "iconv-lite";
 import {CheerioAPI} from "cheerio";
 import logger from "../logger/logger";
 import {toInt} from "./utils";
+import {normalizePosition} from "./position";
 
 type PlayerTypeSchema = z.infer<typeof PlayerTypeSchemaWithoutID>;
 
@@ -52,8 +53,7 @@ export async function extractPlayersFromPlayMakerStats(name: string): Promise<Pl
             {responseType: "arraybuffer"}
         );
 
-        // const html = iconv.decode(response.data, "windows-1252");
-        const html = iconv.decode(response.data, "utf-8");
+        const html = iconv.decode(response.data, "windows-1252");
         const $ = cheerio.load(html, cheerioConfig);
 
         const playerLinks: string[] = [];
@@ -85,6 +85,11 @@ export async function extractPlayersFromPlayMakerStats(name: string): Promise<Pl
 
 export const extractDataPlaymakerstats = async (url: string): Promise<PlayerTypeSchema | undefined> => {
     try {
+        if (!url) {
+            logger.warn("No Playmaker URL provided for data extraction.");
+            return undefined;
+        }
+
         logger.debug(`Extrahiere Spieldaten von URL: ${url}`);
 
         const response = await axios.get(url, {responseType: "arraybuffer"});
@@ -112,7 +117,7 @@ export const extractDataPlaymakerstats = async (url: string): Promise<PlayerType
 
         const website = $('.bio span:contains("Official Site")').siblings("a").attr("href") || "";
 
-        const position = getPosition(extractBioValue($, "Position"));
+        const position = normalizePosition(extractBioValue($, "Position"));
         const weight = toInt(extractBioHalfValue($, "Weight").replace("kg", "")) || 0;
         const height = toInt(extractBioHalfValue($, "Height").replace("cm", "")) || 0;
         const preferredFootRaw = extractBioHalfValue($, "Preferred foot").toLowerCase();
@@ -244,16 +249,6 @@ const extractBirthCountry = ($: cheerio.CheerioAPI): string => {
     const countryText = countrySpan.nextAll('.micrologo_and_text').find('.text').text().trim();
     return countryText;
 };
-export const getPosition = (position: string): string => {
-    if (!position) return "";
-    const lower = position.toLowerCase();
-    if (lower.includes("midfield")) return "Midfielder";
-    if (lower.includes("defender")) return "Defender";
-    if (lower.includes("forward") || lower.includes("striker")) return "Forward";
-    if (lower.includes("goalkeeper")) return "Goalkeeper";
-    return position;
-};
-
 export const extractMarketValue = ($: CheerioAPI): { value: string; currency: string } => {
     const text = $('.rectangle[title="Market value"] .value span').first().text().trim(); // z.B. "18.0 M €"
 
@@ -267,4 +262,3 @@ export const extractMarketValue = ($: CheerioAPI): { value: string; currency: st
     }
     return {value: "", currency: ""};
 };
-

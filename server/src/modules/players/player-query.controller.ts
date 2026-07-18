@@ -3,6 +3,7 @@ import {z} from "zod";
 import {AppContext} from "../../context/types";
 import {parseCompactCurrency} from "./players.controller";
 import logger from "../../logger/logger";
+import {normalizePosition} from "../../scraper/position";
 
 const AdvancedSearchQuerySchema = z.object({
     position: z.string().trim().min(1).optional(),
@@ -96,7 +97,7 @@ export async function getAdvancedPlayers(context: AppContext, query: Record<stri
     }
 
     const players = await context.players.find().toArray();
-    const searchedPosition = normalizeForSearch(parsedQuery.position);
+    const searchedPosition = normalizeForSearch(normalizePosition(parsedQuery.position));
     const searchedCountry = normalizeForSearch(parsedQuery.country);
     const searchedClub = normalizeForSearch(parsedQuery.club);
 
@@ -105,7 +106,7 @@ export async function getAdvancedPlayers(context: AppContext, query: Record<stri
         const elo = typeof player.elo === "number" ? player.elo : null;
         const value = parseCompactCurrency(player.value, player.currency);
 
-        if (searchedPosition && !normalizeForSearch(player.position).includes(searchedPosition)) {
+        if (searchedPosition && normalizeForSearch(normalizePosition(player.position)) !== searchedPosition) {
             return false;
         }
         if (searchedCountry && !normalizeForSearch(player.country).includes(searchedCountry)) {
@@ -162,7 +163,12 @@ export async function getAdvancedPlayers(context: AppContext, query: Record<stri
         return sortDirection * (aElo - bElo);
     });
 
-    const paginated = sorted.slice(parsedQuery.offset, parsedQuery.offset + parsedQuery.limit);
+    const paginated = sorted
+        .slice(parsedQuery.offset, parsedQuery.offset + parsedQuery.limit)
+        .map((player) => ({
+            ...player,
+            position: normalizePosition(player.position),
+        }));
 
     return {
         items: paginated,
@@ -171,7 +177,7 @@ export async function getAdvancedPlayers(context: AppContext, query: Record<stri
         offset: parsedQuery.offset,
         hasMore: parsedQuery.offset + parsedQuery.limit < sorted.length,
         appliedFilters: {
-            position: parsedQuery.position || null,
+            position: normalizePosition(parsedQuery.position) || null,
             country: parsedQuery.country || null,
             club: parsedQuery.club || null,
             minAge: parsedQuery.minAge ?? null,
