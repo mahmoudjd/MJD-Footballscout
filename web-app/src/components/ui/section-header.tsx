@@ -11,6 +11,7 @@ interface SectionHeaderProps {
   icon?: keyof typeof OutlineIcons
   badge?: string
   tone?: "default" | "glass"
+  level?: "h1" | "h2"
 }
 
 export function SectionHeader({
@@ -21,6 +22,7 @@ export function SectionHeader({
   icon = "SparklesIcon",
   badge,
   tone = "default",
+  level = "h2",
 }: SectionHeaderProps) {
   const Icon = OutlineIcons[icon]
   const toneClasses = {
@@ -56,8 +58,8 @@ export function SectionHeader({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <Text
-                as="h2"
-                variant="h2"
+                as={level}
+                variant={level === "h1" ? "h1" : "h2"}
                 weight="extrabold"
                 className={cn("sm:text-2xl", toneClasses.title)}
               >
