@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@supports (scrollbar-gutter: stable) {
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  body[data-scroll-locked] {
+    margin-right: 0 !important;
+  }
+}
+
 *,
 *::before,
 *::after {

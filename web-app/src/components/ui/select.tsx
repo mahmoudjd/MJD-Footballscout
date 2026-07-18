@@ -94,7 +94,7 @@ export function Select({
           position="popper"
           sideOffset={6}
           className={cn(
-            "z-50 max-h-72 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-2xl border p-1 shadow-[0_24px_55px_-28px_rgba(15,50,36,0.42)]",
+            "z-50 max-h-72 w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-1rem)] overflow-hidden rounded-2xl border p-1 shadow-[0_24px_55px_-28px_rgba(15,50,36,0.42)]",
             toneClasses.content,
             contentClassName,
           )}
@@ -115,14 +115,16 @@ export function Select({
                 value={toInternalValue(option.value)}
                 disabled={option.disabled}
                 className={cn(
-                  "relative flex min-h-10 cursor-pointer items-center rounded-xl py-2 pr-2 pl-9 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                  "relative flex min-h-10 max-w-full min-w-0 cursor-pointer items-center rounded-xl py-2 pr-2 pl-9 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
                   toneClasses.item,
                 )}
               >
                 <SelectPrimitive.ItemIndicator className="absolute left-2 inline-flex items-center">
                   <CheckIcon className="h-4 w-4 text-emerald-700" aria-hidden="true" />
                 </SelectPrimitive.ItemIndicator>
-                <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
+                <SelectPrimitive.ItemText>
+                  <span className="block min-w-0 truncate">{option.label}</span>
+                </SelectPrimitive.ItemText>
               </SelectPrimitive.Item>
             ))}
           </SelectPrimitive.Viewport>
