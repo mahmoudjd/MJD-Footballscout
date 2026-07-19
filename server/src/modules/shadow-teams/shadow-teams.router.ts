@@ -3,6 +3,7 @@ import {ZodError} from "zod";
 import {AppContext} from "../../context/types";
 import {authMiddleware} from "../../middleware/auth-middleware";
 import {createFeatureRequestLogger, logFeatureError} from "../../middleware/feature-request-logger";
+import {disablePrivateApiCaching} from "../../middleware/private-api-cache";
 import {createPremiumAccessMiddleware} from "../../middleware/premium-middleware";
 import {AuthenticatedRequest} from "../../shared/auth";
 import {ApiError} from "../players/scouting.controller";
@@ -37,6 +38,7 @@ function handleControllerError(error: unknown, req: Request, res: Response, oper
 
 export default function createShadowTeamsRouter(context: AppContext) {
     const router = express.Router();
+    router.use(disablePrivateApiCaching);
     router.use(createFeatureRequestLogger("shadow-team"));
     router.use(authMiddleware);
     router.use(createPremiumAccessMiddleware(context, "shadow-team"));
