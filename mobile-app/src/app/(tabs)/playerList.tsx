@@ -1,19 +1,11 @@
-import { View } from "react-native";
 import PlayerList from "@/src/components/PlayerList";
-import Colors from "@/src/constants/Colors";
-import { useContext } from "react";
-import { AppContext } from "@/src/context/AppContext";
+import ScreenContainer from "@/src/components/ui/ScreenContainer";
+import { Platform } from "react-native";
 
 export default function PlayerListScreen() {
-  const { isDark } = useContext(AppContext);
   return (
-    <View
-      style={{
-        backgroundColor: Colors[isDark ? "dark" : "light"].background,
-        flex: 1,
-      }}
-    >
+    <ScreenContainer withTopInset={Platform.OS === "ios"}>
       <PlayerList />
-    </View>
+    </ScreenContainer>
   );
 }

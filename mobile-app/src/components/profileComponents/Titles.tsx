@@ -1,89 +1,41 @@
 import * as React from "react";
-import { View, Text } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Title } from "../../data/Types";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
+import { safeDecodeURIComponent } from "@/src/utils/playerDisplay";
+
 type Props = {
   titles: Title[];
-  styles: any;
 };
-const Titles = ({ titles, styles }: Props) => {
+
+const Titles = ({ titles }: Props) => {
   const { isDark } = React.useContext(AppContext);
+  const palette = Colors[isDark ? "dark" : "light"];
+  const { width } = useWindowDimensions();
+  const twoColumns = width >= 640;
+
   return (
-    <View
-      style={[
-        styles.tables,
-        {
-          backgroundColor: Colors[isDark ? "dark" : "light"].card,
-          borderColor: Colors[isDark ? "dark" : "light"].border,
-          borderWidth: 1,
-          borderTopLeftRadius: 5,
-          borderTopRightRadius: 5,
-        },
-      ]}
-    >
-      <Text style={styles.heading}>Titles</Text>
-      <View style={styles.infoTable}>
-        <View
-          style={[
-            styles.tableRow,
-            {
-              borderBottomColor: Colors[isDark ? "dark" : "light"].border,
-              borderBottomWidth: 2,
-            },
-          ]}
-        >
-          <View>
-            <Text
-              style={[
-                styles.tableHeader,
-                { color: Colors[isDark ? "dark" : "light"].text },
-              ]}
-            >
-              Name of Title
-            </Text>
-          </View>
-          <View>
-            <Text
-              style={[
-                styles.tableHeader,
-                { color: Colors[isDark ? "dark" : "light"].text },
-              ]}
-            >
-              Received
-            </Text>
-          </View>
+    <View style={[styles.sectionCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
+      <View style={styles.titleRow}>
+        <View style={[styles.titleIconWrap, { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.12)" }]}>
+          <Ionicons name="trophy-outline" size={16} color={palette.tint} />
         </View>
-        {titles.map((a, index) => (
-          <View
-            key={index}
-            style={[
-              styles.tableRow,
-              {
-                borderBottomWidth: 1,
-                borderBottomColor: Colors[isDark ? "dark" : "light"].border,
-              },
-            ]}
-          >
-            <View>
-              <Text
-                style={[
-                  styles.tableData,
-                  { color: Colors[isDark ? "dark" : "light"].notification },
-                ]}
-              >
-                {decodeURIComponent(a.name)}
+        <Text style={[styles.sectionTitle, { color: palette.text }]}>Titles</Text>
+      </View>
+
+      <View style={styles.grid}>
+        {titles.map((title, index) => (
+          <View key={`${title.name}-${title.number}-${index}`} style={[styles.gridItem, twoColumns ? styles.gridItemHalf : null]}>
+            <View style={[styles.itemCard, { borderColor: palette.border, backgroundColor: palette.background }]}>
+              <Ionicons name="trophy" size={19} color="#f59e0b" />
+              <Text style={[styles.itemName, { color: palette.text }]} numberOfLines={1}>
+                {safeDecodeURIComponent(title.name) || "-"}
               </Text>
-            </View>
-            <View>
-              <Text
-                style={[
-                  styles.tableData,
-                  { color: Colors[isDark ? "dark" : "light"].notification },
-                ]}
-              >
-                {a.number}
-              </Text>
+              <View style={[styles.countBadge, { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.12)" }]}>
+                <Text style={[styles.countText, { color: palette.tint }]}>{title.number || "-"}</Text>
+              </View>
             </View>
           </View>
         ))}
@@ -93,3 +45,69 @@ const Titles = ({ titles, styles }: Props) => {
 };
 
 export default Titles;
+
+const styles = StyleSheet.create({
+  sectionCard: {
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 12,
+    marginBottom: 12,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 10,
+  },
+  titleIconWrap: {
+    width: 30,
+    height: 30,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: "800",
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    rowGap: 9,
+  },
+  gridItem: {
+    width: "100%",
+  },
+  gridItemHalf: {
+    width: "48.5%",
+  },
+  itemCard: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+  },
+  itemName: {
+    flex: 1,
+    minWidth: 0,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  countBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    minWidth: 32,
+    alignItems: "center",
+  },
+  countText: {
+    fontSize: 12,
+    fontWeight: "800",
+  },
+});

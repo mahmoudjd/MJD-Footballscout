@@ -1,77 +1,96 @@
 import { useContext } from "react";
-import { StyleSheet, View, TextInput, Pressable } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { ActivityIndicator, StyleSheet, View, TextInput, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { AppContext } from "@/src/context/AppContext";
 import Colors from "@/src/constants/Colors";
 
 type Props = {
+  value: string;
+  loading?: boolean;
   handleChange: (text: string) => void;
   handleSearch: () => void;
 };
-const SearchField = ({ handleChange, handleSearch }: Props) => {
+const SearchField = ({ value, loading = false, handleChange, handleSearch }: Props) => {
   const { isDark } = useContext(AppContext);
+  const colorKey = isDark ? "dark" : "light";
+  const colors = Colors[colorKey];
 
   return (
     <View style={styles.searchField}>
-      <TextInput
+      <View
         style={[
-          styles.input,
+          styles.inputWrap,
           {
-            backgroundColor: Colors[isDark ? "dark" : "light"].card,
-            borderColor: Colors[isDark ? "dark" : "light"].border,
-            color: Colors[isDark ? "dark" : "light"].text,
+            backgroundColor: colors.card,
+            borderColor: colors.border,
           },
         ]}
-        placeholderTextColor={Colors[isDark ? "dark" : "light"].text}
-        onChangeText={handleChange}
-        placeholder="Enter player's name"
-        editable
-        autoCorrect={false}
-        autoCapitalize="none"
-        maxLength={40}
-      />
-      <View style={styles.btn}>
-        <Pressable style={styles.pressField} onPress={handleSearch}>
-          <FontAwesome name="search" size={22} color="#fff" />
-        </Pressable>
+      >
+        <Ionicons name="search-outline" size={18} color={colors.notification} />
+        <TextInput
+          style={[styles.input, { color: colors.text }]}
+          placeholderTextColor={colors.notification}
+          onChangeText={handleChange}
+          value={value}
+          placeholder="Search by name, club, country"
+          editable
+          autoCorrect={false}
+          autoCapitalize="none"
+          maxLength={40}
+        />
+        {value ? (
+          <Pressable onPress={() => handleChange("")} hitSlop={8}>
+            <Ionicons name="close-circle" size={17} color={colors.notification} />
+          </Pressable>
+        ) : null}
       </View>
+      <Pressable
+        style={[
+          styles.pressField,
+          {
+            backgroundColor: colors.tint,
+          },
+          loading ? { opacity: 0.7 } : null,
+        ]}
+        disabled={loading}
+        onPress={handleSearch}
+      >
+        {loading ? <ActivityIndicator size="small" color="#fff" /> : <Ionicons name="arrow-forward" size={18} color="#fff" />}
+      </Pressable>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   searchField: {
-    width: "100%",
-    marginBottom: 5,
+    width: "92%",
+    marginBottom: 8,
     flexDirection: "row",
     justifyContent: "center",
-    alignItems: "flex-start",
-    paddingHorizontal: 10,
-    rowGap: 5,
+    alignItems: "center",
+    gap: 8,
+  },
+  inputWrap: {
+    height: 44,
+    flex: 1,
+    borderRadius: 13,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   input: {
-    height: 40,
-    width: "80%",
-    borderBottomLeftRadius: 10,
-    borderTopLeftRadius: 10,
-    borderWidth: 1,
-    marginTop: 20,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  btn: {
-    height: 40,
-    marginTop: 20,
-    backgroundColor: "#008fb3",
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-    textAlign: "center",
+    flex: 1,
+    fontSize: 14,
+    paddingVertical: 0,
   },
   pressField: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    flex: 1,
-    width: "100%",
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 
