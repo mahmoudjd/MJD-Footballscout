@@ -14,6 +14,7 @@ import Titles from "@/features/profile/components/profile-components/Titles"
 import Awards from "@/features/profile/components/profile-components/awards"
 import ScoutingReports from "@/features/profile/components/profile-components/ScoutingReports"
 import PlayerHistory from "@/features/profile/components/profile-components/PlayerHistory"
+import SimilarPlayers from "@/features/profile/components/profile-components/SimilarPlayers"
 import { OutlineIcons } from "@/components/icons/outline-icons"
 import { ScrollToTopButton } from "@/components/common/scroll-to-top-button"
 import { useToast } from "@/lib/hooks/useToast"
@@ -31,7 +32,7 @@ interface PlayerProfilePageViewProps {
   playerId: string
 }
 
-type ProfileTab = "overview" | "attributes" | "career" | "scouting" | "history"
+type ProfileTab = "overview" | "attributes" | "career" | "similar" | "scouting" | "history"
 
 type QuickStatProps = {
   label: string
@@ -218,10 +219,11 @@ export function PlayerProfilePageView({ playerId }: PlayerProfilePageViewProps) 
       </div>
 
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ProfileTab)}>
-        <TabsList className="!grid w-full grid-cols-2 gap-1 sm:grid-cols-5">
+        <TabsList className="!grid w-full grid-cols-2 gap-1 sm:grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="attributes">Attributes</TabsTrigger>
           <TabsTrigger value="career">Career</TabsTrigger>
+          <TabsTrigger value="similar">Similar</TabsTrigger>
           <TabsTrigger value="scouting">Scouting</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
@@ -291,6 +293,10 @@ export function PlayerProfilePageView({ playerId }: PlayerProfilePageViewProps) 
 
         <TabsContent value="scouting">
           <ScoutingReports playerId={playerId} />
+        </TabsContent>
+
+        <TabsContent value="similar">
+          {activeTab === "similar" ? <SimilarPlayers playerId={playerId} /> : null}
         </TabsContent>
 
         <TabsContent value="history">

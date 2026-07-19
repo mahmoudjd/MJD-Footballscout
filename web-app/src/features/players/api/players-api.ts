@@ -5,6 +5,7 @@ import type {
   PlayerReportsResponseType,
   PlayerStatsType,
   PlayerType,
+  SimilarPlayersResponseType,
 } from "@/lib/types/type"
 
 export interface UpdateAllPlayersResponse {
@@ -40,6 +41,13 @@ export async function fetchPlayerReports(playerId: string) {
 export async function fetchPlayerHistory(playerId: string, limit = 30) {
   const response = await apiClient.get<PlayerHistoryResponseType>(
     `/players/${playerId}/history?limit=${limit}`,
+  )
+  return response.data
+}
+
+export async function fetchSimilarPlayers(playerId: string, limit = 6) {
+  const response = await apiClient.get<SimilarPlayersResponseType>(
+    `/players/${playerId}/similar?limit=${limit}`,
   )
   return response.data
 }

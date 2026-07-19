@@ -8,6 +8,8 @@ export const queryKeys = {
     history: (playerId: string, limit: number) =>
       ["players", playerId, "history", limit] as const,
     compare: (scope: "all" | string[]) => ["players", "compare", scope] as const,
+    similar: (playerId: string, limit: number) =>
+      ["players", playerId, "similar", limit] as const,
   },
   watchlists: {
     all: ["watchlists"] as const,
