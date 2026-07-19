@@ -133,7 +133,7 @@ function normalizeNumberString(input: string) {
   return normalized
 }
 
-function parseCompactCurrency(value: unknown, unitHint?: unknown) {
+export function parseCompactCurrency(value: unknown, unitHint?: unknown) {
   if (value === null || value === undefined) return 0
   const valueMultiplier = detectUnitMultiplier(value)
   const hintMultiplier = detectUnitMultiplier(unitHint)
@@ -179,31 +179,33 @@ export function filterAndSortPlayers(players: PlayerType[], filters: PlayerFilte
     timestampMs: player.timestamp ? new Date(player.timestamp).getTime() : 0,
   }))
 
-  const filtered = normalizedPlayers.filter(({ player, positionLower, countryLower, clubLower, marketValue }) => {
-    const matchPosition = normalizedPosition ? positionLower.includes(normalizedPosition) : true
-    const matchAgeGroup = matchesAgeGroup(player.age, filters.selectedAgeGroup)
-    const matchNationality = normalizedNationality ? countryLower === normalizedNationality : true
-    const matchClub = normalizedClubQuery ? clubLower.includes(normalizedClubQuery) : true
-    const matchMinAge = minAgeValue !== undefined ? player.age >= minAgeValue : true
-    const matchMaxAge = maxAgeValue !== undefined ? player.age <= maxAgeValue : true
-    const matchMinElo = minEloValue !== undefined ? player.elo >= minEloValue : true
-    const matchMaxElo = maxEloValue !== undefined ? player.elo <= maxEloValue : true
-    const matchMinValue = minValueAmount !== undefined ? marketValue >= minValueAmount : true
-    const matchMaxValue = maxValueAmount !== undefined ? marketValue <= maxValueAmount : true
+  const filtered = normalizedPlayers.filter(
+    ({ player, positionLower, countryLower, clubLower, marketValue }) => {
+      const matchPosition = normalizedPosition ? positionLower.includes(normalizedPosition) : true
+      const matchAgeGroup = matchesAgeGroup(player.age, filters.selectedAgeGroup)
+      const matchNationality = normalizedNationality ? countryLower === normalizedNationality : true
+      const matchClub = normalizedClubQuery ? clubLower.includes(normalizedClubQuery) : true
+      const matchMinAge = minAgeValue !== undefined ? player.age >= minAgeValue : true
+      const matchMaxAge = maxAgeValue !== undefined ? player.age <= maxAgeValue : true
+      const matchMinElo = minEloValue !== undefined ? player.elo >= minEloValue : true
+      const matchMaxElo = maxEloValue !== undefined ? player.elo <= maxEloValue : true
+      const matchMinValue = minValueAmount !== undefined ? marketValue >= minValueAmount : true
+      const matchMaxValue = maxValueAmount !== undefined ? marketValue <= maxValueAmount : true
 
-    return (
-      matchPosition &&
-      matchAgeGroup &&
-      matchNationality &&
-      matchClub &&
-      matchMinAge &&
-      matchMaxAge &&
-      matchMinElo &&
-      matchMaxElo &&
-      matchMinValue &&
-      matchMaxValue
-    )
-  })
+      return (
+        matchPosition &&
+        matchAgeGroup &&
+        matchNationality &&
+        matchClub &&
+        matchMinAge &&
+        matchMaxAge &&
+        matchMinElo &&
+        matchMaxElo &&
+        matchMinValue &&
+        matchMaxValue
+      )
+    },
+  )
 
   if (filters.sortBy === "default") {
     return filtered.map((entry) => entry.player)

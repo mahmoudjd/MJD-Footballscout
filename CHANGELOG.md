@@ -19,6 +19,11 @@ Meaningful changes to MJD Football Scout are documented here. The in-app version
 - Player history for ELO, market value and club changes.
 - Watchlists and side-by-side player comparison.
 - Help & What’s New center with workflow guidance and searchable FAQs.
+- Seven-stage recruitment pipeline with priorities, owners, deadlines and decision notes.
+- Weighted, position-specific scouting templates.
+- Squad replacement plans with automatically suggested successors.
+- Saved player searches with changing match counts and alerts.
+- Configurable Recruitment Fit Scores based on ELO, age, value and scouting progress.
 
 ### Changed
 

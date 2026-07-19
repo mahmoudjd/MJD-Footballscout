@@ -19,4 +19,8 @@ export const queryKeys = {
     all: ["shadow-teams"] as const,
     detail: (teamId: string) => ["shadow-teams", teamId] as const,
   },
+  recruitment: {
+    candidates: ["recruitment", "candidates"] as const,
+    workspace: ["recruitment", "workspace"] as const,
+  },
 } as const

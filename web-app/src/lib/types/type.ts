@@ -301,6 +301,81 @@ export const ShadowTeamUpdateInputSchema = ShadowTeamCreateInputSchema.extend({
   assignments: z.array(ShadowTeamAssignmentSchema),
 })
 
+export const RecruitmentStageSchema = z.enum([
+  "discovered",
+  "video_review",
+  "live_scouting",
+  "shortlist",
+  "approval",
+  "negotiation",
+  "rejected",
+])
+export const RecruitmentPrioritySchema = z.enum(["low", "medium", "high", "critical"])
+export const RecruitmentCandidateInputSchema = z.object({
+  playerId: z.string(),
+  stage: RecruitmentStageSchema,
+  priority: RecruitmentPrioritySchema,
+  assignee: z.string(),
+  deadline: z.coerce.date().nullable(),
+  notes: z.string(),
+})
+export const RecruitmentCandidateSchema = RecruitmentCandidateInputSchema.extend({
+  _id: z.string(),
+  userId: z.string(),
+  player: PlayerSchema.nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+export const WeightedCriterionSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  weight: z.number(),
+})
+export const RecruitmentTemplateSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  positionGroup: z.enum(["All", "Goalkeeper", "Defender", "Midfielder", "Forward"]),
+  criteria: z.array(WeightedCriterionSchema),
+})
+export const ReplacementPlanSchema = z.object({
+  id: z.string(),
+  incumbentPlayerId: z.string(),
+  reason: z.enum(["contract_end", "sale", "performance", "age", "depth"]),
+  targetPlayerIds: z.array(z.string()),
+  notes: z.string(),
+})
+export const SavedRecruitmentSearchSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  position: z.string(),
+  minAge: z.number().nullable(),
+  maxAge: z.number().nullable(),
+  minElo: z.number().nullable(),
+  maxElo: z.number().nullable(),
+  maxValue: z.number().nullable(),
+  alertsEnabled: z.boolean(),
+  lastMatchCount: z.number(),
+})
+export const FitProfileSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  targetAge: z.number(),
+  maxValue: z.number(),
+  weights: z.object({ elo: z.number(), age: z.number(), value: z.number(), scouting: z.number() }),
+})
+export const RecruitmentWorkspaceInputSchema = z.object({
+  templates: z.array(RecruitmentTemplateSchema),
+  replacementPlans: z.array(ReplacementPlanSchema),
+  savedSearches: z.array(SavedRecruitmentSearchSchema),
+  fitProfiles: z.array(FitProfileSchema),
+})
+export const RecruitmentWorkspaceSchema = RecruitmentWorkspaceInputSchema.extend({
+  _id: z.string(),
+  userId: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
 export type AttributeType = z.infer<typeof AttributeSchema>
 export type AwardType = z.infer<typeof AwardSchema>
 export type TransferType = z.infer<typeof TransferSchema>
@@ -336,3 +411,13 @@ export type ShadowTeamListItemType = z.infer<typeof ShadowTeamListItemSchema>
 export type ShadowTeamDetailType = z.infer<typeof ShadowTeamDetailSchema>
 export type ShadowTeamCreateInputType = z.infer<typeof ShadowTeamCreateInputSchema>
 export type ShadowTeamUpdateInputType = z.infer<typeof ShadowTeamUpdateInputSchema>
+export type RecruitmentStageType = z.infer<typeof RecruitmentStageSchema>
+export type RecruitmentPriorityType = z.infer<typeof RecruitmentPrioritySchema>
+export type RecruitmentCandidateInputType = z.infer<typeof RecruitmentCandidateInputSchema>
+export type RecruitmentCandidateType = z.infer<typeof RecruitmentCandidateSchema>
+export type RecruitmentTemplateType = z.infer<typeof RecruitmentTemplateSchema>
+export type ReplacementPlanType = z.infer<typeof ReplacementPlanSchema>
+export type SavedRecruitmentSearchType = z.infer<typeof SavedRecruitmentSearchSchema>
+export type FitProfileType = z.infer<typeof FitProfileSchema>
+export type RecruitmentWorkspaceInputType = z.infer<typeof RecruitmentWorkspaceInputSchema>
+export type RecruitmentWorkspaceType = z.infer<typeof RecruitmentWorkspaceSchema>
