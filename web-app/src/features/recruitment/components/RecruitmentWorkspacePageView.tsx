@@ -1,9 +1,12 @@
 "use client"
 
 import { useMemo, useState, type FormEvent } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
-import { Button } from "@/components/ui/button"
+import { OutlineIcons } from "@/components/icons/outline-icons"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { Chip } from "@/components/ui/chip"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Input } from "@/components/ui/input"
 import { LoginRequiredState } from "@/components/ui/login-required-state"
@@ -12,6 +15,7 @@ import { Panel } from "@/components/ui/panel"
 import { SectionHeader } from "@/components/ui/section-header"
 import { Select } from "@/components/ui/select"
 import { StatusState } from "@/components/ui/status-state"
+import { StatTile } from "@/components/ui/stat-tile"
 import { Text } from "@/components/ui/text"
 import { Textarea } from "@/components/ui/textarea"
 import { usePlayersQuery } from "@/features/players/hooks/usePlayersQuery"
@@ -21,6 +25,8 @@ import {
 } from "@/features/recruitment/hooks/useRecruitmentPipeline"
 import { useToast } from "@/lib/hooks/useToast"
 import { RecruitmentToolsPanel } from "@/features/recruitment/components/RecruitmentToolsPanel"
+import { cn } from "@/lib/cn"
+import { getPlayerImageSrc } from "@/lib/player-image"
 import type {
   RecruitmentCandidateInputType,
   RecruitmentCandidateType,
@@ -43,11 +49,30 @@ const priorityOptions = priorities.map((value) => ({
   value,
   label: `${value.charAt(0).toUpperCase()}${value.slice(1)}`,
 }))
+const priorityTone: Record<RecruitmentPriorityType, "neutral" | "amber" | "rose" | "danger"> = {
+  low: "neutral",
+  medium: "amber",
+  high: "rose",
+  critical: "danger",
+}
+const dateFormatter = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" })
 
 function toDateInput(date: Date | null) {
   if (!date) return ""
   const safeDate = date instanceof Date ? date : new Date(date)
   return Number.isNaN(safeDate.getTime()) ? "" : safeDate.toISOString().slice(0, 10)
+}
+
+function formatDeadline(date: Date | null) {
+  if (!date) return null
+  const safeDate = date instanceof Date ? date : new Date(date)
+  return Number.isNaN(safeDate.getTime()) ? null : dateFormatter.format(safeDate)
+}
+
+function isDeadlineOverdue(date: Date | null) {
+  if (!date) return false
+  const safeDate = date instanceof Date ? date : new Date(date)
+  return !Number.isNaN(safeDate.getTime()) && safeDate.getTime() < Date.now()
 }
 
 function candidatePayload(
@@ -78,127 +103,185 @@ function PipelineCard({
 }) {
   const [assignee, setAssignee] = useState(candidate.assignee)
   const [notes, setNotes] = useState(candidate.notes)
+  const [isEditing, setIsEditing] = useState(false)
   const player = candidate.player
+  const deadline = formatDeadline(candidate.deadline)
+  const detailsChanged = assignee !== candidate.assignee || notes !== candidate.notes
   return (
-    <article className="rounded-2xl border border-emerald-950/10 bg-white p-3.5 shadow-[0_14px_28px_-24px_rgba(15,50,36,0.55)]">
-      <div className="flex min-w-0 items-start justify-between gap-2">
-        <div className="min-w-0">
+    <article className="group overflow-hidden rounded-2xl border border-emerald-950/10 bg-white shadow-[0_16px_32px_-26px_rgba(15,50,36,0.52)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-800/20 hover:shadow-[0_22px_38px_-26px_rgba(15,50,36,0.48)] motion-reduce:transform-none">
+      <div className="p-3.5">
+        <div className="flex min-w-0 items-start gap-3">
           {player ? (
-            <Link
-              href={`/players/${player._id}`}
-              className="block truncate font-bold text-emerald-950 hover:underline"
-            >
-              {player.name}
-            </Link>
+            <Image
+              src={getPlayerImageSrc(player.image)}
+              alt=""
+              width={44}
+              height={44}
+              className="h-11 w-11 shrink-0 rounded-xl border border-emerald-950/10 bg-emerald-50 object-cover"
+              sizes="44px"
+            />
           ) : (
-            <Text as="p" variant="body" weight="bold">
-              Unavailable player
-            </Text>
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-400">
+              <OutlineIcons.UserIcon className="h-5 w-5" aria-hidden="true" />
+            </div>
           )}
-          <Text as="p" variant="caption" tone="muted" className="truncate">
-            {player?.position || "Unknown position"} ·{" "}
-            {player?.currentClub || player?.country || "No club"}
-          </Text>
+          <div className="min-w-0 flex-1">
+            {player ? (
+              <Link
+                href={`/players/${player._id}`}
+                className="block truncate font-bold text-emerald-950 hover:text-emerald-700 hover:underline focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
+              >
+                {player.name}
+              </Link>
+            ) : (
+              <Text as="p" variant="body" weight="bold">
+                Unavailable player
+              </Text>
+            )}
+            <Text as="p" variant="caption" tone="muted" className="truncate">
+              {player?.position || "Unknown position"} ·{" "}
+              {player?.currentClub || player?.country || "No club"}
+            </Text>
+          </div>
+          <span className="shrink-0 rounded-lg bg-emerald-950 px-2 py-1 text-[11px] font-extrabold text-white tabular-nums">
+            {player?.elo || "—"}
+            <span className="ml-1 text-[9px] font-semibold text-emerald-100">ELO</span>
+          </span>
         </div>
-        <span className="rounded-full bg-emerald-950 px-2 py-1 text-[10px] font-extrabold text-white tabular-nums">
-          {player?.elo || "—"} ELO
-        </span>
+
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <Chip tone={priorityTone[candidate.priority]} size="xs" className="capitalize">
+            {candidate.priority} priority
+          </Chip>
+          {candidate.assignee ? (
+            <Chip tone="neutral" size="xs">
+              {candidate.assignee}
+            </Chip>
+          ) : null}
+          {deadline ? (
+            <Chip tone={isDeadlineOverdue(candidate.deadline) ? "danger" : "neutral"} size="xs">
+              {isDeadlineOverdue(candidate.deadline) ? "Overdue" : "Due"} {deadline}
+            </Chip>
+          ) : null}
+        </div>
+
+        <div className="mt-3 grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
+          <div className="space-y-1">
+            <label
+              htmlFor={`candidate-stage-${candidate._id}`}
+              className="block text-xs font-semibold text-emerald-950"
+            >
+              Stage
+            </label>
+            <Select
+              id={`candidate-stage-${candidate._id}`}
+              value={candidate.stage}
+              onValueChange={(value) =>
+                onUpdate(candidatePayload(candidate, { stage: value as RecruitmentStageType }))
+              }
+              disabled={pending}
+              options={stageOptions}
+              ariaLabel="Candidate stage"
+              triggerClassName="h-9 min-h-9 rounded-lg px-2 text-xs"
+            />
+          </div>
+          <div className="space-y-1">
+            <label
+              htmlFor={`candidate-priority-${candidate._id}`}
+              className="block text-xs font-semibold text-emerald-950"
+            >
+              Priority
+            </label>
+            <Select
+              id={`candidate-priority-${candidate._id}`}
+              value={candidate.priority}
+              onValueChange={(value) =>
+                onUpdate(
+                  candidatePayload(candidate, {
+                    priority: value as RecruitmentPriorityType,
+                  }),
+                )
+              }
+              disabled={pending}
+              options={priorityOptions}
+              ariaLabel="Candidate priority"
+              triggerClassName="h-9 min-h-9 rounded-lg px-2 text-xs"
+            />
+          </div>
+        </div>
+
+        {candidate.notes ? (
+          <Text as="p" variant="caption" tone="muted" className="mt-3 line-clamp-2 text-pretty">
+            {candidate.notes}
+          </Text>
+        ) : null}
+
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-emerald-950/8 pt-3">
+          <Button
+            size="xs"
+            variant="ghost"
+            aria-expanded={isEditing}
+            onClick={() => setIsEditing((current) => !current)}
+          >
+            <OutlineIcons.AdjustmentsVerticalIcon className="h-4 w-4" aria-hidden="true" />
+            {isEditing ? "Close Details" : "Edit Details"}
+          </Button>
+          <Button size="xs" variant="ghost" onClick={onDelete}>
+            Remove
+          </Button>
+        </div>
       </div>
 
-      <div className="mt-3 grid gap-2">
-        <div className="space-y-1">
-          <label
-            htmlFor={`candidate-stage-${candidate._id}`}
-            className="block text-xs font-semibold text-emerald-950"
-          >
-            Stage
+      {isEditing ? (
+        <div className="grid gap-3 border-t border-emerald-950/8 bg-emerald-50/40 p-3.5">
+          <label className="space-y-1 text-xs font-semibold text-emerald-950">
+            Assignee
+            <Input
+              value={assignee}
+              onChange={(event) => setAssignee(event.target.value)}
+              placeholder="Scout name…"
+              name={`assignee-${candidate._id}`}
+              autoComplete="off"
+            />
           </label>
-          <Select
-            id={`candidate-stage-${candidate._id}`}
-            value={candidate.stage}
-            onValueChange={(value) =>
-              onUpdate(candidatePayload(candidate, { stage: value as RecruitmentStageType }))
-            }
-            disabled={pending}
-            options={stageOptions}
-            ariaLabel="Candidate stage"
-            triggerClassName="h-9 min-h-9 rounded-lg px-2 text-xs"
-          />
-        </div>
-        <div className="space-y-1">
-          <label
-            htmlFor={`candidate-priority-${candidate._id}`}
-            className="block text-xs font-semibold text-emerald-950"
-          >
-            Priority
+          <label className="space-y-1 text-xs font-semibold text-emerald-950">
+            Deadline
+            <Input
+              type="date"
+              value={toDateInput(candidate.deadline)}
+              onChange={(event) =>
+                onUpdate(
+                  candidatePayload(candidate, {
+                    deadline: event.target.value
+                      ? new Date(`${event.target.value}T12:00:00`)
+                      : null,
+                  }),
+                )
+              }
+              name={`deadline-${candidate._id}`}
+            />
           </label>
-          <Select
-            id={`candidate-priority-${candidate._id}`}
-            value={candidate.priority}
-            onValueChange={(value) =>
-              onUpdate(
-                candidatePayload(candidate, {
-                  priority: value as RecruitmentPriorityType,
-                }),
-              )
-            }
-            disabled={pending}
-            options={priorityOptions}
-            ariaLabel="Candidate priority"
-            triggerClassName="h-9 min-h-9 rounded-lg px-2 text-xs"
-          />
+          <label className="space-y-1 text-xs font-semibold text-emerald-950">
+            Notes
+            <Textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Add decision context…"
+              name={`notes-${candidate._id}`}
+              autoComplete="off"
+              rows={3}
+            />
+          </label>
+          <Button
+            size="xs"
+            fullWidth
+            disabled={pending || !detailsChanged}
+            onClick={() => onUpdate(candidatePayload(candidate, { assignee, notes }))}
+          >
+            Save Candidate Details
+          </Button>
         </div>
-        <label className="space-y-1 text-xs font-semibold text-emerald-950">
-          Assignee
-          <Input
-            value={assignee}
-            onChange={(event) => setAssignee(event.target.value)}
-            onBlur={() =>
-              assignee !== candidate.assignee && onUpdate(candidatePayload(candidate, { assignee }))
-            }
-            placeholder="Scout name…"
-            name={`assignee-${candidate._id}`}
-            autoComplete="off"
-          />
-        </label>
-        <label className="space-y-1 text-xs font-semibold text-emerald-950">
-          Deadline
-          <Input
-            type="date"
-            value={toDateInput(candidate.deadline)}
-            onChange={(event) =>
-              onUpdate(
-                candidatePayload(candidate, {
-                  deadline: event.target.value ? new Date(`${event.target.value}T12:00:00`) : null,
-                }),
-              )
-            }
-            name={`deadline-${candidate._id}`}
-          />
-        </label>
-        <label className="space-y-1 text-xs font-semibold text-emerald-950">
-          Notes
-          <Textarea
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            placeholder="Add decision context…"
-            rows={3}
-          />
-        </label>
-      </div>
-      <div className="mt-3 flex gap-2">
-        <Button
-          size="xs"
-          fullWidth
-          disabled={pending || notes === candidate.notes}
-          onClick={() => onUpdate(candidatePayload(candidate, { notes }))}
-        >
-          Save Notes
-        </Button>
-        <Button size="xs" variant="ghost" onClick={onDelete}>
-          Remove
-        </Button>
-      </div>
+      ) : null}
     </article>
   )
 }
@@ -235,6 +318,34 @@ export function RecruitmentWorkspacePageView() {
     ],
     [availablePlayers],
   )
+  const candidatesByStage = useMemo(
+    () =>
+      new Map(
+        stages.map((stage) => [
+          stage.value,
+          candidates.filter((candidate) => candidate.stage === stage.value),
+        ]),
+      ),
+    [candidates],
+  )
+  const pipelineMetrics = useMemo(() => {
+    const now = Date.now()
+    const nextWeek = now + 7 * 24 * 60 * 60 * 1000
+    return {
+      active: candidates.filter((candidate) => candidate.stage !== "rejected").length,
+      decisionReady: candidates.filter((candidate) =>
+        ["shortlist", "approval", "negotiation"].includes(candidate.stage),
+      ).length,
+      critical: candidates.filter(
+        (candidate) => candidate.priority === "critical" && candidate.stage !== "rejected",
+      ).length,
+      dueSoon: candidates.filter((candidate) => {
+        if (!candidate.deadline || candidate.stage === "rejected") return false
+        const time = new Date(candidate.deadline).getTime()
+        return !Number.isNaN(time) && time <= nextWeek
+      }).length,
+    }
+  }, [candidates])
 
   const handleCreate = (event: FormEvent) => {
     event.preventDefault()
@@ -275,51 +386,96 @@ export function RecruitmentWorkspacePageView() {
     <PageContainer size="wide" className="space-y-6">
       <SectionHeader
         title="Recruitment Workspace"
-        description="Move every target through a clear, accountable recruitment process."
+        description="A single decision workspace for scouting ownership, deadlines and candidate progression."
         icon="RocketLaunchIcon"
         badge={`${candidates.length} candidates`}
+        right={
+          <>
+            <Link href="/players" className={buttonVariants({ variant: "outline", size: "sm" })}>
+              Browse Players
+            </Link>
+            <Link
+              href="/shadow-team"
+              className={buttonVariants({ variant: "primary", size: "sm" })}
+            >
+              Open Shadow Team
+            </Link>
+          </>
+        }
       />
-      <RecruitmentToolsPanel players={playersQuery.data ?? []} candidates={candidates} />
-      <Panel>
-        <form
-          onSubmit={handleCreate}
-          className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_auto] lg:items-end"
-        >
-          <div className="space-y-1.5">
-            <label
-              htmlFor="recruitment-player"
-              className="block text-sm font-semibold text-emerald-950"
-            >
-              Add Player
-            </label>
-            <Select
-              id="recruitment-player"
-              value={playerId}
-              onValueChange={setPlayerId}
-              options={availablePlayerOptions}
-              placeholder="Choose a player…"
-              ariaLabel="Add player"
-            />
+
+      <section
+        aria-label="Recruitment overview"
+        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+      >
+        <StatTile label="Active Pipeline" value={pipelineMetrics.active} />
+        <StatTile label="Decision Ready" value={pipelineMetrics.decisionReady} />
+        <StatTile label="Critical Priority" value={pipelineMetrics.critical} />
+        <StatTile label="Due or Overdue" value={pipelineMetrics.dueSoon} />
+      </section>
+
+      <Panel
+        tone="soft"
+        className="overflow-hidden border-emerald-900/15 bg-linear-to-br from-emerald-950 via-emerald-900 to-emerald-800 text-white"
+      >
+        <div className="grid gap-5 xl:grid-cols-[18rem_minmax(0,1fr)] xl:items-end">
+          <div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime-300 text-emerald-950 shadow-lg shadow-emerald-950/20">
+              <OutlineIcons.UserGroupIcon className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <Text as="h2" variant="h2" weight="extrabold" tone="inherit" className="mt-3">
+              Add a Recruitment Target
+            </Text>
+            <Text as="p" variant="body" tone="inherit" className="mt-1 text-emerald-100/80">
+              Start in discovery, set urgency and assign ownership from the candidate card.
+            </Text>
           </div>
-          <div className="space-y-1.5">
-            <label
-              htmlFor="recruitment-priority"
-              className="block text-sm font-semibold text-emerald-950"
+          <form
+            onSubmit={handleCreate}
+            className="grid gap-3 rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm lg:grid-cols-[minmax(0,1fr)_12rem_auto] lg:items-end"
+          >
+            <div className="space-y-1.5">
+              <label
+                htmlFor="recruitment-player"
+                className="block text-sm font-semibold text-white"
+              >
+                Add Player
+              </label>
+              <Select
+                id="recruitment-player"
+                value={playerId}
+                onValueChange={setPlayerId}
+                options={availablePlayerOptions}
+                placeholder="Choose a player…"
+                ariaLabel="Add player"
+                tone="glass"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label
+                htmlFor="recruitment-priority"
+                className="block text-sm font-semibold text-white"
+              >
+                Priority
+              </label>
+              <Select
+                id="recruitment-priority"
+                value={priority}
+                onValueChange={(value) => setPriority(value as RecruitmentPriorityType)}
+                options={priorityOptions}
+                ariaLabel="Priority"
+                tone="glass"
+              />
+            </div>
+            <Button
+              type="submit"
+              variant="secondary"
+              disabled={!playerId || mutations.create.isPending}
             >
-              Priority
-            </label>
-            <Select
-              id="recruitment-priority"
-              value={priority}
-              onValueChange={(value) => setPriority(value as RecruitmentPriorityType)}
-              options={priorityOptions}
-              ariaLabel="Priority"
-            />
-          </div>
-          <Button type="submit" disabled={!playerId || mutations.create.isPending}>
-            Add To Pipeline
-          </Button>
-        </form>
+              {mutations.create.isPending ? "Adding Target…" : "Add Target"}
+            </Button>
+          </form>
+        </div>
       </Panel>
 
       {candidatesQuery.isLoading ? (
@@ -346,62 +502,97 @@ export function RecruitmentWorkspacePageView() {
       ) : null}
 
       {candidates.length ? (
-        <div className="overflow-x-auto overscroll-x-contain pb-4">
-          <div className="grid min-w-[112rem] grid-cols-7 gap-4">
-            {stages.map((stage) => {
-              const stageCandidates = candidates.filter(
-                (candidate) => candidate.stage === stage.value,
-              )
-              return (
-                <section
-                  key={stage.value}
-                  className="rounded-3xl border border-emerald-950/8 bg-emerald-50/45 p-3"
-                >
-                  <div className="mb-3 flex items-start justify-between gap-2 px-1">
-                    <div>
-                      <Text as="h2" variant="title" weight="bold">
-                        {stage.label}
-                      </Text>
+        <section aria-labelledby="pipeline-title" className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <Text id="pipeline-title" as="h2" variant="h2" weight="extrabold">
+                Candidate Pipeline
+              </Text>
+              <Text as="p" variant="body" tone="muted" className="mt-1">
+                Update the stage directly on each card. Scroll horizontally to review the full flow.
+              </Text>
+            </div>
+            <div className="flex flex-wrap items-center gap-2" aria-label="Pipeline status summary">
+              {stages.map((stage) => (
+                <Chip key={stage.value} tone="neutral" size="xs">
+                  {stage.label} {candidatesByStage.get(stage.value)?.length ?? 0}
+                </Chip>
+              ))}
+            </div>
+          </div>
+
+          <div className="overflow-x-auto overscroll-x-contain pb-4">
+            <div className="grid min-w-[133rem] grid-cols-7 gap-4">
+              {stages.map((stage) => {
+                const stageCandidates = candidatesByStage.get(stage.value) ?? []
+                return (
+                  <section
+                    key={stage.value}
+                    aria-labelledby={`stage-${stage.value}`}
+                    className={cn(
+                      "min-w-0 rounded-3xl border border-emerald-950/8 bg-emerald-50/35 p-3",
+                      stage.value === "rejected" && "bg-stone-100/70",
+                    )}
+                  >
+                    <div className="mb-3 border-b border-emerald-950/8 px-1 pb-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <Text id={`stage-${stage.value}`} as="h3" variant="title" weight="bold">
+                          {stage.label}
+                        </Text>
+                        <span className="flex h-7 min-w-7 items-center justify-center rounded-lg bg-white px-2 text-xs font-extrabold text-emerald-900 tabular-nums shadow-sm">
+                          {stageCandidates.length}
+                        </span>
+                      </div>
                       <Text as="p" variant="caption" tone="muted">
                         {stage.description}
                       </Text>
                     </div>
-                    <span className="rounded-full bg-white px-2 py-1 text-xs font-bold text-emerald-800 tabular-nums">
-                      {stageCandidates.length}
-                    </span>
-                  </div>
-                  <div className="space-y-3">
-                    {stageCandidates.map((candidate) => (
-                      <PipelineCard
-                        key={candidate._id}
-                        candidate={candidate}
-                        pending={mutations.update.isPending}
-                        onUpdate={(payload) =>
-                          mutations.update.mutate(
-                            { id: candidate._id, payload },
-                            { onError: () => toast.error("Candidate could not be updated") },
-                          )
-                        }
-                        onDelete={() => setCandidateToDelete(candidate)}
-                      />
-                    ))}
-                    {!stageCandidates.length ? (
-                      <Text
-                        as="p"
-                        variant="caption"
-                        tone="muted"
-                        className="rounded-2xl border border-dashed border-emerald-950/15 bg-white/60 p-4 text-center"
-                      >
-                        No candidates
-                      </Text>
-                    ) : null}
-                  </div>
-                </section>
-              )
-            })}
+                    <div className="space-y-3">
+                      {stageCandidates.map((candidate) => (
+                        <PipelineCard
+                          key={candidate._id}
+                          candidate={candidate}
+                          pending={mutations.update.isPending}
+                          onUpdate={(payload) =>
+                            mutations.update.mutate(
+                              { id: candidate._id, payload },
+                              { onError: () => toast.error("Candidate could not be updated") },
+                            )
+                          }
+                          onDelete={() => setCandidateToDelete(candidate)}
+                        />
+                      ))}
+                      {!stageCandidates.length ? (
+                        <Text
+                          as="p"
+                          variant="caption"
+                          tone="muted"
+                          className="rounded-2xl border border-dashed border-emerald-950/15 bg-white/60 p-4 text-center"
+                        >
+                          No Candidates
+                        </Text>
+                      ) : null}
+                    </div>
+                  </section>
+                )
+              })}
+            </div>
           </div>
-        </div>
+        </section>
       ) : null}
+
+      <section aria-labelledby="intelligence-title" className="space-y-3">
+        <div>
+          <Text id="intelligence-title" as="h2" variant="h2" weight="extrabold">
+            Recruitment Intelligence
+          </Text>
+          <Text as="p" variant="body" tone="muted" className="mt-1 max-w-3xl">
+            Build reusable scouting standards, replacement scenarios, alerts and club-specific fit
+            models.
+          </Text>
+        </div>
+        <RecruitmentToolsPanel players={playersQuery.data ?? []} candidates={candidates} />
+      </section>
 
       <ConfirmDialog
         open={Boolean(candidateToDelete)}
