@@ -11,6 +11,7 @@ import { LoginRequiredState } from "@/components/ui/login-required-state"
 import { PageContainer } from "@/components/ui/page-container"
 import { Panel } from "@/components/ui/panel"
 import { SectionHeader } from "@/components/ui/section-header"
+import { Select } from "@/components/ui/select"
 import { StatusState } from "@/components/ui/status-state"
 import { Text } from "@/components/ui/text"
 import { usePlayersQuery } from "@/features/players/hooks/usePlayersQuery"
@@ -29,6 +30,7 @@ import type {
 } from "@/lib/types/type"
 
 const formations: ShadowTeamFormationType[] = ["4-3-3", "4-2-3-1", "4-4-2", "3-5-2"]
+const formationOptions = formations.map((formation) => ({ value: formation, label: formation }))
 const currencyFormatter = new Intl.NumberFormat("en-GB", {
   style: "currency",
   currency: "EUR",
@@ -282,18 +284,13 @@ export function ShadowTeamPageView() {
                 >
                   Formation
                 </label>
-                <select
+                <Select
                   id="shadow-team-formation"
                   value={newFormation}
-                  onChange={(event) =>
-                    setNewFormation(event.target.value as ShadowTeamFormationType)
-                  }
-                  className="min-h-11 w-full rounded-xl border border-emerald-950/15 bg-white px-3.5 py-2.5 text-sm font-medium text-emerald-950 shadow-sm focus-visible:border-emerald-700 focus-visible:ring-3 focus-visible:ring-lime-300/35 focus-visible:outline-none"
-                >
-                  {formations.map((formation) => (
-                    <option key={formation}>{formation}</option>
-                  ))}
-                </select>
+                  onValueChange={(value) => setNewFormation(value as ShadowTeamFormationType)}
+                  options={formationOptions}
+                  ariaLabel="Formation"
+                />
               </div>
               <Button
                 type="submit"
