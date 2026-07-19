@@ -1,4 +1,29 @@
 import type { PlayerType } from "@/lib/types/type"
+import { parseCompactCurrency } from "@/features/players/lib/player-filtering"
+
+const CURRENCY_CODES_BY_SYMBOL = {
+  "€": "EUR",
+  "$": "USD",
+  "£": "GBP",
+  "¥": "JPY",
+} as const
+
+const CURRENCY_SYMBOL_PATTERN = /[€$£¥]/
+const MARKET_VALUE_FORMATTERS = new Map<string, Intl.NumberFormat>()
+
+function getMarketValueFormatter(currency: string) {
+  const cachedFormatter = MARKET_VALUE_FORMATTERS.get(currency)
+  if (cachedFormatter) return cachedFormatter
+
+  const formatter = new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency,
+    notation: "compact",
+    maximumFractionDigits: 2,
+  })
+  MARKET_VALUE_FORMATTERS.set(currency, formatter)
+  return formatter
+}
 
 export type KnownPosition = "Forward" | "Midfielder" | "Defender" | "Goalkeeper" | "Manager"
 
@@ -29,12 +54,22 @@ export function getPlayerDisplayName(player: Pick<PlayerType, "title" | "name">)
 }
 
 export function formatMarketValue(value: unknown, currency?: unknown) {
-  const amount = toText(value, "")
-  if (!amount) return "N/A"
-  if (/[€$£]/.test(amount)) return amount
+  const amount = parseCompactCurrency(value, currency)
+  if (amount <= 0) return "N/A"
 
   const currencyText = typeof currency === "string" ? currency.trim() : ""
-  return currencyText ? `${currencyText} ${amount}` : amount
+  const sourceText = `${toText(value, "")} ${currencyText}`
+  const symbol = sourceText.match(CURRENCY_SYMBOL_PATTERN)?.[0]
+  const currencyCode = symbol
+    ? CURRENCY_CODES_BY_SYMBOL[symbol as keyof typeof CURRENCY_CODES_BY_SYMBOL]
+    : currencyText.match(/\b(?:EUR|USD|GBP|JPY)\b/i)?.[0].toUpperCase()
+
+  if (!currencyCode) return toText(value, "N/A")
+
+  return getMarketValueFormatter(currencyCode)
+    .formatToParts(amount)
+    .map((part) => (part.type === "compact" ? part.value.toUpperCase() : part.value))
+    .join("")
 }
 
 export function formatAge(value: unknown) {
