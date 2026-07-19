@@ -5,6 +5,7 @@ export type NavLink = {
   label: string
   icon: keyof typeof OutlineIcons
   authRequired?: boolean
+  compactUntilWide?: boolean
 }
 
 export const navLinks: NavLink[] = [
@@ -13,4 +14,10 @@ export const navLinks: NavLink[] = [
   { href: "/search", label: "Search", icon: "SparklesIcon" },
   { href: "/compare", label: "Compare", icon: "ArrowsRightLeftIcon", authRequired: true },
   { href: "/watchlists", label: "Watchlists", icon: "HeartIcon", authRequired: true },
+  {
+    href: "/help",
+    label: "Help",
+    icon: "QuestionMarkCircleIcon",
+    compactUntilWide: true,
+  },
 ]

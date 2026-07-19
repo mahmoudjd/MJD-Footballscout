@@ -77,7 +77,11 @@ const Header = () => {
                   }
                 >
                   <Icon className="h-4 w-4" />
-                  <Text as="span" tone="inherit">
+                  <Text
+                    as="span"
+                    tone="inherit"
+                    className={link.compactUntilWide ? "sr-only xl:not-sr-only" : undefined}
+                  >
                     {link.label}
                   </Text>
                 </span>
