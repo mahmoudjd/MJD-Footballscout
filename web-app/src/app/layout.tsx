@@ -13,7 +13,8 @@ export const metadata: Metadata = {
     default: "MJD Football Scout",
     template: "%s | MJD Football Scout",
   },
-  description: "Scout, compare, and organize football talent with live player intelligence.",
+  description:
+    "Discover, compare, and shortlist football talent with player intelligence, Shadow Teams, and structured recruitment workflows.",
   icons: {
     icon: "/favicon.ico",
   },
