@@ -6,6 +6,7 @@ import {
   createFeatureRequestLogger,
   logFeatureError,
 } from "../../middleware/feature-request-logger";
+import { disablePrivateApiCaching } from "../../middleware/private-api-cache";
 import { createPremiumAccessMiddleware } from "../../middleware/premium-middleware";
 import { AuthenticatedRequest } from "../../shared/auth";
 import { ApiError } from "../players/scouting.controller";
@@ -48,6 +49,7 @@ function fail(
 
 export default function createRecruitmentRouter(context: AppContext) {
   const router = express.Router();
+  router.use(disablePrivateApiCaching);
   router.use(createFeatureRequestLogger("recruitment"));
   router.use(authMiddleware);
   router.use(createPremiumAccessMiddleware(context, "recruitment"));
