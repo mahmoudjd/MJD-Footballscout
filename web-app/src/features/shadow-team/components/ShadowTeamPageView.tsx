@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Input } from "@/components/ui/input"
 import { LoginRequiredState } from "@/components/ui/login-required-state"
+import { PremiumRequiredState } from "@/components/ui/premium-required-state"
 import { PageContainer } from "@/components/ui/page-container"
 import { Panel } from "@/components/ui/panel"
 import { SectionHeader } from "@/components/ui/section-header"
@@ -15,6 +16,7 @@ import { Select } from "@/components/ui/select"
 import { StatusState } from "@/components/ui/status-state"
 import { Text } from "@/components/ui/text"
 import { usePlayersQuery } from "@/features/players/hooks/usePlayersQuery"
+import { useBillingStatus } from "@/features/billing/hooks/useBilling"
 import {
   useShadowTeamMutations,
   useShadowTeamQuery,
@@ -114,15 +116,17 @@ export function ShadowTeamPageView() {
   const { status, data: session } = useSession()
   const isLoggedIn = Boolean(session?.user?.id)
   const toast = useToast()
-  const teamsQuery = useShadowTeamsQuery(isLoggedIn)
-  const playersQuery = usePlayersQuery(isLoggedIn)
+  const billingQuery = useBillingStatus(isLoggedIn)
+  const premiumEnabled = isLoggedIn && billingQuery.data?.isPremium === true
+  const teamsQuery = useShadowTeamsQuery(premiumEnabled)
+  const playersQuery = usePlayersQuery(premiumEnabled)
   const [selectedTeamId, setSelectedTeamId] = useState("")
   const [selectedSlotId, setSelectedSlotId] = useState("")
   const [newName, setNewName] = useState("")
   const [newFormation, setNewFormation] = useState<ShadowTeamFormationType>("4-3-3")
   const [playerSearch, setPlayerSearch] = useState("")
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const detailsQuery = useShadowTeamQuery(selectedTeamId, isLoggedIn)
+  const detailsQuery = useShadowTeamQuery(selectedTeamId, premiumEnabled)
   const mutations = useShadowTeamMutations()
   const teams = useMemo(() => teamsQuery.data ?? [], [teamsQuery.data])
   const detail = detailsQuery.data
@@ -241,6 +245,47 @@ export function ShadowTeamPageView() {
         <LoginRequiredState
           callbackUrl="/shadow-team"
           description="Sign in to create and save your Shadow Teams."
+        />
+      </PageContainer>
+    )
+  }
+
+  if (billingQuery.isLoading) {
+    return (
+      <PageContainer>
+        <Panel>
+          <StatusState tone="loading" title="Checking Premium access…" />
+        </Panel>
+      </PageContainer>
+    )
+  }
+
+  if (billingQuery.isError) {
+    return (
+      <PageContainer>
+        <Panel>
+          <StatusState
+            tone="error"
+            title="Premium access could not be checked"
+            description="Please check the backend connection and try again."
+          />
+        </Panel>
+      </PageContainer>
+    )
+  }
+
+  if (!premiumEnabled) {
+    return (
+      <PageContainer className="space-y-4">
+        <SectionHeader
+          title="Shadow Team"
+          description="Build formations and assess recruitment gaps."
+          icon="Squares2X2Icon"
+          badge="Premium"
+        />
+        <PremiumRequiredState
+          feature="Shadow Team"
+          description="Create formations, identify missing or duplicate positions, and compare the strongest alternatives for every role."
         />
       </PageContainer>
     )

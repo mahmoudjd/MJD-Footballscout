@@ -170,6 +170,12 @@ export const faqGroups: FaqGroup[] = [
         answer:
           "Your account remains stored for auditing but is marked as deactivated. Sign-in and authenticated API access are blocked until an administrator reactivates it.",
       },
+      {
+        id: "premium-billing",
+        question: "How do I activate or manage Premium?",
+        answer:
+          "Open Premium & Billing, then continue to secure Stripe Checkout. After payment, Stripe synchronizes your access automatically. Use Manage subscription on the same page to update payment details or cancel through the Stripe Customer Portal.",
+      },
     ],
   },
 ]
@@ -177,7 +183,7 @@ export const faqGroups: FaqGroup[] = [
 export const releaseNotes: ReleaseNote[] = [
   {
     version: "3.0",
-    date: "2026-07-18",
+    date: "2026-07-19",
     title: "Complete Scouting Workspace",
     summary:
       "A major update combining recruitment planning, player intelligence, account security and a unified scouting experience.",
@@ -195,6 +201,7 @@ export const releaseNotes: ReleaseNote[] = [
       "Plan squad replacements with automatically suggested successors for vulnerable positions.",
       "Save talent searches, monitor changing match counts and surface new-player alerts.",
       "Rank the database with configurable Recruitment Fit Scores combining ELO, age, value and scouting progress.",
+      "Unlock Shadow Team and Recruitment Workspace with MJD Scout Premium using secure Stripe Checkout, webhook-synchronized access and self-service subscription management.",
     ],
     featured: true,
   },
