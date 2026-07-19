@@ -2,6 +2,7 @@
   "name": "mobile-app",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "description": "Expo mobile client for the MJD Football Scout player intelligence and recruitment platform.",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
