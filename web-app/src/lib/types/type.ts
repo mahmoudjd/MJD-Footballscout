@@ -53,15 +53,18 @@ export const PlayerSchema = z.object({
 })
 
 const PlayerReferenceStringSchema = z
-  .union([z.string(), z.null(), z.undefined()])
+  .string()
+  .nullish()
   .transform((value) => value ?? "")
+  .default("")
 
 const PlayerReferenceNumberSchema = z
-  .union([z.number(), z.string(), z.null(), z.undefined()])
+  .union([z.number(), z.string(), z.null()])
   .transform((value) => {
     const parsed = Number(value)
     return Number.isFinite(parsed) ? parsed : 0
   })
+  .default(0)
 
 /**
  * Compact player data embedded in recruitment and Shadow Team responses.
