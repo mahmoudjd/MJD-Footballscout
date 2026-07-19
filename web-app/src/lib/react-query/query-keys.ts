@@ -15,4 +15,8 @@ export const queryKeys = {
     all: ["watchlists"] as const,
     detail: (watchlistId: string) => ["watchlists", watchlistId] as const,
   },
+  shadowTeams: {
+    all: ["shadow-teams"] as const,
+    detail: (teamId: string) => ["shadow-teams", teamId] as const,
+  },
 } as const

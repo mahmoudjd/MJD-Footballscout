@@ -108,6 +108,20 @@ export function MobileTabBar() {
 
           <div className="mt-4 grid gap-2">
             <Link
+              href={
+                status === "authenticated"
+                  ? "/shadow-team"
+                  : `/login?callbackUrl=${encodeURIComponent("/shadow-team")}`
+              }
+              prefetch={false}
+              onClick={() => setIsMoreOpen(false)}
+              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/70 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
+            >
+              <OutlineIcons.Squares2X2Icon className="h-5 w-5" aria-hidden="true" />
+              Shadow Team
+            </Link>
+
+            <Link
               href="/help"
               prefetch={false}
               onClick={() => setIsMoreOpen(false)}
