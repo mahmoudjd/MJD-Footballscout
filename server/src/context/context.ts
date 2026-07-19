@@ -8,6 +8,8 @@ import {PlayerHistory} from "../modules/players/player-history.model";
 import {Watchlist} from "../modules/watchlists/watchlist.model";
 import logger from "../logger/logger";
 import {ShadowTeam} from "../modules/shadow-teams/shadow-team.model";
+import {RecruitmentCandidate} from "../modules/recruitment/recruitment-candidate.model";
+import {RecruitmentWorkspace} from "../modules/recruitment/recruitment-workspace.model";
 
 export async function createContext({
                                             mongoURI,
@@ -26,6 +28,8 @@ export async function createContext({
     const playerHistories = db.collection<PlayerHistory>("playerHistories");
     const watchlists = db.collection<Watchlist>("watchlists");
     const shadowTeams = db.collection<ShadowTeam>("shadowTeams");
+    const recruitmentCandidates = db.collection<RecruitmentCandidate>("recruitmentCandidates");
+    const recruitmentWorkspaces = db.collection<RecruitmentWorkspace>("recruitmentWorkspaces");
 
     await players.createIndex({fullName: 1});
     await players.createIndex({name: 1});
@@ -46,6 +50,8 @@ export async function createContext({
     );
     await watchlists.createIndex({userId: 1, updatedAt: -1});
     await shadowTeams.createIndex({userId: 1, updatedAt: -1});
+    await recruitmentCandidates.createIndex({userId: 1, playerId: 1}, {unique: true});
+    await recruitmentWorkspaces.createIndex({userId: 1}, {unique: true});
     await scoutingReports.createIndex({playerId: 1, updatedAt: -1});
     await scoutingReports.createIndex({userId: 1, updatedAt: -1});
     await playerHistories.createIndex({playerId: 1, timestamp: -1});
@@ -79,6 +85,10 @@ export async function createContext({
         watchlists,
         // @ts-ignore
         shadowTeams,
+        // @ts-ignore
+        recruitmentCandidates,
+        // @ts-ignore
+        recruitmentWorkspaces,
         config,
         httpClient
     };

@@ -22,6 +22,13 @@ export const navLinks: NavLink[] = [
     compactUntilWide: true,
   },
   {
+    href: "/recruitment",
+    label: "Recruitment",
+    icon: "RocketLaunchIcon",
+    authRequired: true,
+    compactUntilWide: true,
+  },
+  {
     href: "/help",
     label: "Help",
     icon: "QuestionMarkCircleIcon",
