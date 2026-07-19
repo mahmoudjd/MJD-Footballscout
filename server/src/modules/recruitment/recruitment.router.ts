@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { AppContext } from "../../context/types";
 import logger from "../../logger/logger";
 import { authMiddleware } from "../../middleware/auth-middleware";
+import { createPremiumAccessMiddleware } from "../../middleware/premium-middleware";
 import { AuthenticatedRequest } from "../../shared/auth";
 import { ApiError } from "../players/scouting.controller";
 import {
@@ -36,6 +37,7 @@ function fail(error: unknown, res: Response) {
 export default function createRecruitmentRouter(context: AppContext) {
   const router = express.Router();
   router.use(authMiddleware);
+  router.use(createPremiumAccessMiddleware(context));
 
   router.get("/candidates", async (req, res) => {
     try {
