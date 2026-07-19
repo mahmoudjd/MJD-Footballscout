@@ -25,7 +25,7 @@ import {
 import { cn } from "@/lib/cn"
 import { useToast } from "@/lib/hooks/useToast"
 import type {
-  PlayerType,
+  PlayerReferenceType,
   ShadowTeamAssignmentType,
   ShadowTeamFormationType,
   ShadowTeamSlotType,
@@ -40,7 +40,7 @@ const currencyFormatter = new Intl.NumberFormat("en-GB", {
   maximumFractionDigits: 1,
 })
 
-function playerLabel(player: PlayerType) {
+function playerLabel(player: PlayerReferenceType) {
   return player.name || player.fullName || "Unknown player"
 }
 
@@ -76,7 +76,7 @@ function PitchSlot({
   onSelect,
 }: {
   slot: ShadowTeamSlotType
-  players: PlayerType[]
+  players: PlayerReferenceType[]
   selected: boolean
   onSelect: () => void
 }) {
@@ -159,7 +159,7 @@ export function ShadowTeamPageView() {
       (playerId) =>
         playersById.get(playerId) ?? detail?.players.find((player) => player._id === playerId),
     )
-    .filter((player): player is PlayerType => Boolean(player))
+    .filter((player): player is PlayerReferenceType => Boolean(player))
   const matchingPlayers = useMemo(() => {
     if (!selectedSlot) return []
     const query = playerSearch.trim().toLocaleLowerCase()
@@ -544,7 +544,7 @@ export function ShadowTeamPageView() {
                             playersById.get(id) ??
                             detail.players.find((player) => player._id === id),
                         )
-                        .filter((player): player is PlayerType => Boolean(player))
+                        .filter((player): player is PlayerReferenceType => Boolean(player))
                       return (
                         <PitchSlot
                           key={slot.id}
