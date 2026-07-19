@@ -3,7 +3,8 @@ import { HomePageView } from "@/features/home/components/HomePageView"
 
 export const metadata: Metadata = {
   title: "Football Scouting Workspace",
-  description: "Search, compare, and organize football talent in one scouting workspace.",
+  description:
+    "A complete football scouting workspace for player discovery, comparisons, shortlists, squad planning, and recruitment decisions.",
 }
 
 export default function HomePage() {

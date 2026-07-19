@@ -1,6 +1,7 @@
 {
   "name": "web-app",
   "version": "0.3.0",
+  "description": "Next.js football scouting and recruitment workspace for player intelligence, shortlists, Shadow Teams, and recruitment planning.",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
