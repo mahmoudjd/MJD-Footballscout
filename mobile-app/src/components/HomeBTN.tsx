@@ -1,21 +1,21 @@
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, type Href } from "expo-router";
 
 type Props = {
   title: string;
-  iconName: string;
-  href: string;
+  iconName: React.ComponentProps<typeof Ionicons>["name"];
+  href: Href;
 };
 const HomeBTN = ({ title, iconName, href }: Props) => {
   return (
-    <View style={styles.btn}>
-      <Link href={href} asChild>
+    <Link href={href} asChild>
+      <Pressable style={styles.btn}>
         <Text style={styles.btnText}>
           <Ionicons name={iconName} color={"#fff"} size={22} /> {title}
         </Text>
-      </Link>
-    </View>
+      </Pressable>
+    </Link>
   );
 };
 
