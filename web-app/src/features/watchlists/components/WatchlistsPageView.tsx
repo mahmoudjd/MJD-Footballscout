@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/cn"
 import { Text } from "@/components/ui/text"
 import { Input } from "@/components/ui/input"
+import { FormField } from "@/components/ui/form-field"
 import { Textarea } from "@/components/ui/textarea"
 import { LoginRequiredState } from "@/components/ui/login-required-state"
 import { watchlistGuideSections } from "@/features/watchlists/components/watchlists-guide"
@@ -240,24 +241,39 @@ export function WatchlistsPageView() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Panel tone="soft" className="space-y-3 lg:col-span-1">
-          <Text as="h3" variant="title" weight="semibold" className="text-stone-900">
+          <Text as="h2" variant="title" weight="semibold" className="text-emerald-950">
             Your watchlists
           </Text>
 
           <form className="space-y-2" onSubmit={handleCreateWatchlist}>
-            <Input
-              value={newName}
-              onChange={(event) => setNewName(event.target.value)}
-              placeholder="New watchlist name"
-              inputSize="sm"
-            />
-            <Textarea
-              value={newDescription}
-              onChange={(event) => setNewDescription(event.target.value)}
-              placeholder="Optional description"
-              textareaSize="sm"
-              className="h-20"
-            />
+            <FormField label="Watchlist Name" htmlFor="new-watchlist-name" required>
+              <Input
+                id="new-watchlist-name"
+                name="watchlistName"
+                value={newName}
+                onChange={(event) => setNewName(event.target.value)}
+                placeholder="e.g. Summer Targets…"
+                autoComplete="off"
+                inputSize="sm"
+                required
+              />
+            </FormField>
+            <FormField
+              label="Description"
+              htmlFor="new-watchlist-description"
+              hint="Optional scouting context for this board."
+            >
+              <Textarea
+                id="new-watchlist-description"
+                name="watchlistDescription"
+                value={newDescription}
+                onChange={(event) => setNewDescription(event.target.value)}
+                placeholder="e.g. High-priority midfield targets…"
+                autoComplete="off"
+                textareaSize="sm"
+                className="h-20"
+              />
+            </FormField>
             <Button type="submit" variant="primary" size="sm" fullWidth disabled={!canCreate}>
               Create watchlist
             </Button>
@@ -306,7 +322,7 @@ export function WatchlistsPageView() {
             <>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <Text as="h3" variant="title" weight="semibold" className="text-stone-900">
+                  <Text as="h2" variant="title" weight="semibold" className="text-emerald-950">
                     {selectedWatchlist.name}
                   </Text>
                   <Text as="p" variant="body" tone="muted">
@@ -327,29 +343,35 @@ export function WatchlistsPageView() {
               </div>
 
               <form
-                className="space-y-2 rounded-xl border border-stone-200 bg-stone-50/70 p-3.5"
+                className="space-y-3 rounded-2xl border border-emerald-950/8 bg-emerald-50/35 p-4"
                 onSubmit={handleUpdateWatchlist}
               >
                 <Text as="p" weight="semibold" className="text-stone-800">
                   Edit watchlist
                 </Text>
-                <Input
-                  value={editName}
-                  onChange={(event) => setEditName(event.target.value)}
-                  inputSize="sm"
-                />
-                <Textarea
-                  value={editDescription}
-                  onChange={(event) => setEditDescription(event.target.value)}
-                  textareaSize="sm"
-                  className="h-20"
-                />
-                <Button
-                  type="submit"
-                  variant="secondary"
-                  size="sm"
-                  disabled={!canUpdate}
-                >
+                <FormField label="Watchlist Name" htmlFor="edit-watchlist-name" required>
+                  <Input
+                    id="edit-watchlist-name"
+                    name="editWatchlistName"
+                    value={editName}
+                    onChange={(event) => setEditName(event.target.value)}
+                    autoComplete="off"
+                    inputSize="sm"
+                    required
+                  />
+                </FormField>
+                <FormField label="Description" htmlFor="edit-watchlist-description">
+                  <Textarea
+                    id="edit-watchlist-description"
+                    name="editWatchlistDescription"
+                    value={editDescription}
+                    onChange={(event) => setEditDescription(event.target.value)}
+                    autoComplete="off"
+                    textareaSize="sm"
+                    className="h-20"
+                  />
+                </FormField>
+                <Button type="submit" variant="secondary" size="sm" disabled={!canUpdate}>
                   Save changes
                 </Button>
               </form>
@@ -364,7 +386,8 @@ export function WatchlistsPageView() {
                       value={selectedPlayerId}
                       onValueChange={setSelectedPlayerId}
                       options={playerOptions}
-                      placeholder="Choose a player"
+                      placeholder="Choose a Player…"
+                      ariaLabel="Choose a player to add"
                     />
                   </div>
                   <Button

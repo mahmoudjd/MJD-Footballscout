@@ -47,6 +47,18 @@ export function formatElo(value: unknown) {
     : "N/A"
 }
 
+/** BeSoccer exposes its player ELO as a score from 0 to 100. */
+export function getEloProgress(value: unknown) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return 0
+  return Math.min(100, Math.max(0, value))
+}
+
+export function getEloProgressColor(progress: number) {
+  if (progress >= 80) return "from-lime-400 to-emerald-600"
+  if (progress >= 60) return "from-amber-300 to-lime-500"
+  return "from-orange-300 to-amber-500"
+}
+
 export function getProtectedPlayerProfileHref(playerId: string, isLoggedIn: boolean) {
   const profilePath = `/players/${playerId}`
   return isLoggedIn ? profilePath : `/login?callbackUrl=${encodeURIComponent(profilePath)}`

@@ -1,0 +1,29 @@
+# Monorepo: deploy only web-app from repository root.
+
+# Unrelated apps/services
+mobile-app/**
+server/**
+
+# Local tooling/cache
+.git/**
+.github/**
+.idea/**
+.pnpm-store/**
+.vercel/**
+.DS_Store
+**/.DS_Store
+
+# Dependency/build artifacts
+**/node_modules/**
+**/.next/**
+**/dist/**
+**/build/**
+**/coverage/**
+**/.turbo/**
+**/.cache/**
+
+# Mobile-specific generated files
+**/ios/**
+**/android/**
+**/.expo/**
+**/.expo-shared/**

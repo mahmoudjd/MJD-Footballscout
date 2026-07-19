@@ -7,7 +7,13 @@ import { signIn, signOut, useSession } from "next-auth/react"
 import { OutlineIcons } from "@/components/icons/outline-icons"
 import { Button } from "@/components/ui/button"
 import { Text } from "@/components/ui/text"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/cn"
 
 type MobileTabItem = {
@@ -38,9 +44,18 @@ export function MobileTabBar() {
   const userRole = session?.user?.role === "admin" ? "Admin" : "User"
 
   const moreActive = useMemo(() => {
-    return ["/watchlists", "/login", "/signup", "/help"].some((route) =>
-      isPathActive(pathname, route),
-    )
+    return [
+      "/watchlists",
+      "/shadow-team",
+      "/recruitment",
+      "/profile",
+      "/login",
+      "/signup",
+      "/forgot-password",
+      "/reset-password",
+      "/help",
+      "/pricing",
+    ].some((route) => isPathActive(pathname, route))
   }, [pathname])
 
   return (
@@ -48,7 +63,7 @@ export function MobileTabBar() {
       <div className="fixed inset-x-0 bottom-0 z-40 px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden">
         <nav
           aria-label="Mobile tab navigation"
-          className="mx-auto flex w-full max-w-xl items-center justify-between rounded-3xl border border-stone-300/80 bg-stone-50/95 px-2 py-2 shadow-[0_18px_40px_rgba(41,37,36,0.14)] backdrop-blur"
+          className="mx-auto flex w-full max-w-xl items-center justify-between rounded-3xl border border-emerald-950/10 bg-[#f8faf7]/95 px-2 py-2 shadow-[0_18px_40px_rgba(15,50,36,0.16)] backdrop-blur-xl"
         >
           {primaryTabs.map((tab) => {
             const Icon = OutlineIcons[tab.icon]
@@ -63,13 +78,13 @@ export function MobileTabBar() {
                 href={href}
                 prefetch={false}
                 className={cn(
-                  "inline-flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl border border-transparent px-2 py-2 transition focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none",
+                  "inline-flex min-w-0 flex-1 touch-manipulation flex-col items-center gap-1 rounded-2xl border border-transparent px-2 py-2 transition-[background-color,border-color,color,box-shadow,transform] focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none active:scale-[0.98] motion-reduce:transform-none",
                   isActive
-                    ? "border-amber-200/80 bg-amber-50/90 text-amber-900 shadow-[0_6px_16px_-12px_rgba(180,83,9,0.55)]"
-                    : "text-stone-500 hover:border-stone-200 hover:bg-stone-100/80 hover:text-stone-800",
+                    ? "border-emerald-900 bg-emerald-950 text-white shadow-sm"
+                    : "text-stone-500 hover:border-emerald-100 hover:bg-emerald-50 hover:text-emerald-950",
                 )}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" aria-hidden="true" />
                 <Text as="span" variant="caption" tone="inherit" className="truncate text-[11px]">
                   {tab.label}
                 </Text>
@@ -81,14 +96,14 @@ export function MobileTabBar() {
             type="button"
             onClick={() => setIsMoreOpen(true)}
             className={cn(
-              "inline-flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl border border-transparent px-2 py-2 transition focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none",
+              "inline-flex min-w-0 flex-1 touch-manipulation flex-col items-center gap-1 rounded-2xl border border-transparent px-2 py-2 transition-[background-color,border-color,color,box-shadow,transform] focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none active:scale-[0.98] motion-reduce:transform-none",
               moreActive
-                ? "border-amber-200/80 bg-amber-50/90 text-amber-900 shadow-[0_6px_16px_-12px_rgba(180,83,9,0.55)]"
-                : "text-stone-500 hover:border-stone-200 hover:bg-stone-100/80 hover:text-stone-800",
+                ? "border-emerald-900 bg-emerald-950 text-white shadow-sm"
+                : "text-stone-500 hover:border-emerald-100 hover:bg-emerald-50 hover:text-emerald-950",
             )}
             aria-label="Open more actions"
           >
-            <OutlineIcons.Bars4Icon className="h-5 w-5" />
+            <OutlineIcons.Bars4Icon className="h-5 w-5" aria-hidden="true" />
             <Text as="span" variant="caption" tone="inherit" className="text-[11px]">
               More
             </Text>
@@ -107,6 +122,16 @@ export function MobileTabBar() {
           </DialogHeader>
 
           <div className="mt-4 grid gap-2">
+            <Link
+              href="/pricing"
+              prefetch={false}
+              onClick={() => setIsMoreOpen(false)}
+              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-lime-300/70 bg-lime-50 px-3 py-2.5 text-sm font-semibold text-emerald-950 transition-[background-color,border-color,color] hover:border-lime-400 hover:bg-lime-100 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
+            >
+              <OutlineIcons.CurrencyEuroIcon className="h-5 w-5" aria-hidden="true" />
+              Premium & Billing
+            </Link>
+
             <Link
               href={
                 status === "authenticated"
@@ -139,7 +164,7 @@ export function MobileTabBar() {
               href="/help"
               prefetch={false}
               onClick={() => setIsMoreOpen(false)}
-              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-sm font-semibold text-stone-700 transition-[background-color,border-color,color] hover:border-amber-300 hover:bg-amber-50/60 hover:text-amber-800 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/70 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
             >
               <OutlineIcons.QuestionMarkCircleIcon className="h-5 w-5" aria-hidden="true" />
               Help & What’s New
@@ -153,11 +178,23 @@ export function MobileTabBar() {
               }
               prefetch={false}
               onClick={() => setIsMoreOpen(false)}
-              className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-sm font-semibold text-stone-700 transition hover:border-amber-300 hover:bg-amber-50/60 hover:text-amber-800 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/70 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
             >
-              <OutlineIcons.HeartIcon className="h-5 w-5" />
+              <OutlineIcons.HeartIcon className="h-5 w-5" aria-hidden="true" />
               Watchlists
             </Link>
+
+            {status === "authenticated" ? (
+              <Link
+                href="/profile"
+                prefetch={false}
+                onClick={() => setIsMoreOpen(false)}
+                className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/70 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
+              >
+                <OutlineIcons.UserIcon className="h-5 w-5" aria-hidden="true" />
+                Profile & Security
+              </Link>
+            ) : null}
 
             {status === "authenticated" ? (
               <div className="rounded-2xl border border-stone-200 bg-stone-50 px-3 py-3">
@@ -169,7 +206,12 @@ export function MobileTabBar() {
                 </Text>
               </div>
             ) : (
-              <Text as="p" variant="caption" tone="muted" className="rounded-2xl bg-stone-50 px-3 py-2">
+              <Text
+                as="p"
+                variant="caption"
+                tone="muted"
+                className="rounded-2xl bg-stone-50 px-3 py-2"
+              >
                 Du bist aktuell nicht eingeloggt.
               </Text>
             )}

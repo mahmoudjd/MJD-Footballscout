@@ -15,7 +15,7 @@ const sizeClasses: Record<NonNullable<SpinnerProps["size"]>, string> = {
 }
 
 const toneClasses: Record<NonNullable<SpinnerProps["tone"]>, string> = {
-  brand: "border-stone-300 border-t-amber-700",
+  brand: "border-emerald-950/15 border-t-emerald-700",
   light: "border-white/30 border-t-white",
 }
 
@@ -27,7 +27,10 @@ export function Spinner({ size = "md", tone = "brand", label, className = "" }: 
       aria-live="polite"
       aria-label={label || "Loading"}
     >
-      <div className={cn(sizeClasses[size], toneClasses[tone], "animate-spin rounded-full")} aria-hidden="true" />
+      <div
+        className={cn(sizeClasses[size], toneClasses[tone], "animate-spin rounded-full")}
+        aria-hidden="true"
+      />
       {label ? (
         <Text as="span" variant="body" tone="muted">
           {label}

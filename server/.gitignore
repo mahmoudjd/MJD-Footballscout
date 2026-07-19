@@ -1,6 +1,6 @@
 .dockerignore
 
 .env*
+!.env.development.local.example
 
 docker-compose.yaml
-

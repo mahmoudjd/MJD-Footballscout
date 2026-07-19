@@ -5,6 +5,11 @@ import { StatusState } from "@/components/ui/status-state"
 import { usePlayerHistoryQuery } from "@/features/players/hooks/usePlayerHistoryQuery"
 import { Text } from "@/components/ui/text"
 
+const historyDateFormatter = new Intl.DateTimeFormat("en-GB", {
+  dateStyle: "medium",
+  timeStyle: "short",
+})
+
 interface PlayerHistoryProps {
   playerId: string
 }
@@ -19,7 +24,7 @@ export default function PlayerHistory({ playerId }: PlayerHistoryProps) {
 
   return (
     <section className="space-y-4">
-      <Text as="h3" variant="h3" weight="semibold" className="text-slate-900">
+      <Text as="h2" variant="h3" weight="bold" className="text-emerald-950">
         History & Alerts
       </Text>
 
@@ -45,7 +50,7 @@ export default function PlayerHistory({ playerId }: PlayerHistoryProps) {
                     className={`rounded-xl border px-3 py-2 text-sm ${
                       alert.severity === "high"
                         ? "border-red-200 bg-red-50 text-red-900"
-                      : alert.severity === "medium"
+                        : alert.severity === "medium"
                           ? "border-amber-200 bg-amber-50 text-amber-900"
                           : "border-stone-200 bg-stone-50 text-stone-900"
                     }`}
@@ -54,7 +59,7 @@ export default function PlayerHistory({ playerId }: PlayerHistoryProps) {
                       {alert.message}
                     </Text>
                     <Text as="p" variant="caption" className="mt-0.5 opacity-80">
-                      {new Date(alert.timestamp).toLocaleString()}
+                      {historyDateFormatter.format(new Date(alert.timestamp))}
                     </Text>
                   </li>
                 ))}
@@ -65,20 +70,28 @@ export default function PlayerHistory({ playerId }: PlayerHistoryProps) {
           </Panel>
 
           <Panel className="overflow-x-auto p-0">
-            <table className="min-w-full divide-y divide-stone-200 text-sm">
-              <thead className="bg-stone-50">
+            <table className="min-w-full divide-y divide-emerald-950/8 text-sm tabular-nums">
+              <thead className="bg-emerald-50/70">
                 <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-stone-700">Timestamp</th>
-                  <th className="px-4 py-3 text-left font-semibold text-stone-700">ELO Delta</th>
-                  <th className="px-4 py-3 text-left font-semibold text-stone-700">Value</th>
-                  <th className="px-4 py-3 text-left font-semibold text-stone-700">Club</th>
+                  <th scope="col" className="px-4 py-3 text-left font-bold text-emerald-950">
+                    Timestamp
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-left font-bold text-emerald-950">
+                    ELO Delta
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-left font-bold text-emerald-950">
+                    Value
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-left font-bold text-emerald-950">
+                    Club
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
                 {(historyQuery.data?.history || []).map((entry) => (
                   <tr key={entry._id}>
                     <td className="px-4 py-3 text-slate-700">
-                      {new Date(entry.timestamp).toLocaleString()}
+                      {historyDateFormatter.format(new Date(entry.timestamp))}
                     </td>
                     <td
                       className={`px-4 py-3 font-medium ${
@@ -93,12 +106,12 @@ export default function PlayerHistory({ playerId }: PlayerHistoryProps) {
                     </td>
                     <td className="px-4 py-3 text-slate-700">
                       {entry.valueChanged
-                        ? `${entry.oldValue || "-"} -> ${entry.newValue || "-"}`
+                        ? `${entry.oldValue || "-"} → ${entry.newValue || "-"}`
                         : "-"}
                     </td>
                     <td className="px-4 py-3 text-slate-700">
                       {entry.clubChanged
-                        ? `${entry.oldClub || "-"} -> ${entry.newClub || "-"}`
+                        ? `${entry.oldClub || "-"} → ${entry.newClub || "-"}`
                         : "-"}
                     </td>
                   </tr>

@@ -16,7 +16,9 @@ import createBillingRouter from "./modules/billing/billing.router";
 import { createBillingWebhookHandler } from "./modules/billing/billing.webhook";
 
 async function startServer() {
-    if (process.env.NODE_ENV !== "production") dotenv.config();
+    if (process.env.NODE_ENV !== "production") {
+        dotenv.config({path: process.env.DOTENV_CONFIG_PATH || ".env"});
+    }
     const PORT = process.env.PORT ?? 8080;
     const MONGOURI = process.env.MONGOURI;
     const JWT_SECRET = process.env.JWT_SECRET;
@@ -33,7 +35,7 @@ async function startServer() {
 
     server.use(cors({
         origin: process.env.NODE_ENV === "production" ? (process.env.CLIENT_URL || "_") : "*",
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Accept", "Authorization"],
         credentials: true,
     }));

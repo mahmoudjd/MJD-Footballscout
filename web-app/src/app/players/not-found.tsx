@@ -1,22 +1,25 @@
 import { Text } from "@/components/ui/text"
 import { ActionLink } from "@/components/ui/action-link"
+import { PageContainer } from "@/components/ui/page-container"
+import { Panel } from "@/components/ui/panel"
+import { StatusState } from "@/components/ui/status-state"
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 py-12">
-      <div className="text-center">
-        <Text as="h2" variant="h1" weight="bold" className="tracking-tight">
-          Players Not Found
+    <PageContainer size="narrow" spacing="relaxed">
+      <Panel className="space-y-5 text-center">
+        <Text as="h1" variant="h1" weight="bold" className="tracking-tight text-emerald-950">
+          Player Not Found
         </Text>
-        <Text as="p" variant="body-lg" tone="subtle" className="mt-4">
-          Sorry, we couldn't find the player you're looking for.
-        </Text>
-        <div className="mt-10">
-          <ActionLink href="/" size="md" fullWidth={false}>
-            Go back home
-          </ActionLink>
-        </div>
-      </div>
-    </div>
+        <StatusState
+          tone="empty"
+          title="This Player Is Unavailable"
+          description="The profile may have moved or no longer exists. Browse the player database to continue scouting."
+        />
+        <ActionLink href="/players" size="md" fullWidth={false}>
+          Browse Players
+        </ActionLink>
+      </Panel>
+    </PageContainer>
   )
 }

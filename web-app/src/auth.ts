@@ -77,15 +77,19 @@ const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
+        mfaCode: { label: "Authentication code", type: "text" },
+        mfaChallengeToken: { label: "MFA challenge", type: "text" },
       },
       async authorize(credentials) {
         try {
           const loginData = await loginUser({
             email: credentials?.email || "",
             password: credentials?.password || "",
+            mfaCode: credentials?.mfaCode || undefined,
+            mfaChallengeToken: credentials?.mfaChallengeToken || undefined,
           })
 
-          if (loginData) {
+          if (loginData && !("mfaRequired" in loginData)) {
             return {
               ...loginData,
               role: loginData.role || "user",
@@ -113,7 +117,10 @@ const authOptions: NextAuthOptions = {
       }
       return true
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
+      if (trigger === "update" && typeof session?.name === "string" && session.name.trim()) {
+        token.name = session.name.trim()
+      }
       if (account?.provider === "google") {
         const idToken = typeof account.id_token === "string" ? account.id_token : ""
         if (!idToken) {

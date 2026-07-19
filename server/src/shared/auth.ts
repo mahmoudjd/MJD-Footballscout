@@ -1,16 +1,17 @@
-import {Request} from "express";
-import {JwtPayload} from "jsonwebtoken";
+import { Request } from "express";
+import { JwtPayload } from "jsonwebtoken";
 
 export type UserRole = "admin" | "user";
 export type AuthTokenType = "access" | "refresh";
 
 export interface AuthTokenPayload extends JwtPayload {
-    userId: string;
-    email?: string;
-    role?: UserRole;
-    tokenType?: AuthTokenType;
+  userId: string;
+  email?: string;
+  role?: UserRole;
+  tokenType?: AuthTokenType;
+  authVersion?: number;
 }
 
 export type AuthenticatedRequest = Request & {
-    user?: AuthTokenPayload;
+  user?: AuthTokenPayload;
 };

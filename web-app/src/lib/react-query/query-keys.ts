@@ -2,17 +2,18 @@ export const queryKeys = {
   billing: {
     status: ["billing", "status"] as const,
   },
+  account: {
+    profile: ["account", "profile"] as const,
+  },
   players: {
     all: ["players"] as const,
     detail: (playerId: string) => ["players", playerId] as const,
     stats: () => ["players", "stats"] as const,
     highlights: () => ["players", "highlights"] as const,
     reports: (playerId: string) => ["players", playerId, "reports"] as const,
-    history: (playerId: string, limit: number) =>
-      ["players", playerId, "history", limit] as const,
+    history: (playerId: string, limit: number) => ["players", playerId, "history", limit] as const,
     compare: (scope: "all" | string[]) => ["players", "compare", scope] as const,
-    similar: (playerId: string, limit: number) =>
-      ["players", playerId, "similar", limit] as const,
+    similar: (playerId: string, limit: number) => ["players", playerId, "similar", limit] as const,
   },
   watchlists: {
     all: ["watchlists"] as const,

@@ -2,26 +2,10 @@ import type { HTMLAttributes } from "react"
 import { cn } from "@/lib/cn"
 
 type TextVariant =
-  | "display"
-  | "h1"
-  | "h2"
-  | "h3"
-  | "title"
-  | "body-lg"
-  | "body"
-  | "caption"
-  | "overline"
-  | "mono"
+  "display" | "h1" | "h2" | "h3" | "title" | "body-lg" | "body" | "caption" | "overline" | "mono"
 
 type TextTone =
-  | "default"
-  | "muted"
-  | "subtle"
-  | "primary"
-  | "success"
-  | "danger"
-  | "inverse"
-  | "inherit"
+  "default" | "muted" | "subtle" | "primary" | "success" | "danger" | "inverse" | "inherit"
 type TextWeight = "regular" | "medium" | "semibold" | "bold" | "extrabold"
 type TextAlign = "left" | "center" | "right"
 type TextElement = "p" | "span" | "div" | "label" | "h1" | "h2" | "h3" | "h4" | "strong" | "small"
@@ -39,11 +23,11 @@ interface TextProps extends HTMLAttributes<HTMLElement>, TextVariantsInput {
 }
 
 const variantClasses: Record<TextVariant, string> = {
-  display: "text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl",
-  h1: "text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl",
-  h2: "text-2xl font-bold leading-tight tracking-tight",
-  h3: "text-xl font-bold leading-tight",
-  title: "text-lg font-semibold leading-tight",
+  display: "text-4xl font-extrabold leading-tight tracking-tight text-balance sm:text-5xl",
+  h1: "text-3xl font-extrabold leading-tight tracking-tight text-balance sm:text-4xl",
+  h2: "text-2xl font-bold leading-tight tracking-tight text-balance",
+  h3: "text-xl font-bold leading-tight text-balance",
+  title: "text-lg font-semibold leading-tight text-balance",
   "body-lg": "text-base leading-relaxed",
   body: "text-sm leading-relaxed",
   caption: "text-xs leading-normal",
@@ -55,7 +39,7 @@ const toneClasses: Record<TextTone, string> = {
   default: "text-slate-900",
   muted: "text-stone-600",
   subtle: "text-stone-500",
-  primary: "text-amber-700",
+  primary: "text-emerald-700",
   success: "text-emerald-700",
   danger: "text-red-700",
   inverse: "text-white",
@@ -101,5 +85,7 @@ export function Text({
   className,
   ...props
 }: TextProps) {
-  return <Component className={textVariants({ variant, tone, weight, align, className })} {...props} />
+  return (
+    <Component className={textVariants({ variant, tone, weight, align, className })} {...props} />
+  )
 }

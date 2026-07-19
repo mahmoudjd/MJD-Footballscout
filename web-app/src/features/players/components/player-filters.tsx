@@ -36,12 +36,12 @@ interface Props {
   onReset: () => void
 }
 
-function FilterLabel({ label, hint }: { label: string; hint: string }) {
+function FilterLabel({ label, hint, htmlFor }: { label: string; hint: string; htmlFor: string }) {
   return (
     <div className="flex items-center gap-1">
-      <Text as="span" variant="caption" weight="semibold" className="text-stone-700">
+      <label htmlFor={htmlFor} className="text-xs font-semibold text-stone-700">
         {label}
-      </Text>
+      </label>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -51,7 +51,7 @@ function FilterLabel({ label, hint }: { label: string; hint: string }) {
             className="h-6 w-6 rounded text-stone-400 hover:bg-transparent hover:text-stone-700"
             aria-label={`${label} help`}
           >
-            <OutlineIcons.InformationCircleIcon className="h-4 w-4" />
+            <OutlineIcons.InformationCircleIcon className="h-4 w-4" aria-hidden="true" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="top">{hint}</TooltipContent>
@@ -129,17 +129,15 @@ const PlayerFilters = ({
       <div className="w-full space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center space-x-2">
-            <SolidIcons.AdjustmentsVerticalIcon className="h-5 w-5 text-amber-600" />
-            <Text as="span" variant="title" weight="bold" className="text-stone-800">
+            <SolidIcons.AdjustmentsVerticalIcon
+              className="h-5 w-5 text-emerald-700"
+              aria-hidden="true"
+            />
+            <Text as="h2" variant="title" weight="bold" className="text-emerald-950">
               Filter Players
             </Text>
           </div>
-          <Button
-            type="button"
-            onClick={onReset}
-            variant="outline"
-            size="sm"
-          >
+          <Button type="button" onClick={onReset} variant="outline" size="sm">
             Reset filters
           </Button>
         </div>
@@ -153,42 +151,67 @@ const PlayerFilters = ({
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
                 <FilterLabel
                   label="Position"
+                  htmlFor="filter-position"
                   hint="Filter by player role such as forward, midfielder, defender, and goalkeeper."
                 />
                 <Select
+                  id="filter-position"
+                  name="position"
+                  ariaLabel="Filter by position"
                   value={selectedPosition}
                   onValueChange={onPositionChange}
                   options={positionOptions}
-                  placeholder="Select position"
+                  placeholder="Select Position…"
                 />
               </div>
 
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
-                <FilterLabel label="Age Group" hint="Quickly filter players into broad age ranges." />
+                <FilterLabel
+                  label="Age Group"
+                  htmlFor="filter-age-group"
+                  hint="Quickly filter players into broad age ranges."
+                />
                 <Select
+                  id="filter-age-group"
+                  name="ageGroup"
+                  ariaLabel="Filter by age group"
                   value={selectedAgeGroup}
                   onValueChange={onAgeGroupChange}
                   options={ageOptions}
-                  placeholder="Select age group"
+                  placeholder="Select Age Group…"
                 />
               </div>
 
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
-                <FilterLabel label="Nationality" hint="Show only players from one specific country." />
+                <FilterLabel
+                  label="Nationality"
+                  htmlFor="filter-nationality"
+                  hint="Show only players from one specific country."
+                />
                 <Select
+                  id="filter-nationality"
+                  name="nationality"
+                  ariaLabel="Filter by nationality"
                   value={selectedNationality}
                   onValueChange={onNationalityChange}
                   options={nationalityOptions}
-                  placeholder="Select nationality"
+                  placeholder="Select Nationality…"
                 />
               </div>
 
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
-                <FilterLabel label="Club" hint="Type part of the club name to narrow down the list." />
+                <FilterLabel
+                  label="Club"
+                  htmlFor="filter-club"
+                  hint="Type part of the club name to narrow down the list."
+                />
                 <Input
+                  id="filter-club"
+                  name="club"
                   value={clubQuery}
                   onChange={(event) => onClubQueryChange(event.target.value)}
-                  placeholder="e.g. Barcelona"
+                  placeholder="e.g. Barcelona…"
+                  autoComplete="off"
                   inputSize="sm"
                 />
               </div>
@@ -201,30 +224,53 @@ const PlayerFilters = ({
             </Text>
             <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
-                <FilterLabel label="Min Age" hint="Only keep players at or above this age." />
+                <FilterLabel
+                  label="Min Age"
+                  htmlFor="filter-min-age"
+                  hint="Only keep players at or above this age."
+                />
                 <Input
+                  id="filter-min-age"
+                  name="minAge"
+                  type="number"
                   value={minAge}
                   onChange={(event) => onMinAgeChange(event.target.value)}
                   inputMode="numeric"
-                  placeholder="e.g. 18"
+                  placeholder="e.g. 18…"
+                  autoComplete="off"
                   inputSize="sm"
                 />
               </div>
 
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
-                <FilterLabel label="Max Age" hint="Only keep players at or below this age." />
+                <FilterLabel
+                  label="Max Age"
+                  htmlFor="filter-max-age"
+                  hint="Only keep players at or below this age."
+                />
                 <Input
+                  id="filter-max-age"
+                  name="maxAge"
+                  type="number"
                   value={maxAge}
                   onChange={(event) => onMaxAgeChange(event.target.value)}
                   inputMode="numeric"
-                  placeholder="e.g. 32"
+                  placeholder="e.g. 32…"
+                  autoComplete="off"
                   inputSize="sm"
                 />
               </div>
 
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
-                <FilterLabel label="Sort By" hint="Choose which metric defines the table order." />
+                <FilterLabel
+                  label="Sort By"
+                  htmlFor="filter-sort-by"
+                  hint="Choose which metric defines the table order."
+                />
                 <Select
+                  id="filter-sort-by"
+                  name="sortBy"
+                  ariaLabel="Sort players by"
                   value={sortBy}
                   onValueChange={(value) => onSortByChange(value as Props["sortBy"])}
                   options={sortByOptions}
@@ -232,8 +278,15 @@ const PlayerFilters = ({
               </div>
 
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
-                <FilterLabel label="Order" hint="Set ascending or descending sort direction." />
+                <FilterLabel
+                  label="Order"
+                  htmlFor="filter-sort-order"
+                  hint="Set ascending or descending sort direction."
+                />
                 <Select
+                  id="filter-sort-order"
+                  name="sortOrder"
+                  ariaLabel="Player sort order"
                   value={sortOrder}
                   onValueChange={(value) => onSortOrderChange(value as Props["sortOrder"])}
                   options={sortOrderOptions}
@@ -241,23 +294,39 @@ const PlayerFilters = ({
               </div>
 
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
-                <FilterLabel label="Min ELO" hint="Only keep players at or above this ELO value." />
+                <FilterLabel
+                  label="Min ELO"
+                  htmlFor="filter-min-elo"
+                  hint="Only keep players at or above this ELO value."
+                />
                 <Input
+                  id="filter-min-elo"
+                  name="minElo"
+                  type="number"
                   value={minElo}
                   onChange={(event) => onMinEloChange(event.target.value)}
                   inputMode="numeric"
-                  placeholder="e.g. 1500"
+                  placeholder="e.g. 1500…"
+                  autoComplete="off"
                   inputSize="sm"
                 />
               </div>
 
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
-                <FilterLabel label="Max ELO" hint="Only keep players at or below this ELO value." />
+                <FilterLabel
+                  label="Max ELO"
+                  htmlFor="filter-max-elo"
+                  hint="Only keep players at or below this ELO value."
+                />
                 <Input
+                  id="filter-max-elo"
+                  name="maxElo"
+                  type="number"
                   value={maxElo}
                   onChange={(event) => onMaxEloChange(event.target.value)}
                   inputMode="numeric"
-                  placeholder="e.g. 2500"
+                  placeholder="e.g. 2500…"
+                  autoComplete="off"
                   inputSize="sm"
                 />
               </div>
@@ -265,13 +334,18 @@ const PlayerFilters = ({
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
                 <FilterLabel
                   label="Min Market Value"
+                  htmlFor="filter-min-value"
                   hint="Use plain numbers (e.g. 1000000) to set a minimum value."
                 />
                 <Input
+                  id="filter-min-value"
+                  name="minValue"
+                  type="number"
                   value={minValue}
                   onChange={(event) => onMinValueChange(event.target.value)}
                   inputMode="numeric"
-                  placeholder="e.g. 1000000"
+                  placeholder="e.g. 1000000…"
+                  autoComplete="off"
                   inputSize="sm"
                 />
               </div>
@@ -279,13 +353,18 @@ const PlayerFilters = ({
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
                 <FilterLabel
                   label="Max Market Value"
+                  htmlFor="filter-max-value"
                   hint="Use plain numbers (e.g. 50000000) to set a maximum value."
                 />
                 <Input
+                  id="filter-max-value"
+                  name="maxValue"
+                  type="number"
                   value={maxValue}
                   onChange={(event) => onMaxValueChange(event.target.value)}
                   inputMode="numeric"
-                  placeholder="e.g. 50000000"
+                  placeholder="e.g. 50000000…"
+                  autoComplete="off"
                   inputSize="sm"
                 />
               </div>

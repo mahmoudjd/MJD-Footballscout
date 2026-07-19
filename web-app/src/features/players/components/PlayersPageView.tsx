@@ -183,7 +183,7 @@ export default function PlayersPageView() {
   }
 
   return (
-    <PageContainer className="max-w-[92rem] space-y-6 2xl:max-w-[104rem]" size="wide">
+    <PageContainer className="space-y-6" size="wide">
       <SectionHeader
         title="All Players"
         description={headerDescription}
@@ -210,7 +210,7 @@ export default function PlayersPageView() {
                 variant="primary"
                 size="md"
               >
-                {isUpdatingAllPlayers ? "Updating all..." : "Update all players"}
+                {isUpdatingAllPlayers ? "Updating All…" : "Update All Players"}
               </Button>
             ) : null}
           </div>
@@ -248,14 +248,17 @@ export default function PlayersPageView() {
         />
       </Panel>
 
-      <Panel tone="soft" className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <Panel
+        tone="soft"
+        className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+      >
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <Chip tone="amber" className="gap-1">
-            <OutlineIcons.ChartBarIcon className="h-3.5 w-3.5" />
+            <OutlineIcons.ChartBarIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {filteredPlayers.length} matched
           </Chip>
           <Chip tone="neutral" className="gap-1">
-            <OutlineIcons.ArrowPathIcon className="h-3.5 w-3.5" />
+            <OutlineIcons.ArrowPathIcon className="h-3.5 w-3.5" aria-hidden="true" />
             Showing {pagination.firstItemIndex}-{pagination.lastItemIndex}
           </Chip>
           {hasActiveFilters ? <Chip tone="amber">{activeFilterCount} active filters</Chip> : null}
@@ -310,7 +313,10 @@ export default function PlayersPageView() {
         isConfirming={isUpdatingAllPlayers}
       />
 
-      <Panel tone="soft" className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <Panel
+        tone="soft"
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
           <Text as="span" variant="body" weight="medium" className="text-stone-700">
             Items per page

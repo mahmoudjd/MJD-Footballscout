@@ -6,7 +6,6 @@ import { usePlayersQuery } from "@/features/players/hooks/usePlayersQuery"
 import { usePlayerSearchMutation } from "@/features/search/hooks/usePlayerSearchMutation"
 import { useDebounce } from "@/lib/hooks/useDebounce"
 import type { PlayerType } from "@/lib/types/type"
-import { Spinner } from "@/components/common/spinner"
 import { SearchResultsList } from "@/features/search/components/search-results-list"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
@@ -61,12 +60,6 @@ export function PlayerSearchPanel() {
     setValidationMessage("")
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch()
-    }
-  }
-
   const handleSearch = useCallback(() => {
     if (!loggedIn) {
       router.push("/login?callbackUrl=" + encodeURIComponent("/search"))
@@ -100,12 +93,14 @@ export function PlayerSearchPanel() {
   const results: PlayerType[] = showServerResults ? (serverResults ?? []) : localResults
 
   return (
-    <PageContainer className="space-y-4" size="narrow">
+    <PageContainer className="space-y-5" size="wide">
       <SectionHeader
         title="Search Players"
         description="Search locally while typing and query fresh backend data on demand."
         icon="SparklesIcon"
-        badge={name.trim() ? `${results.length} match${results.length === 1 ? "" : "es"}` : undefined}
+        badge={
+          name.trim() ? `${results.length} match${results.length === 1 ? "" : "es"}` : undefined
+        }
         right={
           <FeatureGuide
             guideId="search"
@@ -118,27 +113,46 @@ export function PlayerSearchPanel() {
       />
 
       <Panel tone="soft" className="space-y-3">
-        <div className="flex w-full flex-col items-stretch justify-center gap-2 sm:flex-row">
+        <form
+          className="flex w-full flex-col items-stretch justify-center gap-2 sm:flex-row"
+          onSubmit={(event) => {
+            event.preventDefault()
+            handleSearch()
+          }}
+          role="search"
+        >
+          <label htmlFor="player-search" className="sr-only">
+            Player name
+          </label>
           <Input
+            id="player-search"
+            name="playerName"
             type="search"
             className="h-12 rounded-2xl px-4 py-2 text-stone-800"
             onChange={handleChange}
-            onKeyDown={handleKeyDown}
             value={name}
-            placeholder="Enter player name..."
+            placeholder="Enter player name…"
+            autoComplete="off"
+            spellCheck={false}
+            aria-invalid={Boolean(validationMessage)}
+            aria-describedby={validationMessage ? "player-search-error" : undefined}
           />
           <Button
+            type="submit"
             variant="primary"
             size="md"
             className="h-12 w-full rounded-2xl sm:w-40"
-            onClick={handleSearch}
             disabled={isPending}
           >
-            {isPending ? "Searching..." : "Search"}
+            {isPending ? "Searching…" : "Search"}
           </Button>
-        </div>
+        </form>
 
-        {validationMessage && <StatusState tone="error" title={validationMessage} />}
+        {validationMessage && (
+          <div id="player-search-error">
+            <StatusState tone="error" title={validationMessage} />
+          </div>
+        )}
       </Panel>
 
       {isPending && (
@@ -148,7 +162,6 @@ export function PlayerSearchPanel() {
             title="Searching players"
             description="Please wait a moment."
           />
-          <Spinner size="md" label="Searching..." />
         </Panel>
       )}
 

@@ -12,7 +12,7 @@ export function ScrollToTopButton() {
       setVisible(window.scrollY > 100)
     }
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
 
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
@@ -31,7 +31,7 @@ export function ScrollToTopButton() {
       size="icon"
       className="fixed right-4 bottom-24 z-40 rounded-full shadow-lg md:right-6 md:bottom-6 md:z-50"
     >
-      <OutlineIcons.ArrowUpIcon className="h-6 w-6" />
+      <OutlineIcons.ArrowUpIcon className="h-6 w-6" aria-hidden="true" />
     </Button>
   )
 }

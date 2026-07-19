@@ -66,7 +66,10 @@ export function FeatureGuide({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button type="button" onClick={reopenGuide} variant="outline" size="sm">
-              <OutlineIcons.QuestionMarkCircleIcon className="h-4 w-4 text-amber-700" />
+              <OutlineIcons.QuestionMarkCircleIcon
+                className="h-4 w-4 text-emerald-700"
+                aria-hidden="true"
+              />
               <Text as="span" weight="medium">
                 {triggerLabel}
               </Text>
@@ -97,7 +100,7 @@ export function FeatureGuide({
                 <TabsContent key={section.id} value={section.id}>
                   <div
                     className={cn(
-                      "rounded-lg border border-stone-200 bg-linear-to-br from-stone-50 to-white p-4",
+                      "rounded-2xl border border-emerald-950/10 bg-linear-to-br from-emerald-50/60 to-white p-4",
                     )}
                   >
                     <Text as="p" tone="muted">
@@ -106,7 +109,10 @@ export function FeatureGuide({
                     <ul className="mt-3 space-y-2">
                       {section.points.map((point) => (
                         <li key={point} className="flex items-start gap-2">
-                          <SolidIcons.CheckCircleIcon className="mt-0.5 h-4 w-4 text-amber-700" />
+                          <SolidIcons.CheckCircleIcon
+                            className="mt-0.5 h-4 w-4 text-emerald-700"
+                            aria-hidden="true"
+                          />
                           <Text as="span" tone="muted">
                             {point}
                           </Text>

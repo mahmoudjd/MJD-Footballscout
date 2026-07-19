@@ -9,7 +9,7 @@ interface AwardProps {
 export default function Awards({ awards }: AwardProps) {
   return (
     <section className="space-y-3">
-      <Text as="h3" variant="h3" weight="semibold" className="text-slate-900">
+      <Text as="h2" variant="h3" weight="bold" className="text-emerald-950">
         Awards
       </Text>
 
@@ -17,14 +17,16 @@ export default function Awards({ awards }: AwardProps) {
         {awards.map((award, idx) => (
           <div
             key={`${award.name}-${award.number}-${idx}`}
-            className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-4 shadow-[0_12px_24px_-22px_rgba(15,23,42,0.45)] transition hover:border-stone-300"
+            className="flex items-center gap-3 rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white to-lime-50/40 p-4 shadow-[0_16px_30px_-26px_rgba(15,50,36,0.38)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-700/20 hover:shadow-[0_20px_38px_-28px_rgba(6,78,59,0.4)] motion-reduce:transform-none motion-reduce:transition-none"
           >
-            <SolidIcons.StarIcon className="h-6 w-6 text-amber-500" />
-            <div className="flex flex-1 items-center justify-between">
-              <Text as="span" weight="semibold" className="text-slate-800">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lime-200/70 text-emerald-900">
+              <SolidIcons.StarIcon className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+              <Text as="span" weight="semibold" className="min-w-0 break-words text-emerald-950">
                 {award.name}
               </Text>
-              <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">
+              <span className="shrink-0 rounded-full border border-lime-300/70 bg-lime-100 px-2.5 py-1 text-xs font-bold text-emerald-900 tabular-nums">
                 {award.number}
               </span>
             </div>

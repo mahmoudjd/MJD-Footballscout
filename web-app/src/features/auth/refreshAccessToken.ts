@@ -29,7 +29,7 @@ export async function refreshAccessToken(refreshToken: string) {
   } catch (error: unknown) {
     console.error("Token refresh failed:", error)
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      throw new Error("RefreshTokenError")
+      throw new Error("RefreshTokenError", { cause: error })
     }
 
     throw error

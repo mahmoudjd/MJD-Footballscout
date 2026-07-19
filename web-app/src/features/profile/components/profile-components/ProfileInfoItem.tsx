@@ -1,47 +1,49 @@
 import { JSX } from "react"
-import { Button } from "@/components/ui/button"
 import { Text } from "@/components/ui/text"
+import { cn } from "@/lib/cn"
 
 interface InfoItemProps {
   icon: JSX.Element
   label: string
   value: string | number
-  clickable?: boolean
-  onClick?: () => void
+  href?: string
 }
 
 const baseClassName =
-  "group flex items-start gap-3 rounded-2xl border border-stone-200 bg-white p-4 shadow-[0_12px_24px_-22px_rgba(15,23,42,0.45)] transition"
+  "group min-w-0 flex items-start gap-3 rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white to-emerald-50/35 p-4 shadow-[0_16px_30px_-26px_rgba(15,50,36,0.38)]"
 
-const ProfileInfoItem = ({ icon, label, value, clickable, onClick }: InfoItemProps) => {
+const ProfileInfoItem = ({ icon, label, value, href }: InfoItemProps) => {
   const content = (
     <>
-      <div className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-700">
-        <span className="h-5 w-5">{icon}</span>
+      <div className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100/80 text-emerald-800 shadow-inner">
+        <span className="h-5 w-5" aria-hidden="true">
+          {icon}
+        </span>
       </div>
       <div className="min-w-0">
-        <Text as="p" variant="overline" weight="semibold" tone="subtle">
+        <Text as="p" variant="overline" weight="bold" className="text-emerald-950/50">
           {label}
         </Text>
-        <Text as="p" variant="body" weight="semibold" className="mt-1 break-words text-slate-900">
+        <Text as="p" variant="body" weight="semibold" className="mt-1 break-words text-emerald-950">
           {value}
         </Text>
       </div>
     </>
   )
 
-  if (clickable && onClick) {
+  if (href) {
     return (
-      <Button
-        type="button"
-        onClick={onClick}
-        variant="ghost"
-        size="md"
-        fullWidth
-        className={`${baseClassName} justify-start bg-white p-4 text-left hover:border-stone-300 hover:bg-stone-50`}
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+          baseClassName,
+          "touch-manipulation transition-[border-color,background-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-700/25 hover:bg-emerald-50/60 hover:shadow-[0_20px_38px_-26px_rgba(6,78,59,0.42)] focus-visible:ring-2 focus-visible:ring-lime-500/70 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none motion-reduce:transition-none",
+        )}
       >
         {content}
-      </Button>
+      </a>
     )
   }
 

@@ -5,6 +5,9 @@ import { signOut } from "next-auth/react"
 import { Spinner } from "@/components/common/spinner"
 import { Button } from "@/components/ui/button"
 import { Text } from "@/components/ui/text"
+import { PageContainer } from "@/components/ui/page-container"
+import { Panel } from "@/components/ui/panel"
+import { StatusState } from "@/components/ui/status-state"
 
 function isUnauthorizedError(error: Error) {
   const normalized = error.message.toLowerCase()
@@ -49,25 +52,29 @@ export default function GlobalError({
 
   if (error.message === "RefreshTokenError") {
     return (
-      <div className="flex w-full items-center justify-center p-8">
-        <Spinner size="lg" label="Refreshing session..." />
-      </div>
+      <PageContainer size="narrow" spacing="relaxed">
+        <Panel tone="soft">
+          <Spinner size="lg" label="Refreshing Session…" />
+        </Panel>
+      </PageContainer>
     )
   }
   return (
-    <div className="flex w-full items-center justify-center p-8">
-      <div className="w-full max-w-md rounded-lg border border-red-300 bg-white p-6 text-center shadow-lg">
-        <Text as="h2" variant="h1" weight="bold" className="mb-4 text-slate-900">
-          Something went wrong
+    <PageContainer size="narrow" spacing="relaxed">
+      <Panel className="space-y-5 border-red-200 bg-linear-to-br from-white to-red-50/55">
+        <Text as="h1" variant="h1" weight="bold" className="text-emerald-950">
+          Something Went Wrong
         </Text>
-        <Text as="p" variant="body-lg" className="mb-4 text-slate-700">
-          {userFacingMessage}
-        </Text>
-        {error.digest && (
+        <StatusState
+          tone="error"
+          title={userFacingMessage}
+          description="Retry the page. If the problem continues, return to the home page."
+        />
+        {error.digest ? (
           <Text as="p" variant="caption" tone="danger" className="mb-4">
             Error Code: {error.digest}
           </Text>
-        )}
+        ) : null}
         <Button
           onClick={handleReset}
           disabled={isResetting}
@@ -75,9 +82,9 @@ export default function GlobalError({
           size="md"
           className={isResetting ? "bg-red-300 hover:bg-red-300" : ""}
         >
-          {isResetting ? "Retrying..." : "Try Again"}
+          {isResetting ? "Retrying…" : "Try Again"}
         </Button>
-      </div>
-    </div>
+      </Panel>
+    </PageContainer>
   )
 }

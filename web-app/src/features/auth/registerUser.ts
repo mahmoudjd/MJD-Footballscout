@@ -1,5 +1,10 @@
 import { apiClient } from "@/lib/hooks/apiClient"
-import type { AuthLoginResponse } from "@/features/auth/authApi"
+
+export interface RegistrationResponse {
+  message: string
+  verificationRequired: true
+  verificationUrl?: string
+}
 
 export async function registerUser({
   name,
@@ -10,7 +15,7 @@ export async function registerUser({
   email: string
   password: string
 }) {
-  const response = await apiClient.post<AuthLoginResponse>("/auth/register", {
+  const response = await apiClient.post<RegistrationResponse>("/auth/register", {
     name,
     email,
     password,

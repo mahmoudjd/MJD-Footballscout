@@ -34,14 +34,14 @@ export function ConfirmDialog({
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-[2px]" />
+        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-emerald-950/55 backdrop-blur-sm transition-opacity motion-reduce:transition-none" />
         <AlertDialog.Content
           className={cn(
-            "fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-stone-200 bg-white p-6 shadow-[0_34px_68px_-34px_rgba(15,23,42,0.5)]",
+            "fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-3xl border border-emerald-950/10 bg-white p-6 shadow-[0_34px_80px_-30px_rgba(6,78,59,0.52)] sm:p-7",
           )}
         >
           <AlertDialog.Title asChild>
-            <Text as="h3" variant="title" weight="semibold">
+            <Text as="h3" variant="title" weight="bold" className="text-emerald-950">
               {title}
             </Text>
           </AlertDialog.Title>
@@ -55,7 +55,14 @@ export function ConfirmDialog({
 
           <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <AlertDialog.Cancel asChild>
-              <Button type="button" disabled={isConfirming} variant="outline" size="md" fullWidth className="sm:w-auto">
+              <Button
+                type="button"
+                disabled={isConfirming}
+                variant="outline"
+                size="md"
+                fullWidth
+                className="sm:w-auto"
+              >
                 {cancelLabel}
               </Button>
             </AlertDialog.Cancel>
@@ -73,7 +80,7 @@ export function ConfirmDialog({
                 {isConfirming ? (
                   <>
                     <Spinner size="sm" tone="light" />
-                    Processing...
+                    Processing…
                   </>
                 ) : (
                   confirmLabel
