@@ -56,5 +56,26 @@ export default [
       ],
     },
   },
+  {
+    files: ["src/**/*.{jsx,tsx}"],
+    ignores: ["src/components/ui/input.tsx", "src/components/ui/textarea.tsx"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "JSXOpeningElement[name.name='select']",
+          message: "Use the shared Select component from @/components/ui/select.",
+        },
+        {
+          selector: "JSXOpeningElement[name.name='input']",
+          message: "Use the shared Input component from @/components/ui/input.",
+        },
+        {
+          selector: "JSXOpeningElement[name.name='textarea']",
+          message: "Use the shared Textarea component from @/components/ui/textarea.",
+        },
+      ],
+    },
+  },
   eslintConfigPrettier,
 ]

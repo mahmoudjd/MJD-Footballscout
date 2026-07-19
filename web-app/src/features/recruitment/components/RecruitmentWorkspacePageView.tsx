@@ -10,6 +10,7 @@ import { LoginRequiredState } from "@/components/ui/login-required-state"
 import { PageContainer } from "@/components/ui/page-container"
 import { Panel } from "@/components/ui/panel"
 import { SectionHeader } from "@/components/ui/section-header"
+import { Select } from "@/components/ui/select"
 import { StatusState } from "@/components/ui/status-state"
 import { Text } from "@/components/ui/text"
 import { Textarea } from "@/components/ui/textarea"
@@ -37,6 +38,11 @@ const stages: Array<{ value: RecruitmentStageType; label: string; description: s
   { value: "rejected", label: "Rejected", description: "Closed candidates" },
 ]
 const priorities: RecruitmentPriorityType[] = ["low", "medium", "high", "critical"]
+const stageOptions = stages.map(({ value, label }) => ({ value, label }))
+const priorityOptions = priorities.map((value) => ({
+  value,
+  label: `${value.charAt(0).toUpperCase()}${value.slice(1)}`,
+}))
 
 function toDateInput(date: Date | null) {
   if (!date) return ""
@@ -100,44 +106,48 @@ function PipelineCard({
       </div>
 
       <div className="mt-3 grid gap-2">
-        <label className="space-y-1 text-xs font-semibold text-emerald-950">
-          Stage
-          <select
+        <div className="space-y-1">
+          <label
+            htmlFor={`candidate-stage-${candidate._id}`}
+            className="block text-xs font-semibold text-emerald-950"
+          >
+            Stage
+          </label>
+          <Select
+            id={`candidate-stage-${candidate._id}`}
             value={candidate.stage}
-            onChange={(event) =>
-              onUpdate(
-                candidatePayload(candidate, { stage: event.target.value as RecruitmentStageType }),
-              )
+            onValueChange={(value) =>
+              onUpdate(candidatePayload(candidate, { stage: value as RecruitmentStageType }))
             }
             disabled={pending}
-            className="mt-1 min-h-9 w-full rounded-lg border border-emerald-950/15 bg-white px-2 text-xs focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
+            options={stageOptions}
+            ariaLabel="Candidate stage"
+            triggerClassName="h-9 min-h-9 rounded-lg px-2 text-xs"
+          />
+        </div>
+        <div className="space-y-1">
+          <label
+            htmlFor={`candidate-priority-${candidate._id}`}
+            className="block text-xs font-semibold text-emerald-950"
           >
-            {stages.map((stage) => (
-              <option key={stage.value} value={stage.value}>
-                {stage.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="space-y-1 text-xs font-semibold text-emerald-950">
-          Priority
-          <select
+            Priority
+          </label>
+          <Select
+            id={`candidate-priority-${candidate._id}`}
             value={candidate.priority}
-            onChange={(event) =>
+            onValueChange={(value) =>
               onUpdate(
                 candidatePayload(candidate, {
-                  priority: event.target.value as RecruitmentPriorityType,
+                  priority: value as RecruitmentPriorityType,
                 }),
               )
             }
             disabled={pending}
-            className="mt-1 min-h-9 w-full rounded-lg border border-emerald-950/15 bg-white px-2 text-xs capitalize focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
-          >
-            {priorities.map((priority) => (
-              <option key={priority}>{priority}</option>
-            ))}
-          </select>
-        </label>
+            options={priorityOptions}
+            ariaLabel="Candidate priority"
+            triggerClassName="h-9 min-h-9 rounded-lg px-2 text-xs"
+          />
+        </div>
         <label className="space-y-1 text-xs font-semibold text-emerald-950">
           Assignee
           <Input
@@ -215,6 +225,16 @@ export function RecruitmentWorkspacePageView() {
         .toSorted((a, b) => a.name.localeCompare(b.name)),
     [candidatePlayerIds, playersQuery.data],
   )
+  const availablePlayerOptions = useMemo(
+    () => [
+      { value: "", label: "Choose a player…" },
+      ...availablePlayers.map((player) => ({
+        value: player._id,
+        label: `${player.name} · ${player.position} · ${player.currentClub || player.country}`,
+      })),
+    ],
+    [availablePlayers],
+  )
 
   const handleCreate = (event: FormEvent) => {
     event.preventDefault()
@@ -265,33 +285,37 @@ export function RecruitmentWorkspacePageView() {
           onSubmit={handleCreate}
           className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_auto] lg:items-end"
         >
-          <label className="space-y-1.5 text-sm font-semibold text-emerald-950">
-            Add Player
-            <select
+          <div className="space-y-1.5">
+            <label
+              htmlFor="recruitment-player"
+              className="block text-sm font-semibold text-emerald-950"
+            >
+              Add Player
+            </label>
+            <Select
+              id="recruitment-player"
               value={playerId}
-              onChange={(event) => setPlayerId(event.target.value)}
-              className="mt-1 min-h-11 w-full rounded-xl border border-emerald-950/15 bg-white px-3 text-sm focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
+              onValueChange={setPlayerId}
+              options={availablePlayerOptions}
+              placeholder="Choose a player…"
+              ariaLabel="Add player"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label
+              htmlFor="recruitment-priority"
+              className="block text-sm font-semibold text-emerald-950"
             >
-              <option value="">Choose a player…</option>
-              {availablePlayers.map((player) => (
-                <option key={player._id} value={player._id}>
-                  {player.name} · {player.position} · {player.currentClub || player.country}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="space-y-1.5 text-sm font-semibold text-emerald-950">
-            Priority
-            <select
+              Priority
+            </label>
+            <Select
+              id="recruitment-priority"
               value={priority}
-              onChange={(event) => setPriority(event.target.value as RecruitmentPriorityType)}
-              className="mt-1 min-h-11 w-full rounded-xl border border-emerald-950/15 bg-white px-3 text-sm capitalize focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
-            >
-              {priorities.map((item) => (
-                <option key={item}>{item}</option>
-              ))}
-            </select>
-          </label>
+              onValueChange={(value) => setPriority(value as RecruitmentPriorityType)}
+              options={priorityOptions}
+              ariaLabel="Priority"
+            />
+          </div>
           <Button type="submit" disabled={!playerId || mutations.create.isPending}>
             Add To Pipeline
           </Button>
