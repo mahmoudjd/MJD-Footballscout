@@ -40,8 +40,19 @@ export function RankedList({
   }[tone]
 
   return (
-    <div className={cn("rounded-2xl border p-4 shadow-[0_14px_26px_-24px_rgba(15,23,42,0.5)]", toneClasses.container, className)}>
-      <Text as="h4" variant="overline" weight="bold" className={cn("tracking-wider", toneClasses.title)}>
+    <div
+      className={cn(
+        "rounded-2xl border p-4 shadow-[0_14px_26px_-24px_rgba(15,23,42,0.5)]",
+        toneClasses.container,
+        className,
+      )}
+    >
+      <Text
+        as="h4"
+        variant="overline"
+        weight="bold"
+        className={cn("tracking-wider", toneClasses.title)}
+      >
         {title}
       </Text>
       <ul className="mt-3 space-y-2">
@@ -51,7 +62,9 @@ export function RankedList({
               <Text as="span" className={toneClasses.label}>
                 {entry.label}
               </Text>
-              <span className={cn("rounded-full border px-2.5 py-0.5 font-semibold", toneClasses.value)}>
+              <span
+                className={cn("rounded-full border px-2.5 py-0.5 font-semibold", toneClasses.value)}
+              >
                 {entry.value}
               </span>
             </li>

@@ -22,16 +22,26 @@ interface PlayersTableSkeletonProps {
 
 export function PlayersTableSkeleton({ rows = 6 }: PlayersTableSkeletonProps) {
   return (
-    <div className="space-y-3 p-4">
+    <div className="grid gap-3 p-3 sm:grid-cols-2 lg:block lg:space-y-0 lg:p-0">
       {Array.from({ length: rows }).map((_, index) => (
         <div
           key={index}
-          className="grid grid-cols-12 items-center gap-3 rounded-lg border border-stone-200 p-3"
+          className="rounded-3xl border border-emerald-950/8 bg-white p-4 lg:grid lg:min-h-20 lg:grid-cols-12 lg:items-center lg:gap-4 lg:rounded-none lg:border-x-0 lg:border-t-0 lg:px-5 lg:py-3"
         >
-          <Skeleton className="col-span-7 h-12 sm:col-span-6" />
-          <Skeleton className="col-span-2 h-6 sm:col-span-2" />
-          <Skeleton className="col-span-2 h-6 sm:col-span-2" />
-          <Skeleton className="col-span-1 h-8 sm:col-span-2" />
+          <div className="flex items-center gap-3 lg:col-span-3">
+            <Skeleton className="h-14 w-14 shrink-0 rounded-2xl" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-4 w-4/5" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-3 gap-2 lg:col-span-7 lg:mt-0 lg:grid-cols-4 lg:gap-4">
+            <Skeleton className="h-10 rounded-xl" />
+            <Skeleton className="h-10 rounded-xl" />
+            <Skeleton className="h-10 rounded-xl" />
+            <Skeleton className="hidden h-10 rounded-xl lg:block" />
+          </div>
+          <Skeleton className="mt-3 h-10 w-full rounded-xl lg:col-span-2 lg:mt-0" />
         </div>
       ))}
     </div>

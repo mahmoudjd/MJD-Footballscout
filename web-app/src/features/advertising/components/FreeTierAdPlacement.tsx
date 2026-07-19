@@ -18,6 +18,7 @@ const adFreeRoutes = [
   "/signup",
   "/forgot-password",
   "/reset-password",
+  "/verify-email",
   "/profile",
   "/shadow-team",
   "/recruitment",

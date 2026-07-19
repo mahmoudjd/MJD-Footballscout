@@ -1,7 +1,4 @@
-"use client"
-
-import { signIn } from "next-auth/react"
-import { Button } from "@/components/ui/button"
+import { ActionLink } from "@/components/ui/action-link"
 import { Panel } from "@/components/ui/panel"
 import { StatusState } from "@/components/ui/status-state"
 import { cn } from "@/lib/cn"
@@ -24,15 +21,15 @@ export function LoginRequiredState({
   return (
     <Panel className={cn("space-y-4 text-center", className)}>
       <StatusState tone="empty" title={title} description={description} />
-      <Button
-        type="button"
-        onClick={() => signIn(undefined, { callbackUrl })}
+      <ActionLink
+        href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
         variant="primary"
         size="md"
+        fullWidth={false}
         className="mx-auto"
       >
         {buttonLabel}
-      </Button>
+      </ActionLink>
     </Panel>
   )
 }

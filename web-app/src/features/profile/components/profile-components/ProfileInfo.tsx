@@ -1,17 +1,17 @@
 import { OutlineIcons } from "@/components/icons/outline-icons"
 import { PlayerType } from "@/lib/types/type"
 import ProfileInfoItem from "@/features/profile/components/profile-components/ProfileInfoItem"
-import { getPlayerDisplayName, safeDecode } from "@/features/profile/components/profile-components/player-display"
+import {
+  getPlayerDisplayName,
+  safeDecode,
+} from "@/features/profile/components/profile-components/player-display"
+import type { JSX } from "react"
 
 interface Props {
   player: PlayerType
-  maxItems?: number
 }
 
-const ProfileInfo = ({ player, maxItems }: Props) => {
-  const openWebsite = () =>
-    player.website && window.open(player.website, "_blank", "noopener noreferrer")
-
+const ProfileInfo = ({ player }: Props) => {
   const ageValue = typeof player.age === "number" ? `${player.age} years` : "-"
   const bornValue = [player.born, player.birthCountry].filter(Boolean).join(" / ") || "-"
   const currentValue = `${player.value || "-"} ${player.currency || ""}`.trim()
@@ -22,7 +22,12 @@ const ProfileInfo = ({ player, maxItems }: Props) => {
         ? `${player.caps} conceded`
         : player.caps
 
-  const items = [
+  const items: Array<{
+    icon: JSX.Element
+    label: string
+    value: string | number
+    href?: string
+  }> = [
     {
       icon: <OutlineIcons.UserIcon />,
       label: "Name",
@@ -112,8 +117,7 @@ const ProfileInfo = ({ player, maxItems }: Props) => {
       icon: <OutlineIcons.LinkIcon />,
       label: "Website",
       value: player.website || "–",
-      clickable: !!player.website,
-      onClick: openWebsite,
+      href: player.website || undefined,
     },
     {
       icon: <OutlineIcons.SparklesIcon />,
@@ -126,19 +130,10 @@ const ProfileInfo = ({ player, maxItems }: Props) => {
     const normalized = String(item.value ?? "").trim()
     return normalized !== "" && normalized !== "–" && normalized !== "-" && normalized !== "null"
   })
-  const renderedItems = typeof maxItems === "number" ? visibleItems.slice(0, maxItems) : visibleItems
-
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      {renderedItems.map(({ icon, label, value, clickable, onClick }) => (
-        <ProfileInfoItem
-          key={label}
-          icon={icon}
-          label={label}
-          value={value}
-          clickable={clickable}
-          onClick={onClick}
-        />
+      {visibleItems.map(({ icon, label, value, href }) => (
+        <ProfileInfoItem key={label} icon={icon} label={label} value={value} href={href} />
       ))}
     </div>
   )

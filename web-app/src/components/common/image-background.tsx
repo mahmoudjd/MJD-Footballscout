@@ -1,65 +1,20 @@
-"use client"
-import { ReactNode, useEffect, useState } from "react"
-
-const images: string[] = [
-  "/backgrounds/0.jpg",
-  "/backgrounds/1.jpg",
-  "/backgrounds/3.jpg",
-  "/backgrounds/4.jpg",
-  "/backgrounds/5.jpg",
-  "/backgrounds/6.jpg",
-  "/backgrounds/7.jpg",
-]
+import Image from "next/image"
+import { ReactNode } from "react"
 
 export function ImageBackground({ children }: { children: ReactNode }) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-
-  useEffect(() => {
-    const preload = (src: string) => {
-      const img = new Image()
-      img.src = src
-    }
-
-    preload(images[0])
-    if (images[1]) preload(images[1])
-
-    const preloadRemaining = () => {
-      images.slice(2).forEach(preload)
-    }
-
-    const idleWindow = window as Window & {
-      requestIdleCallback?: (callback: IdleRequestCallback) => number
-      cancelIdleCallback?: (id: number) => void
-    }
-
-    if (typeof idleWindow.requestIdleCallback === "function") {
-      const idleCallbackId = idleWindow.requestIdleCallback(preloadRemaining)
-      return () => idleWindow.cancelIdleCallback?.(idleCallbackId)
-    }
-
-    const timeoutId = window.setTimeout(preloadRemaining, 1500)
-    return () => window.clearTimeout(timeoutId)
-  }, [])
-
-  useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (reduceMotion) return
-
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length)
-    }, 15000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const imageUrl = images[currentImageIndex]
-
   return (
-    <div
-      className="relative min-h-screen w-full overflow-hidden bg-cover bg-center transition-all duration-700 ease-in-out"
-      style={{ backgroundImage: `url(${imageUrl})` }}
-    >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_42%,rgba(15,23,42,0.35)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-stone-900/10 via-transparent to-stone-950/25" />
+    <div className="relative isolate min-h-[650px] w-full overflow-hidden bg-[#0d261c]">
+      <Image
+        src="/backgrounds/7.jpg"
+        alt="Football stadium under floodlights"
+        fill
+        priority
+        sizes="100vw"
+        className="-z-20 object-cover object-center"
+      />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,24,17,0.96)_0%,rgba(7,30,21,0.84)_44%,rgba(7,25,18,0.35)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_72%_42%,rgba(215,255,69,0.16),transparent_26%)]" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-44 bg-linear-to-t from-[#0d261c] to-transparent" />
       <div className="relative z-10">{children}</div>
     </div>
   )

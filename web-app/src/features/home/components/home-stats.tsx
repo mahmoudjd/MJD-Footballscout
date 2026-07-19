@@ -8,7 +8,6 @@ import { RankedList } from "@/components/ui/ranked-list"
 import { usePlayerHighlightsQuery } from "@/features/players/hooks/usePlayerHighlightsQuery"
 import { PlayerSpotlightList } from "@/components/ui/player-spotlight-list"
 import { HomeInsightsSkeleton } from "@/components/ui/skeleton"
-import { SectionHeader } from "@/components/ui/section-header"
 
 export function HomeStats() {
   const statsQuery = usePlayerStatsQuery()
@@ -16,7 +15,7 @@ export function HomeStats() {
 
   if (statsQuery.isLoading || highlightsQuery.isLoading) {
     return (
-      <Panel tone="glass" className="mt-8 w-full max-w-6xl">
+      <Panel className="w-full">
         <HomeInsightsSkeleton />
       </Panel>
     )
@@ -24,7 +23,7 @@ export function HomeStats() {
 
   if (statsQuery.isError || highlightsQuery.isError || !statsQuery.data || !highlightsQuery.data) {
     return (
-      <Panel tone="glass" className="mt-8 w-full max-w-6xl">
+      <Panel className="w-full">
         <StatusState
           tone="error"
           title="Insights unavailable"
@@ -41,26 +40,23 @@ export function HomeStats() {
     : "Not available"
 
   return (
-    <div className="w-full max-w-6xl space-y-4">
-      <SectionHeader
-        title="Live Player Insights"
-        description="Combined stats and highlights from your current database."
-        icon="ChartBarIcon"
-        badge={`Last sync: ${latestUpdate}`}
-        tone="glass"
-      />
+    <div className="w-full space-y-5">
+      <div className="flex justify-end">
+        <span className="rounded-full border border-emerald-900/10 bg-white px-3 py-1.5 text-xs font-semibold text-stone-500 shadow-sm">
+          Last sync: {latestUpdate}
+        </span>
+      </div>
 
-      <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatTile label="Total Players" value={stats.totalPlayers} tone="glass" />
-        <StatTile label="Average Age" value={stats.averageAge} tone="glass" />
-        <StatTile label="Average ELO" value={stats.averageElo} tone="glass" />
+      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatTile label="Total Players" value={stats.totalPlayers} />
+        <StatTile label="Average Age" value={stats.averageAge} />
+        <StatTile label="Average ELO" value={stats.averageElo} />
       </div>
 
       <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
         <RankedList
           title="Top Positions"
           emptyText="No position data available."
-          tone="glass"
           items={stats.positions.slice(0, 4).map((entry) => ({
             key: entry.position,
             label: entry.position,
@@ -70,7 +66,6 @@ export function HomeStats() {
         <RankedList
           title="Top Countries"
           emptyText="No country data available."
-          tone="glass"
           items={stats.topCountries.map((entry) => ({
             key: entry.country,
             label: entry.country,
@@ -84,19 +79,16 @@ export function HomeStats() {
           title="Top ELO Players"
           players={highlights.topEloPlayers}
           emptyText="No player rankings available."
-          tone="glass"
         />
         <PlayerSpotlightList
           title="Young Talents"
           players={highlights.youngTalents}
           emptyText="No young talents found."
-          tone="glass"
         />
         <PlayerSpotlightList
           title="Market Leaders"
           players={highlights.marketLeaders}
           emptyText="No market value data available."
-          tone="glass"
         />
       </div>
     </div>

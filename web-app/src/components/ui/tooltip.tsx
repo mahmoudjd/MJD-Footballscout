@@ -24,8 +24,8 @@ export function TooltipTrigger(props: TooltipTriggerProps) {
 }
 
 const toneClasses: Record<NonNullable<TooltipContentProps["tone"]>, string> = {
-  dark: "bg-slate-900 text-white",
-  light: "border border-slate-200 bg-white text-slate-700",
+  dark: "bg-emerald-950 text-white",
+  light: "border border-emerald-950/10 bg-white text-emerald-950",
 }
 
 export function TooltipContent({
@@ -39,7 +39,7 @@ export function TooltipContent({
       <TooltipPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          "data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 z-50 rounded-md px-2.5 py-1.5 text-xs font-medium shadow-lg",
+          "data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 z-50 max-w-xs rounded-lg px-3 py-2 text-xs leading-relaxed font-medium shadow-xl",
           toneClasses[tone],
           className,
         )}

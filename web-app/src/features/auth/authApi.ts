@@ -10,6 +10,13 @@ export interface AuthLoginResponse {
   refreshToken: string
 }
 
+export interface MfaChallengeResponse {
+  mfaRequired: true
+  mfaChallengeToken: string
+}
+
+export type CredentialsLoginResponse = AuthLoginResponse | MfaChallengeResponse
+
 export class AuthApiError extends Error {
   code: string
   status?: number
@@ -21,17 +28,30 @@ export class AuthApiError extends Error {
   }
 }
 
-export async function loginUser({ email, password }: { email: string; password: string }) {
+export async function loginUser(input: {
+  email: string
+  password: string
+  mfaCode?: string
+  mfaChallengeToken?: string
+}) {
   try {
-    const response = await axios.post<AuthLoginResponse>(`${env.NEXT_PUBLIC_API_HOST}/auth/login`, {
-      email,
-      password,
-    })
+    const response = await axios.post<CredentialsLoginResponse>(
+      `${env.NEXT_PUBLIC_API_HOST}/auth/login`,
+      input,
+    )
     return response.data
   } catch (error) {
     console.error("Login failed:", error)
     return null
   }
+}
+
+export async function beginCredentialsLogin(input: { email: string; password: string }) {
+  const response = await axios.post<CredentialsLoginResponse>(
+    `${env.NEXT_PUBLIC_API_HOST}/auth/login`,
+    input,
+  )
+  return response.data
 }
 
 function toAuthApiError(error: unknown) {
@@ -45,13 +65,13 @@ function toAuthApiError(error: unknown) {
         normalizedApiMessage.includes("linked to another google account") ||
         normalizedApiMessage.includes("already linked")
       ) {
-        return new AuthApiError(
-          apiMessage ?? "",
-          "GOOGLE_ACCOUNT_LINK_CONFLICT",
-          status,
-        )
+        return new AuthApiError(apiMessage ?? "", "GOOGLE_ACCOUNT_LINK_CONFLICT", status)
       }
-      return new AuthApiError(apiMessage || "Google login conflict", "GOOGLE_LOGIN_CONFLICT", status)
+      return new AuthApiError(
+        apiMessage || "Google login conflict",
+        "GOOGLE_LOGIN_CONFLICT",
+        status,
+      )
     }
     if (status === 503) {
       return new AuthApiError(

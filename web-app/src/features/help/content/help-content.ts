@@ -165,6 +165,24 @@ export const faqGroups: FaqGroup[] = [
           "Open Profile & Security from the account menu. Enter your current password and choose a new password with at least 8 characters.",
       },
       {
+        id: "email-verification",
+        question: "Why do I need to verify my email?",
+        answer:
+          "New password-based accounts must confirm their email before the first sign-in. Verification links expire after 24 hours and can be requested again from the login page.",
+      },
+      {
+        id: "multi-factor-authentication",
+        question: "How do I enable multi-factor authentication?",
+        answer:
+          "Open Profile and use the MFA section. Confirm your current password, add the setup key to a TOTP-compatible authenticator, verify one code and store the one-time recovery codes safely.",
+      },
+      {
+        id: "security-emails",
+        question: "Which security emails will I receive?",
+        answer:
+          "The app can notify you when a password is changed or reset, MFA is enabled or disabled, or your account is deactivated. Manage these alerts from your Profile.",
+      },
+      {
         id: "deactivate-account",
         question: "What happens when I deactivate my account?",
         answer:
@@ -209,6 +227,7 @@ export const releaseNotes: ReleaseNote[] = [
       "Rank the database with configurable Recruitment Fit Scores combining ELO, age, value and scouting progress.",
       "Unlock Shadow Team and Recruitment Workspace with MJD Scout Premium using secure Stripe Checkout, webhook-synchronized access and self-service subscription management.",
       "Support the Free plan with clearly labelled, responsive advertising while Premium and administrator sessions remain fully ad-free.",
+      "Protect new registrations with email verification, expiring one-time links, transactional security notifications and TOTP multi-factor authentication with recovery codes.",
     ],
     featured: true,
   },

@@ -90,13 +90,22 @@ export function CompareSelectionPanel({
         </Button>
       </div>
 
-      <Input
-        type="search"
-        value={search}
-        onChange={(event) => onSearchChange(event.target.value)}
-        placeholder="Search players by name, club, country or position"
-        inputSize="sm"
-      />
+      <div>
+        <label htmlFor="compare-player-search" className="sr-only">
+          Search Players for Comparison
+        </label>
+        <Input
+          id="compare-player-search"
+          name="comparePlayerSearch"
+          type="search"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder="Search by name, club, country, or position…"
+          autoComplete="off"
+          spellCheck={false}
+          inputSize="sm"
+        />
+      </div>
 
       <div className="rounded-xl border border-stone-200 bg-stone-50/90 p-3">
         {selectedIds.length === 0 ? (
@@ -106,19 +115,11 @@ export function CompareSelectionPanel({
         ) : (
           <div className="flex flex-wrap items-center gap-2">
             {selectedPreview.map((player) => (
-              <Chip
-                key={player._id}
-                tone="amber"
-                className="bg-amber-100/80 text-amber-800"
-              >
+              <Chip key={player._id} tone="amber" className="bg-amber-100/80 text-amber-800">
                 {player.name}
               </Chip>
             ))}
-            {selectedOverflow > 0 && (
-              <Chip tone="slate">
-                +{selectedOverflow} more
-              </Chip>
-            )}
+            {selectedOverflow > 0 && <Chip tone="slate">+{selectedOverflow} more</Chip>}
           </div>
         )}
       </div>
@@ -178,12 +179,7 @@ export function CompareSelectionPanel({
             )}
           </div>
           {hasMoreCandidates && (
-            <Button
-              type="button"
-              onClick={onLoadMoreCandidates}
-              variant="outline"
-              size="sm"
-            >
+            <Button type="button" onClick={onLoadMoreCandidates} variant="outline" size="sm">
               Load more players
             </Button>
           )}

@@ -13,9 +13,11 @@ const variants = {
 }
 
 const icons = {
-  info: <OutlineIcons.InformationCircleIcon className="h-5 w-5 text-yellow-600" />,
-  success: <SolidIcons.CheckCircleIcon className="h-5 w-5 text-green-600" />,
-  error: <SolidIcons.ExclamationTriangleIcon className="h-5 w-5 text-red-600" />,
+  info: (
+    <OutlineIcons.InformationCircleIcon className="h-5 w-5 text-yellow-600" aria-hidden="true" />
+  ),
+  success: <SolidIcons.CheckCircleIcon className="h-5 w-5 text-green-600" aria-hidden="true" />,
+  error: <SolidIcons.ExclamationTriangleIcon className="h-5 w-5 text-red-600" aria-hidden="true" />,
 }
 
 function showCustomToast(
@@ -44,8 +46,9 @@ function showCustomToast(
           variant="ghost"
           size="icon-sm"
           className="rounded-md text-gray-500 hover:bg-transparent hover:text-gray-800"
+          aria-label="Dismiss notification"
         >
-          <OutlineIcons.XMarkIcon className="h-4 w-4 cursor-pointer" />
+          <OutlineIcons.XMarkIcon className="h-4 w-4" aria-hidden="true" />
         </Button>
       </div>
     ),

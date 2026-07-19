@@ -17,3 +17,5 @@ logs/
 *.env
 
 .gitignore
+
+.DS_Store

@@ -101,7 +101,7 @@ export function SearchPlayerCard({ player }: SearchPlayerCardProps) {
             size="sm"
             className="border-stone-300 bg-stone-50 text-stone-700 hover:bg-stone-100"
           >
-            <OutlineIcons.EyeIcon className="h-5 w-5" />
+            <OutlineIcons.EyeIcon className="h-5 w-5" aria-hidden="true" />
             <Text as="span" weight="semibold">
               Show profile
             </Text>
@@ -115,7 +115,7 @@ export function SearchPlayerCard({ player }: SearchPlayerCardProps) {
             size="sm"
             className="border-stone-300 bg-stone-50 text-stone-700 hover:bg-stone-100"
           >
-            <OutlineIcons.HeartIcon className="h-5 w-5" />
+            <OutlineIcons.HeartIcon className="h-5 w-5" aria-hidden="true" />
             <Text as="span" weight="semibold">
               Add to player list
             </Text>

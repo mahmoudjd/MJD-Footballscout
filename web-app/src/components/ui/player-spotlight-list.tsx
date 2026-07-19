@@ -49,8 +49,19 @@ export function PlayerSpotlightList({
   }[tone]
 
   return (
-    <div className={cn("rounded-2xl border p-4 shadow-[0_14px_26px_-24px_rgba(15,23,42,0.5)]", toneClasses.container, className)}>
-      <Text as="h4" variant="overline" weight="bold" className={cn("tracking-wider", toneClasses.title)}>
+    <div
+      className={cn(
+        "rounded-2xl border p-4 shadow-[0_14px_26px_-24px_rgba(15,23,42,0.5)]",
+        toneClasses.container,
+        className,
+      )}
+    >
+      <Text
+        as="h4"
+        variant="overline"
+        weight="bold"
+        className={cn("tracking-wider", toneClasses.title)}
+      >
         {title}
       </Text>
       {players.length > 0 ? (
@@ -58,7 +69,10 @@ export function PlayerSpotlightList({
           {players.map((player) => (
             <li
               key={player._id}
-              className={cn("flex items-center justify-between gap-3 rounded-xl border p-2.5 text-sm", toneClasses.row)}
+              className={cn(
+                "flex items-center justify-between gap-3 rounded-xl border p-2.5 text-sm",
+                toneClasses.row,
+              )}
             >
               <div className="flex min-w-0 items-center gap-2.5">
                 <Image
@@ -66,7 +80,7 @@ export function PlayerSpotlightList({
                   alt={player.name}
                   width={40}
                   height={40}
-                  className="h-10 w-10 rounded-full border border-white/35 object-cover bg-slate-200"
+                  className="h-10 w-10 rounded-full border border-white/35 bg-slate-200 object-cover"
                   sizes="40px"
                 />
                 <div className="min-w-0">
@@ -79,7 +93,12 @@ export function PlayerSpotlightList({
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <span className={cn("rounded-full border px-2 py-0.5 text-xs font-semibold", toneClasses.badge)}>
+                <span
+                  className={cn(
+                    "rounded-full border px-2 py-0.5 text-xs font-semibold",
+                    toneClasses.badge,
+                  )}
+                >
                   ELO {player.elo}
                 </span>
                 <Link

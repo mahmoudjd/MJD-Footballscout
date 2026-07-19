@@ -10,10 +10,7 @@ export function safeDecode(value: string | null | undefined) {
 }
 
 export function getPlayerDisplayName(
-  player:
-    | Pick<PlayerType, "title" | "name" | "fullName">
-    | null
-    | undefined,
+  player: Pick<PlayerType, "title" | "name" | "fullName"> | null | undefined,
 ) {
   if (!player) return "Unknown Player"
   const title = safeDecode(player.title).trim()
