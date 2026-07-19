@@ -59,6 +59,12 @@ function resolveUserRole(user: unknown): "admin" | "user" | undefined {
   return undefined
 }
 
+function optionalCredential(value: unknown) {
+  if (typeof value !== "string") return undefined
+  const normalized = value.trim()
+  return normalized && normalized !== "undefined" && normalized !== "null" ? normalized : undefined
+}
+
 const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -85,8 +91,8 @@ const authOptions: NextAuthOptions = {
           const loginData = await loginUser({
             email: credentials?.email || "",
             password: credentials?.password || "",
-            mfaCode: credentials?.mfaCode || undefined,
-            mfaChallengeToken: credentials?.mfaChallengeToken || undefined,
+            mfaCode: optionalCredential(credentials?.mfaCode),
+            mfaChallengeToken: optionalCredential(credentials?.mfaChallengeToken),
           })
 
           if (loginData && !("mfaRequired" in loginData)) {
