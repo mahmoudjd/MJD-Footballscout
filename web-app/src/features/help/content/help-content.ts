@@ -53,6 +53,12 @@ export const helpSteps: HelpStep[] = [
     href: "/watchlists",
     action: "Open Watchlists",
   },
+  {
+    title: "Plan a Shadow Team",
+    description: "Place primary targets and alternatives into a formation and reveal squad gaps.",
+    href: "/shadow-team",
+    action: "Build Shadow Team",
+  },
 ]
 
 export const faqGroups: FaqGroup[] = [
@@ -112,6 +118,16 @@ export const faqGroups: FaqGroup[] = [
         answer:
           "A watchlist is a private collection of players. Use separate watchlists for transfer targets, position needs or follow-up scouting.",
       },
+      {
+        id: "shadow-team",
+        question: "How does a Shadow Team work?",
+        answer:
+          "Choose a formation and add candidates to each position. The first player is the primary choice; additional players form the positional shortlist. The dashboard then calculates coverage, age, ELO, estimated market value and recommended alternatives.",
+        tips: [
+          "Select Set primary to promote an alternative.",
+          "A player assigned to several positions is highlighted as a duplicate.",
+        ],
+      },
     ],
   },
   {
@@ -142,48 +158,21 @@ export const faqGroups: FaqGroup[] = [
 
 export const releaseNotes: ReleaseNote[] = [
   {
-    version: "0.6.0",
+    version: "3.0",
     date: "2026-07-18",
-    title: "Explainable Similar Players",
-    summary: "Player profiles now include data-based alternatives with a transparent match score.",
+    title: "Complete Scouting Workspace",
+    summary:
+      "A major update combining recruitment planning, player intelligence, account security and a unified scouting experience.",
     highlights: [
-      "Added a Similar tab to player profiles.",
-      "Scores position, age, ELO, market value, preferred foot and nationality.",
-      "Displays plain-language reasons for every recommendation.",
+      "Build persistent Shadow Teams in four tactical formations with primary candidates and positional shortlists.",
+      "Analyze squad coverage, missing positions, duplicate assignments, average age, estimated value and average ELO.",
+      "Discover explainable similar-player recommendations based on position, age, ELO, market value, preferred foot and nationality.",
+      "Create structured scouting reports and review player history for ELO, market value and club changes.",
+      "Organize transfer targets in watchlists and compare selected players side by side.",
+      "Manage profile information, reset or change passwords and safely deactivate accounts without deleting database records.",
+      "Use the redesigned responsive interface with unified navigation, tables, profiles, filters, buttons and status feedback.",
+      "Access the new Help & What’s New center with workflow guidance and searchable FAQs.",
     ],
     featured: true,
-  },
-  {
-    version: "0.5.0",
-    date: "2026-07-18",
-    title: "Unified Scouting Interface",
-    summary: "Core pages now share a wider, more consistent responsive layout and visual system.",
-    highlights: [
-      "Modernized player table, filters, profile tabs and attributes.",
-      "Unified header, footer, panels, buttons and empty states.",
-      "Improved mobile navigation, focus states and loading feedback.",
-    ],
-  },
-  {
-    version: "0.4.0",
-    date: "2026-07-18",
-    title: "Profile & Account Security",
-    summary: "Users can manage personal information and important account security actions.",
-    highlights: [
-      "Added the Profile & Security page.",
-      "Added forgot-password and password-reset flows.",
-      "Added recoverable account deactivation in the backend.",
-    ],
-  },
-  {
-    version: "0.3.0",
-    date: "2026-07-18",
-    title: "Player History & Scouting Reports",
-    summary: "Scouting decisions and important player changes are easier to review over time.",
-    highlights: [
-      "Added structured scouting reports with ratings and decisions.",
-      "Added player history for ELO, market value and club changes.",
-      "Added watchlists and side-by-side player comparison.",
-    ],
   },
 ]

@@ -227,6 +227,80 @@ export const WatchlistInputSchema = z.object({
   description: z.string().default(""),
 })
 
+export const ShadowTeamFormationSchema = z.enum(["4-3-3", "4-2-3-1", "4-4-2", "3-5-2"])
+
+export const ShadowTeamAssignmentSchema = z.object({
+  slotId: z.string(),
+  playerIds: z.array(z.string()),
+})
+
+export const ShadowTeamSlotSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  shortLabel: z.string(),
+  positionGroup: z.enum(["Goalkeeper", "Defender", "Midfielder", "Forward"]),
+  x: z.number(),
+  y: z.number(),
+})
+
+export const ShadowTeamSchema = z.object({
+  _id: z.string(),
+  userId: z.string(),
+  name: z.string(),
+  formation: ShadowTeamFormationSchema,
+  assignments: z.array(ShadowTeamAssignmentSchema),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export const ShadowTeamListItemSchema = ShadowTeamSchema.extend({
+  filledSlots: z.number(),
+  candidateCount: z.number(),
+})
+
+export const ShadowTeamAnalyticsSchema = z.object({
+  filledSlots: z.number(),
+  totalSlots: z.number(),
+  missingPositions: z.array(
+    z.object({ slotId: z.string(), label: z.string(), shortLabel: z.string() }),
+  ),
+  overstaffedPositions: z.array(
+    z.object({ slotId: z.string(), label: z.string(), shortLabel: z.string(), count: z.number() }),
+  ),
+  duplicatePlayers: z.array(z.object({ playerId: z.string(), slotIds: z.array(z.string()) })),
+  primaryPlayerCount: z.number(),
+  averageAge: z.number().nullable(),
+  averageElo: z.number().nullable(),
+  totalMarketValue: z.number(),
+})
+
+export const ShadowTeamAlternativeSchema = z.object({
+  slotId: z.string(),
+  players: z.array(
+    z.object({
+      player: PlayerSchema,
+      score: z.number(),
+      reasons: z.array(z.string()),
+    }),
+  ),
+})
+
+export const ShadowTeamDetailSchema = ShadowTeamSchema.extend({
+  slots: z.array(ShadowTeamSlotSchema),
+  players: z.array(PlayerSchema),
+  analytics: ShadowTeamAnalyticsSchema,
+  alternatives: z.array(ShadowTeamAlternativeSchema),
+})
+
+export const ShadowTeamCreateInputSchema = z.object({
+  name: z.string().min(1).max(80),
+  formation: ShadowTeamFormationSchema,
+})
+
+export const ShadowTeamUpdateInputSchema = ShadowTeamCreateInputSchema.extend({
+  assignments: z.array(ShadowTeamAssignmentSchema),
+})
+
 export type AttributeType = z.infer<typeof AttributeSchema>
 export type AwardType = z.infer<typeof AwardSchema>
 export type TransferType = z.infer<typeof TransferSchema>
@@ -254,3 +328,11 @@ export type PlayerHistoryResponseType = z.infer<typeof PlayerHistoryResponseSche
 export type WatchlistType = z.infer<typeof WatchlistSchema>
 export type WatchlistDetailType = z.infer<typeof WatchlistDetailSchema>
 export type WatchlistInputType = z.infer<typeof WatchlistInputSchema>
+export type ShadowTeamFormationType = z.infer<typeof ShadowTeamFormationSchema>
+export type ShadowTeamAssignmentType = z.infer<typeof ShadowTeamAssignmentSchema>
+export type ShadowTeamSlotType = z.infer<typeof ShadowTeamSlotSchema>
+export type ShadowTeamType = z.infer<typeof ShadowTeamSchema>
+export type ShadowTeamListItemType = z.infer<typeof ShadowTeamListItemSchema>
+export type ShadowTeamDetailType = z.infer<typeof ShadowTeamDetailSchema>
+export type ShadowTeamCreateInputType = z.infer<typeof ShadowTeamCreateInputSchema>
+export type ShadowTeamUpdateInputType = z.infer<typeof ShadowTeamUpdateInputSchema>

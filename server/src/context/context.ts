@@ -7,6 +7,7 @@ import {ScoutingReport} from "../modules/players/scouting-report.model";
 import {PlayerHistory} from "../modules/players/player-history.model";
 import {Watchlist} from "../modules/watchlists/watchlist.model";
 import logger from "../logger/logger";
+import {ShadowTeam} from "../modules/shadow-teams/shadow-team.model";
 
 export async function createContext({
                                             mongoURI,
@@ -24,6 +25,7 @@ export async function createContext({
     const scoutingReports = db.collection<ScoutingReport>("scoutingReports");
     const playerHistories = db.collection<PlayerHistory>("playerHistories");
     const watchlists = db.collection<Watchlist>("watchlists");
+    const shadowTeams = db.collection<ShadowTeam>("shadowTeams");
 
     await players.createIndex({fullName: 1});
     await players.createIndex({name: 1});
@@ -43,6 +45,7 @@ export async function createContext({
         },
     );
     await watchlists.createIndex({userId: 1, updatedAt: -1});
+    await shadowTeams.createIndex({userId: 1, updatedAt: -1});
     await scoutingReports.createIndex({playerId: 1, updatedAt: -1});
     await scoutingReports.createIndex({userId: 1, updatedAt: -1});
     await playerHistories.createIndex({playerId: 1, timestamp: -1});
@@ -74,6 +77,8 @@ export async function createContext({
         playerHistories,
         // @ts-ignore
         watchlists,
+        // @ts-ignore
+        shadowTeams,
         config,
         httpClient
     };
