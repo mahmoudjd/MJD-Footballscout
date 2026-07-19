@@ -48,6 +48,10 @@ export async function createContext({
             partialFilterExpression: {googleId: {$type: "string"}},
         },
     );
+    await users.createIndex(
+        {stripeCustomerId: 1},
+        {unique: true, partialFilterExpression: {stripeCustomerId: {$type: "string"}}},
+    );
     await watchlists.createIndex({userId: 1, updatedAt: -1});
     await shadowTeams.createIndex({userId: 1, updatedAt: -1});
     await recruitmentCandidates.createIndex({userId: 1, playerId: 1}, {unique: true});

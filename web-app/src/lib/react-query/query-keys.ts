@@ -1,4 +1,7 @@
 export const queryKeys = {
+  billing: {
+    status: ["billing", "status"] as const,
+  },
   players: {
     all: ["players"] as const,
     detail: (playerId: string) => ["players", playerId] as const,
