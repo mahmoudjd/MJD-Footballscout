@@ -1,8 +1,8 @@
 import express, {Request, Response} from "express";
 import {ZodError} from "zod";
 import {AppContext} from "../../context/types";
-import logger from "../../logger/logger";
 import {authMiddleware} from "../../middleware/auth-middleware";
+import {createFeatureRequestLogger, logFeatureError} from "../../middleware/feature-request-logger";
 import {createPremiumAccessMiddleware} from "../../middleware/premium-middleware";
 import {AuthenticatedRequest} from "../../shared/auth";
 import {ApiError} from "../players/scouting.controller";
@@ -22,21 +22,24 @@ function getRouteParam(value: string | string[] | undefined) {
     return Array.isArray(value) ? value[0] || "" : value || "";
 }
 
-function handleControllerError(error: unknown, res: Response) {
+function handleControllerError(error: unknown, req: Request, res: Response, operation: string) {
     if (error instanceof ApiError) {
+        logFeatureError("shadow-team", operation, req, error, error.status);
         return res.status(error.status).json({error: error.message});
     }
     if (error instanceof ZodError) {
+        logFeatureError("shadow-team", operation, req, error, 400);
         return res.status(400).json({error: "Invalid input", details: error.issues});
     }
-    logger.error("Shadow team route failed:", error);
+    logFeatureError("shadow-team", operation, req, error, 500);
     return res.status(500).json({error: "Internal server error"});
 }
 
 export default function createShadowTeamsRouter(context: AppContext) {
     const router = express.Router();
+    router.use(createFeatureRequestLogger("shadow-team"));
     router.use(authMiddleware);
-    router.use(createPremiumAccessMiddleware(context));
+    router.use(createPremiumAccessMiddleware(context, "shadow-team"));
 
     router.get("/", async (req: Request, res: Response) => {
         const userId = getUserId(req);
@@ -44,7 +47,7 @@ export default function createShadowTeamsRouter(context: AppContext) {
         try {
             return res.status(200).json(await listShadowTeams(context, userId));
         } catch (error) {
-            return handleControllerError(error, res);
+            return handleControllerError(error, req, res, "list");
         }
     });
 
@@ -54,7 +57,7 @@ export default function createShadowTeamsRouter(context: AppContext) {
         try {
             return res.status(201).json(await createShadowTeam(context, userId, req.body));
         } catch (error) {
-            return handleControllerError(error, res);
+            return handleControllerError(error, req, res, "create");
         }
     });
 
@@ -64,7 +67,7 @@ export default function createShadowTeamsRouter(context: AppContext) {
         try {
             return res.status(200).json(await getShadowTeam(context, getRouteParam(req.params.id), userId));
         } catch (error) {
-            return handleControllerError(error, res);
+            return handleControllerError(error, req, res, "get-detail");
         }
     });
 
@@ -76,7 +79,7 @@ export default function createShadowTeamsRouter(context: AppContext) {
                 .status(200)
                 .json(await updateShadowTeam(context, getRouteParam(req.params.id), userId, req.body));
         } catch (error) {
-            return handleControllerError(error, res);
+            return handleControllerError(error, req, res, "update");
         }
     });
 
@@ -87,7 +90,7 @@ export default function createShadowTeamsRouter(context: AppContext) {
             await deleteShadowTeam(context, getRouteParam(req.params.id), userId);
             return res.status(204).send();
         } catch (error) {
-            return handleControllerError(error, res);
+            return handleControllerError(error, req, res, "delete");
         }
     });
 
