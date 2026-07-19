@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/hooks/apiClient"
+import { parseApiResponse } from "@/lib/http/parse-api-response"
 import {
   RecruitmentCandidateSchema,
   RecruitmentWorkspaceSchema,
@@ -8,12 +9,20 @@ import {
 
 export async function fetchRecruitmentCandidates() {
   const response = await apiClient.get<unknown>("/recruitment/candidates")
-  return RecruitmentCandidateSchema.array().parse(response.data)
+  return parseApiResponse(
+    RecruitmentCandidateSchema.array(),
+    response.data,
+    "recruitment candidate list",
+  )
 }
 
 export async function createRecruitmentCandidate(payload: RecruitmentCandidateInputType) {
   const response = await apiClient.post<unknown>("/recruitment/candidates", payload)
-  return RecruitmentCandidateSchema.parse(response.data)
+  return parseApiResponse(
+    RecruitmentCandidateSchema,
+    response.data,
+    "created recruitment candidate",
+  )
 }
 
 export async function updateRecruitmentCandidate(
@@ -21,7 +30,11 @@ export async function updateRecruitmentCandidate(
   payload: RecruitmentCandidateInputType,
 ) {
   const response = await apiClient.put<unknown>(`/recruitment/candidates/${id}`, payload)
-  return RecruitmentCandidateSchema.parse(response.data)
+  return parseApiResponse(
+    RecruitmentCandidateSchema,
+    response.data,
+    "updated recruitment candidate",
+  )
 }
 
 export async function deleteRecruitmentCandidate(id: string) {
@@ -30,10 +43,14 @@ export async function deleteRecruitmentCandidate(id: string) {
 
 export async function fetchRecruitmentWorkspace() {
   const response = await apiClient.get<unknown>("/recruitment/workspace")
-  return RecruitmentWorkspaceSchema.parse(response.data)
+  return parseApiResponse(RecruitmentWorkspaceSchema, response.data, "recruitment workspace")
 }
 
 export async function updateRecruitmentWorkspace(payload: RecruitmentWorkspaceInputType) {
   const response = await apiClient.put<unknown>("/recruitment/workspace", payload)
-  return RecruitmentWorkspaceSchema.parse(response.data)
+  return parseApiResponse(
+    RecruitmentWorkspaceSchema,
+    response.data,
+    "updated recruitment workspace",
+  )
 }

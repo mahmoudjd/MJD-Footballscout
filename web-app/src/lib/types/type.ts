@@ -52,6 +52,33 @@ export const PlayerSchema = z.object({
   timestamp: z.coerce.date(),
 })
 
+const PlayerReferenceStringSchema = z
+  .union([z.string(), z.null(), z.undefined()])
+  .transform((value) => value ?? "")
+
+const PlayerReferenceNumberSchema = z
+  .union([z.number(), z.string(), z.null(), z.undefined()])
+  .transform((value) => {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : 0
+  })
+
+/**
+ * Compact player data embedded in recruitment and Shadow Team responses.
+ * Legacy production players may not contain every full profile property, so
+ * feature responses validate only the fields their cards actually consume.
+ */
+export const PlayerReferenceSchema = z.object({
+  _id: z.string(),
+  name: PlayerReferenceStringSchema,
+  fullName: PlayerReferenceStringSchema,
+  currentClub: PlayerReferenceStringSchema,
+  image: PlayerReferenceStringSchema,
+  country: PlayerReferenceStringSchema,
+  position: PlayerReferenceStringSchema,
+  elo: PlayerReferenceNumberSchema,
+})
+
 export const PositionStatSchema = z.object({
   position: z.string(),
   count: z.number(),
@@ -278,7 +305,7 @@ export const ShadowTeamAlternativeSchema = z.object({
   slotId: z.string(),
   players: z.array(
     z.object({
-      player: PlayerSchema,
+      player: PlayerReferenceSchema,
       score: z.number(),
       reasons: z.array(z.string()),
     }),
@@ -287,7 +314,7 @@ export const ShadowTeamAlternativeSchema = z.object({
 
 export const ShadowTeamDetailSchema = ShadowTeamSchema.extend({
   slots: z.array(ShadowTeamSlotSchema),
-  players: z.array(PlayerSchema),
+  players: z.array(PlayerReferenceSchema),
   analytics: ShadowTeamAnalyticsSchema,
   alternatives: z.array(ShadowTeamAlternativeSchema),
 })
@@ -322,7 +349,7 @@ export const RecruitmentCandidateInputSchema = z.object({
 export const RecruitmentCandidateSchema = RecruitmentCandidateInputSchema.extend({
   _id: z.string(),
   userId: z.string(),
-  player: PlayerSchema.nullable(),
+  player: PlayerReferenceSchema.nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })
@@ -381,6 +408,7 @@ export type AwardType = z.infer<typeof AwardSchema>
 export type TransferType = z.infer<typeof TransferSchema>
 export type TitleType = z.infer<typeof TitleSchema>
 export type PlayerType = z.infer<typeof PlayerSchema>
+export type PlayerReferenceType = z.infer<typeof PlayerReferenceSchema>
 export type PositionStatType = z.infer<typeof PositionStatSchema>
 export type CountryStatType = z.infer<typeof CountryStatSchema>
 export type PlayerStatsType = z.infer<typeof PlayerStatsSchema>
