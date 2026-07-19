@@ -75,6 +75,7 @@ export const PlayerReferenceSchema = z.object({
   _id: z.string(),
   name: PlayerReferenceStringSchema,
   fullName: PlayerReferenceStringSchema,
+  number: PlayerReferenceNumberSchema,
   currentClub: PlayerReferenceStringSchema,
   image: PlayerReferenceStringSchema,
   country: PlayerReferenceStringSchema,

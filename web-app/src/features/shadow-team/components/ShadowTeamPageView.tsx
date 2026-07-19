@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState, type FormEvent } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { OutlineIcons } from "@/components/icons/outline-icons"
@@ -24,6 +25,7 @@ import {
 } from "@/features/shadow-team/hooks/useShadowTeams"
 import { cn } from "@/lib/cn"
 import { useToast } from "@/lib/hooks/useToast"
+import { getPlayerImageSrc } from "@/lib/player-image"
 import type {
   PlayerReferenceType,
   ShadowTeamAssignmentType,
@@ -42,6 +44,10 @@ const currencyFormatter = new Intl.NumberFormat("en-GB", {
 
 function playerLabel(player: PlayerReferenceType) {
   return player.name || player.fullName || "Unknown player"
+}
+
+function playerNumber(player: PlayerReferenceType) {
+  return player.number > 0 ? String(player.number) : "–"
 }
 
 function formatUpdatedDate(value: unknown) {
@@ -88,7 +94,7 @@ function PitchSlot({
       aria-pressed={selected}
       aria-label={`${slot.label}: ${primary ? playerLabel(primary) : "empty"}`}
       className={cn(
-        "absolute z-10 flex min-h-14 w-[5.4rem] -translate-x-1/2 -translate-y-1/2 touch-manipulation flex-col items-center justify-center rounded-2xl border px-2 py-1.5 text-center shadow-lg transition-[background-color,border-color,color,box-shadow,transform] focus-visible:ring-3 focus-visible:ring-lime-300 focus-visible:outline-none sm:w-[6.5rem]",
+        "absolute z-10 flex w-[5.4rem] -translate-x-1/2 -translate-y-1/2 touch-manipulation flex-col items-center rounded-2xl border px-1.5 py-1.5 text-center shadow-lg transition-[background-color,border-color,color,box-shadow,transform] focus-visible:ring-3 focus-visible:ring-lime-300 focus-visible:outline-none sm:w-[6.5rem] sm:px-2 sm:py-2",
         selected
           ? "scale-105 border-lime-300 bg-emerald-950 text-white shadow-[0_16px_30px_-16px_rgba(6,78,59,0.9)]"
           : primary
@@ -100,9 +106,27 @@ function PitchSlot({
       <span className="text-[10px] font-extrabold tracking-wider uppercase opacity-75">
         {slot.shortLabel}
       </span>
-      <span className="line-clamp-1 max-w-full text-xs font-bold sm:text-sm">
-        {primary ? playerLabel(primary) : "Add player"}
-      </span>
+      {primary ? (
+        <>
+          <span className="relative mt-1 block h-10 w-10 sm:h-12 sm:w-12">
+            <Image
+              src={getPlayerImageSrc(primary.image)}
+              alt=""
+              fill
+              sizes="(min-width: 640px) 48px, 40px"
+              className="rounded-full border-2 border-white/90 bg-white object-cover object-top shadow-sm"
+            />
+            <span className="absolute -right-1 -bottom-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border border-white bg-lime-300 px-1 text-[10px] font-black leading-none text-emerald-950 shadow-sm">
+              {playerNumber(primary)}
+            </span>
+          </span>
+          <span className="mt-1 line-clamp-1 max-w-full text-[11px] font-bold leading-tight sm:text-xs">
+            {playerLabel(primary)}
+          </span>
+        </>
+      ) : (
+        <span className="mt-1 text-xs font-bold sm:text-sm">Add player</span>
+      )}
       {players.length > 1 ? (
         <span className="mt-0.5 rounded-full bg-lime-300 px-1.5 text-[10px] font-extrabold text-emerald-950">
           +{players.length - 1}
