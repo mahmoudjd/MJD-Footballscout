@@ -5,6 +5,7 @@ import {
   DeactivateAccountInputSchema,
   ForgotPasswordInputSchema,
   ResetPasswordInputSchema,
+  UserLoginInputSchema,
   UserRegisterInputSchema,
 } from "./user.model";
 
@@ -32,6 +33,18 @@ test("password schemas reject passwords shorter than 8 characters", () => {
     }).success,
     false,
   );
+});
+
+test("login ignores serialized empty MFA credentials", () => {
+  const result = UserLoginInputSchema.parse({
+    email: "scout@example.com",
+    password: "Secure123!",
+    mfaCode: "undefined",
+    mfaChallengeToken: "undefined",
+  });
+
+  assert.equal(result.mfaCode, undefined);
+  assert.equal(result.mfaChallengeToken, undefined);
 });
 
 test("forgot password normalizes email without exposing account data", () => {

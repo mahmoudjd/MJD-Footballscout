@@ -24,6 +24,15 @@ export const UserGoogleLoginInputSchema = z.object({
   idToken: z.string().min(1),
 });
 
+const OptionalCredentialSchema = (schema: z.ZodString) =>
+  z.preprocess(
+    (value) =>
+      typeof value === "string" && ["", "undefined", "null"].includes(value.trim().toLowerCase())
+        ? undefined
+        : value,
+    schema.optional(),
+  );
+
 export const UserLoginInputSchema = z.object({
   email: z
     .string()
@@ -31,8 +40,8 @@ export const UserLoginInputSchema = z.object({
     .email()
     .transform((value) => value.toLowerCase()),
   password: z.string().min(6).max(128),
-  mfaCode: z.string().trim().min(6).max(32).optional(),
-  mfaChallengeToken: z.string().min(32).max(2048).optional(),
+  mfaCode: OptionalCredentialSchema(z.string().trim().min(6).max(32)),
+  mfaChallengeToken: OptionalCredentialSchema(z.string().min(32).max(2048)),
 });
 
 export const VerifyEmailInputSchema = z.object({
