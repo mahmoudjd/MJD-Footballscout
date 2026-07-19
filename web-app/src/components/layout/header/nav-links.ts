@@ -34,4 +34,10 @@ export const navLinks: NavLink[] = [
     icon: "QuestionMarkCircleIcon",
     compactUntilWide: true,
   },
+  {
+    href: "/pricing",
+    label: "Premium",
+    icon: "CurrencyEuroIcon",
+    compactUntilWide: true,
+  },
 ]
