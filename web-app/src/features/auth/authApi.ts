@@ -33,6 +33,7 @@ export async function loginUser(input: {
   password: string
   mfaCode?: string
   mfaChallengeToken?: string
+  deviceId?: string
 }) {
   try {
     const response = await axios.post<CredentialsLoginResponse>(
@@ -46,7 +47,11 @@ export async function loginUser(input: {
   }
 }
 
-export async function beginCredentialsLogin(input: { email: string; password: string }) {
+export async function beginCredentialsLogin(input: {
+  email: string
+  password: string
+  deviceId?: string
+}) {
   const response = await axios.post<CredentialsLoginResponse>(
     `${env.NEXT_PUBLIC_API_HOST}/auth/login`,
     input,

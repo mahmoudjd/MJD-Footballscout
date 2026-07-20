@@ -22,6 +22,15 @@ interface LoginFormState {
   password: string
 }
 
+function getDeviceId() {
+  const storageKey = "mjd-login-device-id-v1"
+  const existing = window.localStorage.getItem(storageKey)
+  if (existing) return existing
+  const created = window.crypto.randomUUID()
+  window.localStorage.setItem(storageKey, created)
+  return created
+}
+
 export function LoginPageView() {
   const router = useRouter()
   const toast = useToast()
@@ -63,8 +72,9 @@ export function LoginPageView() {
     setIsSubmitting(true)
 
     try {
+      const deviceId = getDeviceId()
       if (!mfaChallengeToken) {
-        const loginCheck = await beginCredentialsLogin(form)
+        const loginCheck = await beginCredentialsLogin({ ...form, deviceId })
         if ("mfaRequired" in loginCheck) {
           setMfaChallengeToken(loginCheck.mfaChallengeToken)
           return
@@ -76,6 +86,7 @@ export function LoginPageView() {
         password: form.password,
         mfaCode: mfaCode || undefined,
         mfaChallengeToken: mfaChallengeToken || undefined,
+        deviceId,
       })
 
       if (result?.ok) {
