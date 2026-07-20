@@ -2,7 +2,10 @@ import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { ObjectId } from "mongodb";
 import type { AppContext } from "../context/types";
 import type { AuthenticatedRequest } from "../shared/auth";
-import { hasPremiumAccess } from "../modules/billing/billing-access";
+import {
+  hasPremiumAccess,
+  isPremiumEnabled,
+} from "../modules/billing/billing-access";
 import logger from "../logger/logger";
 
 export function createPremiumAccessMiddleware(
@@ -10,6 +13,14 @@ export function createPremiumAccessMiddleware(
   feature = "premium-feature",
 ): RequestHandler {
   return async (req: Request, res: Response, next: NextFunction) => {
+    if (!isPremiumEnabled()) {
+      res.status(503).json({
+        error: "Premium features are currently disabled",
+        code: "PREMIUM_DISABLED",
+      });
+      return;
+    }
+
     const userId = (req as AuthenticatedRequest).user?.userId;
     if (!userId || !ObjectId.isValid(userId)) {
       res.status(401).json({ error: "Unauthorized" });

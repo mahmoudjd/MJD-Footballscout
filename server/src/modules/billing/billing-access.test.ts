@@ -1,7 +1,36 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { hasPremiumAccess } from "./billing-access";
+import { hasPremiumAccess, isPremiumEnabled } from "./billing-access";
 import { isActiveMonthlyPrice } from "./billing.service";
+
+test.beforeEach(() => {
+  process.env.PREMIUM_ENABLED = "true";
+});
+
+test.after(() => {
+  delete process.env.PREMIUM_ENABLED;
+});
+
+test("Premium is disabled by default and enabled only by an explicit true value", () => {
+  delete process.env.PREMIUM_ENABLED;
+  assert.equal(isPremiumEnabled(), false);
+  process.env.PREMIUM_ENABLED = "false";
+  assert.equal(isPremiumEnabled(), false);
+  process.env.PREMIUM_ENABLED = "TRUE";
+  assert.equal(isPremiumEnabled(), true);
+});
+
+test("the feature flag overrides existing subscriptions and administrator access", () => {
+  process.env.PREMIUM_ENABLED = "false";
+  assert.equal(
+    hasPremiumAccess({ role: "user", billingPlan: "premium", subscriptionStatus: "active" }),
+    false,
+  );
+  assert.equal(
+    hasPremiumAccess({ role: "admin", billingPlan: "free", subscriptionStatus: "inactive" }),
+    false,
+  );
+});
 
 test("active and trialing Premium subscriptions grant access", () => {
   assert.equal(

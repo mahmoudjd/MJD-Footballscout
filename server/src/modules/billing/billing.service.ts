@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import Stripe from "stripe";
 import type { AppContext } from "../../context/types";
 import type { User } from "../auth/user.model";
-import { hasPremiumAccess } from "./billing-access";
+import { hasPremiumAccess, isPremiumEnabled } from "./billing-access";
 
 export class BillingConfigurationError extends Error {}
 
@@ -100,6 +100,7 @@ export async function syncSubscription(
 
 export function publicBillingStatus(user: User) {
   return {
+    premiumEnabled: isPremiumEnabled(),
     plan: user.billingPlan ?? "free",
     status: user.subscriptionStatus ?? "inactive",
     isPremium: hasPremiumAccess(user),
@@ -110,6 +111,9 @@ export function publicBillingStatus(user: User) {
 }
 
 export async function createCheckoutSession(context: AppContext, user: User) {
+  if (!isPremiumEnabled()) {
+    throw new Error("PREMIUM_DISABLED");
+  }
   if (hasPremiumAccess(user)) {
     throw new Error("PREMIUM_ALREADY_ACTIVE");
   }

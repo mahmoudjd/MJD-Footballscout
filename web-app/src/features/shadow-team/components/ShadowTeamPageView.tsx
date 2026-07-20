@@ -116,11 +116,11 @@ function PitchSlot({
               sizes="(min-width: 640px) 48px, 40px"
               className="rounded-full border-2 border-white/90 bg-white object-cover object-top shadow-sm"
             />
-            <span className="absolute -right-1 -bottom-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border border-white bg-lime-300 px-1 text-[10px] font-black leading-none text-emerald-950 shadow-sm">
+            <span className="absolute -right-1 -bottom-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border border-white bg-lime-300 px-1 text-[10px] leading-none font-black text-emerald-950 shadow-sm">
               {playerNumber(primary)}
             </span>
           </span>
-          <span className="mt-1 line-clamp-1 max-w-full text-[11px] font-bold leading-tight sm:text-xs">
+          <span className="mt-1 line-clamp-1 max-w-full text-[11px] leading-tight font-bold sm:text-xs">
             {playerLabel(primary)}
           </span>
         </>
@@ -310,6 +310,7 @@ export function ShadowTeamPageView() {
         <PremiumRequiredState
           feature="Shadow Team"
           description="Create formations, identify missing or duplicate positions, and compare the strongest alternatives for every role."
+          premiumDisabled={billingQuery.data?.premiumEnabled === false}
         />
       </PageContainer>
     )

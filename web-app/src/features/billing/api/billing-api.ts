@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/hooks/apiClient"
 
 export type BillingStatus = {
+  premiumEnabled: boolean
   plan: "free" | "premium"
   status:
     | "inactive"
