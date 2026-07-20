@@ -1,6 +1,6 @@
 "use client"
 
-import { type ComponentType, type FormEvent, type SVGProps, useState } from "react"
+import { type ComponentType, type FormEvent, type SVGProps, useState, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -202,6 +202,7 @@ export function AccountProfilePageView() {
   const [mfaSetup, setMfaSetup] = useState<MfaSetupResponse | null>(null)
   const [mfaRecoveryCodes, setMfaRecoveryCodes] = useState<string[]>([])
   const [mfaError, setMfaError] = useState("")
+  const [isChangingTab, startTabTransition] = useTransition()
 
   const profileQuery = useQuery({
     queryKey: queryKeys.account.profile,
@@ -222,8 +223,10 @@ export function AccountProfilePageView() {
   const updateProfileMutation = useMutation({
     mutationFn: () => updateAccountProfile(resolvedName.trim()),
     onSuccess: async (updatedProfile) => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.account.profile })
-      await update({ name: updatedProfile.name })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.account.profile }),
+        update({ name: updatedProfile.name }),
+      ])
       setName(null)
       toast.success("Profile updated successfully.")
     },
@@ -296,7 +299,20 @@ export function AccountProfilePageView() {
   })
 
   const changeTab = (value: string) => {
-    router.replace(`/profile?tab=${value}`, { scroll: false })
+    if (!validTabs.has(value) || value === activeTab) return
+
+    startTabTransition(() => {
+      router.replace(`/profile?tab=${value}`, { scroll: false })
+    })
+  }
+
+  const copyRecoveryCodes = async () => {
+    try {
+      await navigator.clipboard.writeText(mfaRecoveryCodes.join("\n"))
+      toast.success("Recovery codes copied.")
+    } catch {
+      toast.error("Recovery codes could not be copied. Copy them manually instead.")
+    }
   }
 
   const handleProfileSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -421,7 +437,7 @@ export function AccountProfilePageView() {
         </div>
       </section>
 
-      <Tabs value={activeTab} onValueChange={changeTab}>
+      <Tabs value={activeTab} onValueChange={changeTab} aria-busy={isChangingTab}>
         <div className="sticky top-17 z-30 rounded-2xl border border-emerald-950/8 bg-[#f5f7f4]/92 p-1.5 shadow-[0_18px_36px_-30px_rgba(15,50,36,0.55)] backdrop-blur-lg sm:top-20">
           <TabsList className="grid w-full grid-cols-3 gap-1.5 border-0 bg-transparent p-0">
             <TabsTrigger value="overview" className="gap-2 rounded-xl">
@@ -495,7 +511,10 @@ export function AccountProfilePageView() {
                       />
                     </FormField>
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                      <Button type="submit" disabled={updateProfileMutation.isPending}>
+                      <Button
+                        type="submit"
+                        disabled={updateProfileMutation.isPending || !profileIsDirty}
+                      >
                         {updateProfileMutation.isPending ? (
                           <>
                             <Spinner size="sm" tone="light" /> Saving…
@@ -585,7 +604,7 @@ export function AccountProfilePageView() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => navigator.clipboard.writeText(mfaRecoveryCodes.join("\n"))}
+                    onClick={() => void copyRecoveryCodes()}
                   >
                     Copy Recovery Codes
                   </Button>
