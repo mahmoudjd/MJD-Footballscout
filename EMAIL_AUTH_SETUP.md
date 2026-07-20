@@ -11,6 +11,7 @@ CLIENT_URL=http://localhost:3002
 RESEND_API_KEY=re_replace_me
 EMAIL_FROM=MJD Football Scout <noreply@your-verified-domain.example>
 MFA_ENCRYPTION_KEY=replace-with-base64-key
+ONBOARDING_EMAILS_ENABLED=true
 ```
 
 Generate the MFA encryption key once with:
@@ -47,3 +48,9 @@ and sent as responsive HTML plus a plain-text fallback through the Resend API.
 - MFA enabled alert
 - MFA disabled alert
 - Account deactivation alert
+- New device or location sign-in alert
+- Watchlist onboarding guide (after 1 day)
+- Recruitment onboarding guide (after 4 days)
+
+The onboarding sequence is enrolled only for accounts created after this feature is deployed;
+existing users are not emailed retroactively.

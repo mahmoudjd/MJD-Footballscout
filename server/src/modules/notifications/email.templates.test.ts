@@ -41,3 +41,16 @@ test("renders accessible HTML and a plain-text fallback", () => {
   assert.doesNotMatch(html, /a&next=<login>/);
   assert.match(text, /Verify email: https:\/\/example.com\/verify/);
 });
+
+test("renders login activity without exposing unescaped request data", () => {
+  const template = emailTemplates.newDeviceLogin({
+    device: '<script>alert("x")</script>',
+    location: "Berlin, DE",
+    ip: "203.0.113.7",
+    occurredAt: new Date("2026-07-20T12:00:00.000Z"),
+    securityUrl: "https://example.com/profile?tab=security&source=email",
+  });
+  const html = renderEmailHtml(template);
+  assert.equal(html.includes("<script>"), false);
+  assert.match(renderEmailText(template), /Berlin, DE/);
+});
