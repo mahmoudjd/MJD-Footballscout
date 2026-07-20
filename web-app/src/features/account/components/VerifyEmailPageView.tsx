@@ -26,10 +26,14 @@ export function VerifyEmailPageView() {
           setMessage(response.message)
         }
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (active) {
           setStatus("error")
-          setMessage("This verification link is invalid or has expired.")
+          setMessage(
+            error instanceof Error
+              ? error.message
+              : "This verification link is invalid or has expired.",
+          )
         }
       })
     return () => {
