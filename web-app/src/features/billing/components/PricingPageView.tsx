@@ -54,10 +54,19 @@ export function PricingPageView({ checkoutResult }: { checkoutResult?: "success"
         title="MJD Scout Premium"
         description="Turn player data into a structured recruitment workflow."
         icon="SparklesIcon"
-        badge={billing?.isPremium ? "Active" : "Premium"}
+        badge={
+          billing?.premiumEnabled === false
+            ? "Unavailable"
+            : billing?.isPremium
+              ? "Active"
+              : "Premium"
+        }
       />
 
-      {checkoutResult === "success" && authenticated && !billing?.isPremium ? (
+      {checkoutResult === "success" &&
+      authenticated &&
+      billing?.premiumEnabled &&
+      !billing.isPremium ? (
         <Panel>
           <StatusState
             tone="loading"
@@ -86,6 +95,15 @@ export function PricingPageView({ checkoutResult }: { checkoutResult?: "success"
             tone="error"
             title="Subscription status could not be loaded"
             description="Please check the backend connection and try again."
+          />
+        </Panel>
+      ) : null}
+      {authenticated && billing?.premiumEnabled === false ? (
+        <Panel>
+          <StatusState
+            tone="empty"
+            title="Premium is currently unavailable"
+            description="Premium access and new subscriptions are disabled by the service administrator."
           />
         </Panel>
       ) : null}
@@ -145,6 +163,22 @@ export function PricingPageView({ checkoutResult }: { checkoutResult?: "success"
               >
                 Sign in to continue
               </Link>
+            ) : billing?.premiumEnabled === false ? (
+              <div className="space-y-3">
+                <Button variant="secondary" size="lg" fullWidth disabled>
+                  Premium currently unavailable
+                </Button>
+                {billing.canManageSubscription ? (
+                  <Button
+                    variant="outline"
+                    fullWidth
+                    onClick={redirectToPortal}
+                    disabled={actions.portal.isPending}
+                  >
+                    {actions.portal.isPending ? "Opening portal…" : "Manage existing billing"}
+                  </Button>
+                ) : null}
+              </div>
             ) : billing?.isPremium ? (
               <>
                 <div className="mb-4 rounded-2xl bg-emerald-50 p-3.5">

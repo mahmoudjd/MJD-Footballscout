@@ -13,7 +13,9 @@ export function useBillingStatus(enabled = true, refetchWhilePending = false) {
     enabled,
     staleTime: 30_000,
     refetchInterval: (query) =>
-      refetchWhilePending && !query.state.data?.isPremium ? 2_000 : false,
+      refetchWhilePending && query.state.data?.premiumEnabled && !query.state.data.isPremium
+        ? 2_000
+        : false,
   })
 }
 

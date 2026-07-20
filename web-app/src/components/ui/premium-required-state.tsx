@@ -6,9 +6,14 @@ import { Text } from "@/components/ui/text"
 type PremiumRequiredStateProps = {
   feature: string
   description: string
+  premiumDisabled?: boolean
 }
 
-export function PremiumRequiredState({ feature, description }: PremiumRequiredStateProps) {
+export function PremiumRequiredState({
+  feature,
+  description,
+  premiumDisabled = false,
+}: PremiumRequiredStateProps) {
   return (
     <Panel className="overflow-hidden p-0!">
       <div className="grid gap-6 bg-linear-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-6 text-white sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
@@ -23,10 +28,10 @@ export function PremiumRequiredState({ feature, description }: PremiumRequiredSt
               tone="inherit"
               className="font-bold tracking-widest text-lime-200 uppercase"
             >
-              Premium feature
+              {premiumDisabled ? "Currently unavailable" : "Premium feature"}
             </Text>
             <Text as="h2" variant="h2" weight="extrabold" tone="inherit" className="mt-1">
-              Unlock {feature}
+              {premiumDisabled ? `${feature} is disabled` : `Unlock ${feature}`}
             </Text>
             <Text
               as="p"
@@ -34,13 +39,17 @@ export function PremiumRequiredState({ feature, description }: PremiumRequiredSt
               tone="inherit"
               className="mt-2 max-w-2xl text-emerald-100/85"
             >
-              {description}
+              {premiumDisabled
+                ? "Premium features are currently disabled by the service administrator."
+                : description}
             </Text>
           </div>
         </div>
-        <ActionLink href="/pricing" variant="secondary" size="md" fullWidth={false}>
-          View Premium
-        </ActionLink>
+        {premiumDisabled ? null : (
+          <ActionLink href="/pricing" variant="secondary" size="md" fullWidth={false}>
+            View Premium
+          </ActionLink>
+        )}
       </div>
     </Panel>
   )

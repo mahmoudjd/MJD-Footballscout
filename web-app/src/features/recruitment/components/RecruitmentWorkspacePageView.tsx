@@ -420,6 +420,7 @@ export function RecruitmentWorkspacePageView() {
         <PremiumRequiredState
           feature="Recruitment Workspace"
           description="Manage recruitment targets, owners, deadlines and decision stages in one professional workflow."
+          premiumDisabled={billingQuery.data?.premiumEnabled === false}
         />
       </PageContainer>
     )

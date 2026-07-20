@@ -18,6 +18,12 @@ async function currentUser(context: AppContext, req: Request) {
 }
 
 function billingFailure(error: unknown, res: Response) {
+  if (error instanceof Error && error.message === "PREMIUM_DISABLED") {
+    return res.status(503).json({
+      error: "Premium subscriptions are currently disabled",
+      code: error.message,
+    });
+  }
   if (error instanceof BillingConfigurationError) {
     return res.status(503).json({ error: error.message, code: "BILLING_NOT_CONFIGURED" });
   }

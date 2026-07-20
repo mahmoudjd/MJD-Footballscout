@@ -6,6 +6,7 @@ Shadow Team and Recruitment Workspace require an active MJD Scout Premium subscr
 
 1. In Stripe test mode, create an active recurring price billed once per month. The backend rejects yearly, multi-month and one-time prices.
 2. Configure the following values in the backend environment (for the default local setup, use `server/.env`):
+   - `PREMIUM_ENABLED=true` to explicitly enable Premium access and Checkout
    - `STRIPE_SECRET_KEY` with the test secret key (`sk_test_...`)
    - `STRIPE_PREMIUM_PRICE_ID` with the recurring test Price ID (`price_...`)
    - `STRIPE_WEBHOOK_SECRET` with the local Stripe CLI signing secret (`whsec_...`)
@@ -21,6 +22,7 @@ Shadow Team and Recruitment Workspace require an active MJD Scout Premium subscr
 
 ## Required production variables
 
+- `PREMIUM_ENABLED=true` (Premium remains disabled when omitted or set to any other value)
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_PREMIUM_PRICE_ID`
