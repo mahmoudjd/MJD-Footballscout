@@ -1,13 +1,6 @@
 import axios from "axios";
 import logger from "../../logger/logger";
-
-type EmailMessage = {
-  to: string;
-  subject: string;
-  heading: string;
-  body: string;
-  action?: { label: string; url: string };
-};
+import { EmailTemplate, emailTemplates } from "./email.templates";
 
 function escapeHtml(value: string) {
   return value.replace(
@@ -23,32 +16,55 @@ function escapeHtml(value: string) {
   );
 }
 
-function renderHtml(message: EmailMessage) {
-  const action = message.action
-    ? `<p style="margin:28px 0"><a href="${escapeHtml(message.action.url)}" style="background:#047857;color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:700">${escapeHtml(message.action.label)}</a></p>`
+export function renderEmailHtml(template: EmailTemplate) {
+  const action = template.action
+    ? `<tr><td style="padding:8px 40px 32px"><a href="${escapeHtml(template.action.url)}" style="display:inline-block;background:#047857;color:#ffffff;padding:13px 20px;border-radius:10px;text-decoration:none;font-weight:700">${escapeHtml(template.action.label)}</a></td></tr>`
     : "";
-  return `<!doctype html><html><body style="margin:0;background:#f4f7f4;font-family:Arial,sans-serif;color:#063c2c"><div style="max-width:600px;margin:32px auto;background:#fff;border:1px solid #dce8e1;border-radius:18px;padding:32px"><p style="color:#047857;font-weight:700">MJD Football Scout</p><h1 style="font-size:24px">${escapeHtml(message.heading)}</h1><p style="line-height:1.65;color:#365b4e">${escapeHtml(message.body)}</p>${action}<p style="margin-top:32px;font-size:13px;color:#6b8078">If you did not request this action, secure your account immediately.</p></div></body></html>`;
+  const paragraphs = template.paragraphs
+    .map(
+      (paragraph) =>
+        `<p style="margin:0 0 16px;line-height:1.65;color:#365b4e">${escapeHtml(paragraph)}</p>`,
+    )
+    .join("");
+  const securityNotice = template.securityNotice
+    ? `<tr><td style="padding:0 40px 32px"><div style="padding:16px;background:#f4f7f4;border-radius:10px;font-size:13px;line-height:1.55;color:#526d63">${escapeHtml(template.securityNotice)}</div></td></tr>`
+    : "";
+
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(template.subject)}</title></head><body style="margin:0;background:#f4f7f4;font-family:Arial,sans-serif;color:#063c2c"><div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(template.preheader)}</div><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7f4"><tr><td align="center" style="padding:32px 16px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border:1px solid #dce8e1;border-radius:18px;overflow:hidden"><tr><td style="padding:32px 40px 12px;color:#047857;font-weight:700">MJD Football Scout</td></tr><tr><td style="padding:0 40px 12px"><h1 style="margin:0;font-size:26px;line-height:1.25;color:#063c2c">${escapeHtml(template.heading)}</h1></td></tr><tr><td style="padding:0 40px 16px">${paragraphs}</td></tr>${action}${securityNotice}<tr><td style="padding:24px 40px;background:#063c2c;color:#dce8e1;font-size:12px;line-height:1.5">MJD Football Scout · Player intelligence for smarter recruitment</td></tr></table></td></tr></table></body></html>`;
+}
+
+export function renderEmailText(template: EmailTemplate) {
+  return [
+    template.heading,
+    ...template.paragraphs,
+    template.action
+      ? `${template.action.label}: ${template.action.url}`
+      : undefined,
+    template.securityNotice,
+  ]
+    .filter((line): line is string => Boolean(line))
+    .join("\n\n");
 }
 
 export function createEmailService(environment: string) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM || process.env.PASSWORD_RESET_FROM_EMAIL;
 
-  const send = async (message: EmailMessage) => {
+  const send = async (to: string, template: EmailTemplate) => {
     if (!apiKey || !from) {
       if (environment === "production")
         logger.error("Email delivery is not configured");
-      else logger.info(`[email:preview] ${message.subject} -> ${message.to}`);
+      else logger.info(`[email:preview] ${template.subject} -> ${to}`);
       return false;
     }
     await axios.post(
       "https://api.resend.com/emails",
       {
         from,
-        to: [message.to],
-        subject: message.subject,
-        text: `${message.heading}\n\n${message.body}${message.action ? `\n\n${message.action.label}: ${message.action.url}` : ""}`,
-        html: renderHtml(message),
+        to: [to],
+        subject: template.subject,
+        text: renderEmailText(template),
+        html: renderEmailHtml(template),
       },
       { headers: { Authorization: `Bearer ${apiKey}` }, timeout: 8000 },
     );
@@ -56,23 +72,18 @@ export function createEmailService(environment: string) {
   };
 
   return {
-    sendVerification: (to: string, url: string) =>
-      send({
-        to,
-        subject: "Verify your MJD Football Scout email",
-        heading: "Confirm your email address",
-        body: "Verify your email to activate your account. This secure link expires in 24 hours.",
-        action: { label: "Verify Email", url },
-      }),
-    sendPasswordReset: (to: string, url: string) =>
-      send({
-        to,
-        subject: "Reset your MJD Football Scout password",
-        heading: "Reset your password",
-        body: "Use this secure link to choose a new password. The link expires in 30 minutes and can only be used once.",
-        action: { label: "Reset Password", url },
-      }),
-    sendSecurityNotice: (to: string, heading: string, body: string) =>
-      send({ to, subject: `${heading} – MJD Football Scout`, heading, body }),
+    sendSignupVerification: (to: string, url: string) =>
+      send(to, emailTemplates.signupVerification(url)),
+    sendEmailVerified: (to: string) => send(to, emailTemplates.emailVerified()),
+    sendPasswordResetRequest: (to: string, url: string) =>
+      send(to, emailTemplates.passwordResetRequest(url)),
+    sendPasswordResetComplete: (to: string) =>
+      send(to, emailTemplates.passwordResetComplete()),
+    sendPasswordChanged: (to: string) =>
+      send(to, emailTemplates.passwordChanged()),
+    sendMfaEnabled: (to: string) => send(to, emailTemplates.mfaEnabled()),
+    sendMfaDisabled: (to: string) => send(to, emailTemplates.mfaDisabled()),
+    sendAccountDeactivated: (to: string) =>
+      send(to, emailTemplates.accountDeactivated()),
   };
 }
