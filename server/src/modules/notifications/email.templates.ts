@@ -16,6 +16,48 @@ const accountSecurityNotice =
   "If you did not make this change, reset your password immediately and contact support.";
 
 export const emailTemplates = {
+  newDeviceLogin: (details: {
+    device: string;
+    location: string;
+    ip?: string;
+    occurredAt: Date;
+    securityUrl: string;
+  }): EmailTemplate => ({
+    subject: "New sign-in activity – MJD Football Scout",
+    preheader: "A new device or location signed in to your account.",
+    heading: "New sign-in activity",
+    paragraphs: [
+      `Device: ${details.device}`,
+      `Location: ${details.location}`,
+      `IP address: ${details.ip || "Unavailable"}`,
+      `Time: ${details.occurredAt.toISOString()}`,
+    ],
+    action: { label: "Review account security", url: details.securityUrl },
+    securityNotice: accountSecurityNotice,
+  }),
+
+  onboardingWatchlists: (name: string, watchlistsUrl: string): EmailTemplate => ({
+    subject: "Build your first scouting watchlist",
+    preheader: "Keep promising players organized in one place.",
+    heading: `Start your shortlist, ${name}`,
+    paragraphs: [
+      "Create a watchlist for a position, competition or transfer window and add promising players while you browse.",
+      "You can reorder the list at any time to keep your strongest options at the top.",
+    ],
+    action: { label: "Create a watchlist", url: watchlistsUrl },
+  }),
+
+  onboardingRecruitment: (name: string, recruitmentUrl: string): EmailTemplate => ({
+    subject: "Turn scouting into recruitment decisions",
+    preheader: "Use the Recruitment Workspace and Shadow Team to plan your squad.",
+    heading: `Plan the next move, ${name}`,
+    paragraphs: [
+      "Move candidates through your recruitment pipeline, assign deadlines and capture the reasoning behind every decision.",
+      "Use Shadow Team to identify squad gaps and compare candidates for each role.",
+    ],
+    action: { label: "Open Recruitment Workspace", url: recruitmentUrl },
+  }),
+
   signupVerification: (verificationUrl: string): EmailTemplate => ({
     subject: "Verify your MJD Football Scout email",
     preheader: "Confirm your email address to activate your account.",

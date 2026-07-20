@@ -42,6 +42,7 @@ export const UserLoginInputSchema = z.object({
   password: z.string().min(6).max(128),
   mfaCode: OptionalCredentialSchema(z.string().trim().min(6).max(32)),
   mfaChallengeToken: OptionalCredentialSchema(z.string().min(32).max(2048)),
+  deviceId: OptionalCredentialSchema(z.string().trim().min(8).max(200)),
 });
 
 export const VerifyEmailInputSchema = z.object({
@@ -70,7 +71,20 @@ export const MfaDisableInputSchema = z.object({
 });
 
 export const NotificationPreferencesInputSchema = z.object({
-  securityEmailsEnabled: z.boolean(),
+  securityEmailsEnabled: z.boolean().optional(),
+  onboardingEmailsEnabled: z.boolean().optional(),
+}).refine(
+  (value) => value.securityEmailsEnabled !== undefined || value.onboardingEmailsEnabled !== undefined,
+  { message: "At least one notification preference is required" },
+);
+
+export const TrustedLoginContextSchema = z.object({
+  fingerprint: z.string(),
+  device: z.string(),
+  location: z.string(),
+  lastIp: z.string().optional(),
+  firstSeenAt: z.date(),
+  lastSeenAt: z.date(),
 });
 
 export const UpdateProfileInputSchema = z.object({
@@ -124,6 +138,11 @@ export const UserSchema = z.object({
   emailVerificationTokenHash: z.string().optional(),
   emailVerificationExpiresAt: z.date().optional(),
   securityEmailsEnabled: z.boolean().optional(),
+  onboardingEmailsEnabled: z.boolean().optional(),
+  onboardingStartedAt: z.date().optional(),
+  onboardingEmailStepsSent: z.array(z.string()).optional(),
+  onboardingEmailClaim: z.object({ step: z.string(), claimedAt: z.date() }).optional(),
+  trustedLoginContexts: z.array(TrustedLoginContextSchema).optional(),
   mfaEnabled: z.boolean().optional(),
   mfaSecretEncrypted: z.string().optional(),
   mfaPendingSecretEncrypted: z.string().optional(),

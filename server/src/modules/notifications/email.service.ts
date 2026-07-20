@@ -72,6 +72,14 @@ export function createEmailService(environment: string) {
   };
 
   return {
+    sendNewDeviceLogin: (
+      to: string,
+      details: Parameters<typeof emailTemplates.newDeviceLogin>[0],
+    ) => send(to, emailTemplates.newDeviceLogin(details)),
+    sendOnboardingWatchlists: (to: string, name: string, url: string) =>
+      send(to, emailTemplates.onboardingWatchlists(name, url)),
+    sendOnboardingRecruitment: (to: string, name: string, url: string) =>
+      send(to, emailTemplates.onboardingRecruitment(name, url)),
     sendSignupVerification: (to: string, url: string) =>
       send(to, emailTemplates.signupVerification(url)),
     sendEmailVerified: (to: string) => send(to, emailTemplates.emailVerified()),

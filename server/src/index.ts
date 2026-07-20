@@ -14,6 +14,7 @@ import createShadowTeamsRouter from "./modules/shadow-teams/shadow-teams.router"
 import createRecruitmentRouter from "./modules/recruitment/recruitment.router";
 import createBillingRouter from "./modules/billing/billing.router";
 import { createBillingWebhookHandler } from "./modules/billing/billing.webhook";
+import { startOnboardingEmailScheduler } from "./jobs/onboardingEmailScheduler";
 
 async function startServer() {
     if (process.env.NODE_ENV !== "production") {
@@ -59,6 +60,7 @@ async function startServer() {
     server.use("/billing", createBillingRouter(context));
 
     const stopPlayersAutoUpdateScheduler = startPlayersAutoUpdateScheduler(context);
+    const stopOnboardingEmailScheduler = startOnboardingEmailScheduler(context);
 
     const httpServer = server.listen(PORT, () => {
         logger.info(`✅ [server]: Server is running on PORT: ${PORT}`);
@@ -67,6 +69,7 @@ async function startServer() {
     const gracefulShutdown = (signal: string) => {
         logger.info(`🛑 [server]: Received ${signal}. Shutting down...`);
         stopPlayersAutoUpdateScheduler();
+        stopOnboardingEmailScheduler();
         httpServer.close(() => {
             logger.info("✅ [server]: HTTP server closed.");
             process.exit(0);

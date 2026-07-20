@@ -13,6 +13,7 @@ export interface AccountProfile {
   updatedAt?: string
   emailVerified: boolean
   securityEmailsEnabled: boolean
+  onboardingEmailsEnabled: boolean
   mfaEnabled: boolean
 }
 
@@ -116,10 +117,13 @@ export async function resendVerificationEmail(email: string) {
   }
 }
 
-export async function updateNotificationPreferences(securityEmailsEnabled: boolean) {
-  const response = await apiClient.patch<ApiMessage & { securityEmailsEnabled: boolean }>(
+export async function updateNotificationPreferences(preferences: {
+  securityEmailsEnabled?: boolean
+  onboardingEmailsEnabled?: boolean
+}) {
+  const response = await apiClient.patch<ApiMessage & typeof preferences>(
     "/auth/notification-preferences",
-    { securityEmailsEnabled },
+    preferences,
   )
   return response.data
 }

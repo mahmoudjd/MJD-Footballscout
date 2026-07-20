@@ -44,6 +44,7 @@ import {
   verifyTotp,
 } from "./mfa";
 import { createEmailService } from "../notifications/email.service";
+import { registerSuccessfulLogin } from "./login-context";
 
 export default function createAuthRouter(context: AppContext) {
   const router = express.Router();
@@ -190,6 +191,19 @@ export default function createAuthRouter(context: AppContext) {
     }
   };
 
+  const recordLoginContext = async (user: Parameters<typeof registerSuccessfulLogin>[1], req: Request) => {
+    try {
+      await registerSuccessfulLogin(context, user, req, (details) =>
+        emailService.sendNewDeviceLogin(user.email, {
+          ...details,
+          securityUrl: `${clientUrl}/profile?tab=security`,
+        }),
+      );
+    } catch (error) {
+      logger.error("Failed to record successful login context", error);
+    }
+  };
+
   const verifyMfaCode = async (
     user: {
       _id: ObjectId;
@@ -333,6 +347,7 @@ export default function createAuthRouter(context: AppContext) {
         role: userRole,
         authVersion: user.authVersion,
       });
+      await recordLoginContext(user, req);
 
       return res.status(200).json({
         ...tokens,
@@ -437,6 +452,7 @@ export default function createAuthRouter(context: AppContext) {
           role: userRole,
           authVersion: user.authVersion,
         });
+        await recordLoginContext(user, req);
 
         return res.status(200).json({
           ...tokens,
@@ -665,6 +681,7 @@ export default function createAuthRouter(context: AppContext) {
           Boolean(user.emailVerifiedAt) ||
           user.emailVerificationRequired !== true,
         securityEmailsEnabled: user.securityEmailsEnabled !== false,
+        onboardingEmailsEnabled: user.onboardingEmailsEnabled !== false,
         mfaEnabled: user.mfaEnabled === true,
       });
     },
@@ -710,14 +727,19 @@ export default function createAuthRouter(context: AppContext) {
         const userId = (req as AuthenticatedRequest).user?.userId;
         if (!userId || !ObjectId.isValid(userId))
           return res.status(401).json({ error: "Unauthorized" });
-        const { securityEmailsEnabled } =
+        const preferences =
           NotificationPreferencesInputSchema.parse(req.body);
+        const updates: Record<string, boolean | Date> = { updatedAt: new Date() };
+        if (preferences.securityEmailsEnabled !== undefined)
+          updates.securityEmailsEnabled = preferences.securityEmailsEnabled;
+        if (preferences.onboardingEmailsEnabled !== undefined)
+          updates.onboardingEmailsEnabled = preferences.onboardingEmailsEnabled;
         await context.users.updateOne(
           { _id: new ObjectId(userId), isActive: { $ne: false } },
-          { $set: { securityEmailsEnabled, updatedAt: new Date() } },
+          { $set: updates },
         );
         return res.status(200).json({
-          securityEmailsEnabled,
+          ...preferences,
           message: "Email preferences updated.",
         });
       } catch (error) {
