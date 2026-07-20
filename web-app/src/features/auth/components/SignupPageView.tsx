@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/common/spinner"
 import { registerUser, type RegistrationResponse } from "@/features/auth/registerUser"
 import { ActionLink } from "@/components/ui/action-link"
+import { resendVerificationEmail } from "@/features/account/accountApi"
 
 interface SignupFormState {
   name: string
@@ -68,10 +69,36 @@ export function SignupPageView() {
   const [error, setError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [registration, setRegistration] = useState<RegistrationResponse | null>(null)
+  const [isResendingVerification, setIsResendingVerification] = useState(false)
+  const [resendMessage, setResendMessage] = useState("")
+  const [resendError, setResendError] = useState("")
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
     setForm((current) => ({ ...current, [name]: value }))
+  }
+
+  const handleResendVerification = async () => {
+    setResendMessage("")
+    setResendError("")
+    setIsResendingVerification(true)
+    try {
+      const response = await resendVerificationEmail(form.email)
+      setResendMessage(response.message)
+      setRegistration((current) =>
+        current
+          ? { ...current, verificationUrl: response.verificationUrl || current.verificationUrl }
+          : current,
+      )
+    } catch (resendRequestError) {
+      setResendError(
+        resendRequestError instanceof Error
+          ? resendRequestError.message
+          : "Verification email could not be sent.",
+      )
+    } finally {
+      setIsResendingVerification(false)
+    }
   }
 
   const handleSignupSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -126,6 +153,35 @@ export function SignupPageView() {
               Open local verification link
             </a>
           ) : null}
+          {resendMessage ? (
+            <p role="status" aria-live="polite" className="text-sm text-emerald-800">
+              {resendMessage}
+            </p>
+          ) : null}
+          {resendError ? (
+            <p
+              role="alert"
+              className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800"
+            >
+              {resendError}
+            </p>
+          ) : null}
+          <Button
+            type="button"
+            variant="outline"
+            size="md"
+            fullWidth
+            disabled={isResendingVerification}
+            onClick={handleResendVerification}
+          >
+            {isResendingVerification ? (
+              <>
+                <Spinner size="sm" /> Sending again…
+              </>
+            ) : (
+              "Resend verification email"
+            )}
+          </Button>
           <ActionLink href={`/login?email=${encodeURIComponent(form.email)}`} size="md">
             Continue to sign in
           </ActionLink>

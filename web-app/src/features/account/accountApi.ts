@@ -90,18 +90,30 @@ export async function resetAccountPassword(input: { token: string; newPassword: 
 }
 
 export async function verifyAccountEmail(token: string) {
-  const response = await axios.post<ApiMessage>(`${env.NEXT_PUBLIC_API_HOST}/auth/verify-email`, {
-    token,
-  })
-  return response.data
+  try {
+    const response = await axios.post<ApiMessage>(`${env.NEXT_PUBLIC_API_HOST}/auth/verify-email`, {
+      token,
+    })
+    return response.data
+  } catch (error) {
+    throw new Error(resolveApiError(error, "This verification link is invalid or has expired."), {
+      cause: error,
+    })
+  }
 }
 
 export async function resendVerificationEmail(email: string) {
-  const response = await axios.post<ApiMessage & { verificationUrl?: string }>(
-    `${env.NEXT_PUBLIC_API_HOST}/auth/resend-verification`,
-    { email },
-  )
-  return response.data
+  try {
+    const response = await axios.post<ApiMessage & { verificationUrl?: string }>(
+      `${env.NEXT_PUBLIC_API_HOST}/auth/resend-verification`,
+      { email },
+    )
+    return response.data
+  } catch (error) {
+    throw new Error(resolveApiError(error, "Verification email could not be sent."), {
+      cause: error,
+    })
+  }
 }
 
 export async function updateNotificationPreferences(securityEmailsEnabled: boolean) {
