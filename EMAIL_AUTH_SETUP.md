@@ -34,10 +34,16 @@ Leave `RESEND_API_KEY` empty. Registration and password-reset responses expose t
 - Test registration verification, resend, password reset, MFA setup, recovery-code login, and MFA removal.
 - Keep security emails enabled by default; users can change the preference in Profile.
 
-## Implemented messages
+## Implemented Resend templates
+
+Templates are defined in `server/src/modules/notifications/email.templates.ts`
+and sent as responsive HTML plus a plain-text fallback through the Resend API.
 
 - Registration email verification
+- Email verification confirmation
 - Password reset link
-- Password changed/reset alert
-- MFA enabled/disabled alert
+- Password reset confirmation
+- Password changed alert
+- MFA enabled alert
+- MFA disabled alert
 - Account deactivation alert

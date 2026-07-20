@@ -169,20 +169,23 @@ export default function createAuthRouter(context: AppContext) {
       },
     );
     const verificationUrl = `${clientUrl}/verify-email?token=${encodeURIComponent(verification.token)}`;
-    await emailService.sendVerification(user.email, verificationUrl);
+    await emailService.sendSignupVerification(user.email, verificationUrl);
     return verificationUrl;
   };
 
-  const sendSecurityNotice = async (
+  const sendSecurityEmail = async (
     user: { email: string; securityEmailsEnabled?: boolean },
-    heading: string,
-    body: string,
+    description: string,
+    deliver: () => Promise<boolean>,
   ) => {
     if (user.securityEmailsEnabled !== false) {
       try {
-        await emailService.sendSecurityNotice(user.email, heading, body);
+        await deliver();
       } catch (error) {
-        logger.error(`Failed to send security notification: ${heading}`, error);
+        logger.error(
+          `Failed to send security notification: ${description}`,
+          error,
+        );
       }
     }
   };
@@ -492,10 +495,10 @@ export default function createAuthRouter(context: AppContext) {
           return res.status(400).json({
             error: "This verification link is invalid or has expired",
           });
-        await sendSecurityNotice(
+        await sendSecurityEmail(
           user,
-          "Email verified",
-          "Your email address was verified successfully. You can now sign in.",
+          "email verified",
+          () => emailService.sendEmailVerified(user.email),
         );
         return res.status(200).json({
           message: "Email verified successfully. You can now sign in.",
@@ -565,7 +568,7 @@ export default function createAuthRouter(context: AppContext) {
 
         const resetUrl = `${clientUrl}/reset-password?token=${encodeURIComponent(reset.token)}`;
         try {
-          await emailService.sendPasswordReset(email, resetUrl);
+          await emailService.sendPasswordResetRequest(email, resetUrl);
         } catch (error) {
           logger.error("Failed to send password reset email", error);
         }
@@ -617,10 +620,10 @@ export default function createAuthRouter(context: AppContext) {
             $inc: { authVersion: 1 },
           },
         );
-        await sendSecurityNotice(
+        await sendSecurityEmail(
           user,
-          "Password reset",
-          "Your password was reset and all existing sessions were invalidated.",
+          "password reset",
+          () => emailService.sendPasswordResetComplete(user.email),
         );
         return res.status(200).json({
           message: "Password reset successfully. You can now sign in.",
@@ -823,10 +826,10 @@ export default function createAuthRouter(context: AppContext) {
             $unset: { mfaPendingSecretEncrypted: "" },
           },
         );
-        await sendSecurityNotice(
+        await sendSecurityEmail(
           user,
-          "Multi-factor authentication enabled",
-          "MFA now protects your account. Store your recovery codes in a safe place.",
+          "MFA enabled",
+          () => emailService.sendMfaEnabled(user.email),
         );
         return res
           .status(200)
@@ -881,10 +884,10 @@ export default function createAuthRouter(context: AppContext) {
             },
           },
         );
-        await sendSecurityNotice(
+        await sendSecurityEmail(
           user,
-          "Multi-factor authentication disabled",
-          "MFA was removed from your account. If this was not you, reset your password immediately.",
+          "MFA disabled",
+          () => emailService.sendMfaDisabled(user.email),
         );
         return res.status(200).json({ message: "MFA disabled successfully." });
       } catch (error) {
@@ -941,10 +944,10 @@ export default function createAuthRouter(context: AppContext) {
             $inc: { authVersion: 1 },
           },
         );
-        await sendSecurityNotice(
+        await sendSecurityEmail(
           user,
-          "Password changed",
-          "Your password was changed and all existing sessions were invalidated.",
+          "password changed",
+          () => emailService.sendPasswordChanged(user.email),
         );
         return res.status(200).json({
           message: "Password changed successfully. Please sign in again.",
@@ -986,10 +989,10 @@ export default function createAuthRouter(context: AppContext) {
           });
         }
 
-        await sendSecurityNotice(
+        await sendSecurityEmail(
           user,
-          "Account deactivated",
-          "Your MJD Football Scout account was deactivated and can no longer be used to sign in.",
+          "account deactivated",
+          () => emailService.sendAccountDeactivated(user.email),
         );
         await context.users.updateOne(
           { _id: user._id },
