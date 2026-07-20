@@ -85,6 +85,7 @@ const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
         mfaCode: { label: "Authentication code", type: "text" },
         mfaChallengeToken: { label: "MFA challenge", type: "text" },
+        deviceId: { label: "Device ID", type: "text" },
       },
       async authorize(credentials) {
         try {
@@ -93,6 +94,7 @@ const authOptions: NextAuthOptions = {
             password: credentials?.password || "",
             mfaCode: optionalCredential(credentials?.mfaCode),
             mfaChallengeToken: optionalCredential(credentials?.mfaChallengeToken),
+            deviceId: optionalCredential(credentials?.deviceId),
           })
 
           if (loginData && !("mfaRequired" in loginData)) {

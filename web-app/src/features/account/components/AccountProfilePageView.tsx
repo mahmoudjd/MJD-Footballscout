@@ -744,7 +744,9 @@ export function AccountProfilePageView() {
                   className="mt-1 h-5 min-h-0 w-5 rounded-sm p-0 accent-emerald-700 shadow-none"
                   checked={profile?.securityEmailsEnabled ?? true}
                   disabled={notificationMutation.isPending}
-                  onChange={(event) => notificationMutation.mutate(event.target.checked)}
+                  onChange={(event) =>
+                    notificationMutation.mutate({ securityEmailsEnabled: event.target.checked })
+                  }
                 />
                 <span>
                   <Text as="span" weight="bold">
@@ -753,6 +755,25 @@ export function AccountProfilePageView() {
                   <Text as="span" variant="caption" className="mt-1 block text-emerald-950/60">
                     Receive alerts for password changes, MFA changes and other security-sensitive
                     actions.
+                  </Text>
+                </span>
+              </label>
+              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-emerald-950/10 bg-emerald-50/45 p-4">
+                <Input
+                  type="checkbox"
+                  className="mt-1 h-5 min-h-0 w-5 rounded-sm p-0 accent-emerald-700 shadow-none"
+                  checked={profile?.onboardingEmailsEnabled ?? true}
+                  disabled={notificationMutation.isPending}
+                  onChange={(event) =>
+                    notificationMutation.mutate({ onboardingEmailsEnabled: event.target.checked })
+                  }
+                />
+                <span>
+                  <Text as="span" weight="bold">
+                    Getting-started emails
+                  </Text>
+                  <Text as="span" variant="caption" className="mt-1 block text-emerald-950/60">
+                    Receive two short guides about watchlists and recruitment planning.
                   </Text>
                 </span>
               </label>
