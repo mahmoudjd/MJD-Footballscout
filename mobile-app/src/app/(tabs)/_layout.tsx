@@ -71,11 +71,10 @@ export default function TabLayout() {
         <NativeTabs.Trigger.Icon sf="ellipsis.circle" md="more_horiz" />
       </NativeTabs.Trigger>
 
-      {/* Secondary destinations stay routable without occupying tab-bar slots.
-          They are surfaced professionally inside the More hub (settings.tsx). */}
-      <NativeTabs.Trigger name="compare" hidden />
-      <NativeTabs.Trigger name="recruitment" hidden />
-      <NativeTabs.Trigger name="shadow-team" hidden />
+      {/* Compare, Recruitment and Shadow Team are root-level stack screens
+          pushed OVER the tabs (see src/app/_layout.tsx) and surfaced in the
+          More hub. Hidden NativeTabs triggers were tried first, but pushing a
+          route whose trigger is not part of the native bar fails silently. */}
     </NativeTabs>
   );
 }
