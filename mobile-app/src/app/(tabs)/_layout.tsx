@@ -1,286 +1,81 @@
 import React from "react";
-import { Link, Tabs } from "expo-router";
-import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
-import { Pressable, Platform } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { DynamicColorIOS, Platform } from "react-native";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
 import Colors from "@/src/constants/Colors";
-import { useClientOnlyValue } from "@/src/components/useClientOnlyValue";
 import { AppContext } from "@/src/context/AppContext";
 
-type TabIconProps = {
-  color: string;
-  focused: boolean;
-  outline: keyof typeof Ionicons.glyphMap;
-  filled: keyof typeof Ionicons.glyphMap;
-};
-
-type HeaderColors = {
-  text: string;
-  card: string;
-  notification: string;
-  tint: string;
-  tabIconDefault: string;
-  background: string;
-  border: string;
-};
-
-function TabBarIcon({ color, focused, outline, filled }: TabIconProps) {
-  return <Ionicons size={22} color={color} name={focused ? filled : outline} style={{ marginBottom: -1 }} />;
-}
-
-function HeaderSettingsButton({ color }: { color: string }) {
-  return (
-    <Link href="/settings" asChild>
-      <Pressable>
-        {({ pressed }) => (
-          <Ionicons
-            name="settings-outline"
-            size={22}
-            color={color}
-            style={{ opacity: pressed ? 0.55 : 1 }}
-          />
-        )}
-      </Pressable>
-    </Link>
-  );
-}
-
-function getHeaderOptions(colors: HeaderColors) {
-  return {
-    headerShown: true,
-    headerTintColor: colors.text,
-    headerTitleStyle: {
-      fontWeight: "700" as const,
-      fontSize: 16,
-    },
-    headerStyle: {
-      backgroundColor: colors.card,
-    },
-    headerShadowVisible: false,
-    headerRightContainerStyle: {
-      paddingRight: 8,
-    },
-  };
-}
-
-function IosNativeTabLayout({
-  colors,
-  isDark,
-}: {
-  colors: HeaderColors;
-  isDark: boolean;
-}) {
-  const commonHeaderOptions = getHeaderOptions(colors);
-  const parsedVersion =
-    typeof Platform.Version === "string"
-      ? Number.parseInt(Platform.Version.split(".")[0] || "0", 10)
-      : Number(Platform.Version || 0);
-  const iosMajorVersion = Number.isFinite(parsedVersion) ? parsedVersion : 0;
-  const minimizeBehavior = iosMajorVersion >= 26 ? "onScrollDown" : undefined;
+/**
+ * NativeTabs deliberately follows the platform instead of imitating it:
+ * UIKit supplies Liquid Glass on iOS 26 and Material supplies the Android bar.
+ * Android's native component supports a maximum of five destinations, so
+ * secondary tools such as Compare live in the More screen.
+ */
+export default function TabLayout() {
+  const { isDark } = React.useContext(AppContext);
+  const colors = Colors[isDark ? "dark" : "light"];
+  const adaptiveTint = Platform.OS === "ios"
+    ? DynamicColorIOS({ light: Colors.light.primary, dark: Colors.dark.accent })
+    : colors.tint;
 
   return (
     <NativeTabs
-      tintColor={colors.tint}
-      backgroundColor={colors.card}
-      iconColor={{ default: colors.tabIconDefault, selected: colors.tint }}
+      backgroundColor={Platform.OS === "android" ? colors.card : undefined}
+      iconColor={{ default: colors.tabIconDefault, selected: adaptiveTint }}
       labelStyle={{
-        default: { color: colors.tabIconDefault, fontSize: 11, fontWeight: "600" },
-        selected: { color: colors.tint, fontSize: 11, fontWeight: "700" },
+        default: { color: colors.tabIconDefault },
+        selected: { color: adaptiveTint, fontWeight: "700" },
       }}
-      blurEffect={isDark ? "systemChromeMaterialDark" : "systemChromeMaterialLight"}
-      disableTransparentOnScrollEdge
-      {...(minimizeBehavior ? { minimizeBehavior } : {})}
+      labelVisibilityMode="selected"
+      minimizeBehavior="onScrollDown"
+      rippleColor={Platform.OS === "android" ? "rgba(215,255,69,0.16)" : undefined}
+      shadowColor={colors.border}
+      tabBarRespectsIMEInsets
     >
-      <NativeTabs.Trigger
-        name="index"
-        options={{
-          ...commonHeaderOptions,
-          title: "Home",
-        }}
-      >
-        <Icon sf={{ default: "house", selected: "house.fill" }} />
-        <Label>Home</Label>
+      {/* Order follows priority: Search is the app's primary function, so it sits
+          right after the Home overview. Then find (Players) → track (Watchlists) → more.
+          Analysis (Compare) and premium tools (Recruitment, Shadow Team) live in More. */}
+      <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "house", selected: "house.fill" }}
+          md={{ default: "home", selected: "home" }}
+        />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="playerList" options={{ ...commonHeaderOptions, title: "Players" }}>
-        <Icon sf={{ default: "person.2", selected: "person.2.fill" }} />
-        <Label>Players</Label>
+      <NativeTabs.Trigger name="search">
+        <NativeTabs.Trigger.Label>Search</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "magnifyingglass", selected: "magnifyingglass" }}
+          md={{ default: "search", selected: "search" }}
+        />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="search" options={{ ...commonHeaderOptions, title: "Search" }}>
-        <Icon sf="magnifyingglass" />
-        <Label>Search</Label>
+      <NativeTabs.Trigger name="playerList">
+        <NativeTabs.Trigger.Label>Players</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "person.2", selected: "person.2.fill" }}
+          md={{ default: "group", selected: "group" }}
+        />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="compare" options={{ ...commonHeaderOptions, title: "Compare" }}>
-        <Icon sf={{ default: "arrow.left.arrow.right.circle", selected: "arrow.left.arrow.right.circle.fill" }} />
-        <Label>Compare</Label>
+      <NativeTabs.Trigger name="watchlists">
+        <NativeTabs.Trigger.Label>Watchlists</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "heart", selected: "heart.fill" }}
+          md={{ default: "favorite_border", selected: "favorite" }}
+        />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="account" options={{ ...commonHeaderOptions, title: "More" }}>
-        <Icon sf={{ default: "ellipsis.circle", selected: "ellipsis.circle.fill" }} />
-        <Label>More</Label>
+      <NativeTabs.Trigger name="account">
+        <NativeTabs.Trigger.Label>More</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="ellipsis.circle" md="more_horiz" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="watchlists" hidden options={{ ...commonHeaderOptions, title: "Watchlists" }} />
-      <NativeTabs.Trigger name="auth/login" hidden options={{ ...commonHeaderOptions, title: "Login" }} />
-      <NativeTabs.Trigger name="auth/signup" hidden options={{ ...commonHeaderOptions, title: "Sign up" }} />
-      <NativeTabs.Trigger name="player/[id]" hidden options={{ ...commonHeaderOptions, title: "Profile" }} />
+      {/* Secondary destinations stay routable without occupying tab-bar slots.
+          They are surfaced professionally inside the More hub (settings.tsx). */}
+      <NativeTabs.Trigger name="compare" hidden />
+      <NativeTabs.Trigger name="recruitment" hidden />
+      <NativeTabs.Trigger name="shadow-team" hidden />
     </NativeTabs>
   );
-}
-
-function DefaultTabLayout({
-  colors,
-  tabActiveBackground,
-}: {
-  colors: HeaderColors;
-  tabActiveBackground: string;
-}) {
-  return (
-    <Tabs
-      screenOptions={{
-        headerShown: useClientOnlyValue(false, true),
-        headerTitle: "MJD-FootballScout",
-        headerTintColor: colors.text,
-        headerTitleStyle: {
-          fontWeight: "700",
-          fontSize: 16,
-        },
-        headerStyle: {
-          backgroundColor: colors.card,
-        },
-        headerShadowVisible: false,
-        headerRightContainerStyle: {
-          paddingRight: 8,
-        },
-        sceneStyle: {
-          backgroundColor: colors.background,
-        },
-        tabBarHideOnKeyboard: true,
-        tabBarActiveTintColor: colors.tint,
-        tabBarInactiveTintColor: colors.tabIconDefault,
-        tabBarActiveBackgroundColor: tabActiveBackground,
-        tabBarStyle: {
-          backgroundColor: colors.card,
-          borderTopColor: colors.border,
-          borderTopWidth: 1,
-          height: 68,
-          paddingTop: 8,
-          paddingBottom: 8,
-        },
-        tabBarItemStyle: {
-          marginHorizontal: 4,
-          borderRadius: 12,
-        },
-        tabBarLabelStyle: {
-          fontWeight: "700",
-          fontSize: 11,
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon color={color} focused={focused} outline="home-outline" filled="home" />
-          ),
-          headerRight: () => <HeaderSettingsButton color={colors.notification} />,
-        }}
-      />
-
-      <Tabs.Screen
-        name="playerList"
-        options={{
-          title: "Players",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon color={color} focused={focused} outline="people-outline" filled="people" />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: "Search",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon color={color} focused={focused} outline="search-outline" filled="search" />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="compare"
-        options={{
-          title: "Compare",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon color={color} focused={focused} outline="git-compare-outline" filled="git-compare" />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="watchlists"
-        options={{
-          title: "Watchlists",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon color={color} focused={focused} outline="heart-outline" filled="heart" />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="account"
-        options={{
-          title: "More",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              color={color}
-              focused={focused}
-              outline="ellipsis-horizontal-circle-outline"
-              filled="ellipsis-horizontal-circle"
-            />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="auth/login"
-        options={{
-          href: null,
-          title: "Login",
-        }}
-      />
-
-      <Tabs.Screen
-        name="auth/signup"
-        options={{
-          href: null,
-          title: "Sign up",
-        }}
-      />
-
-      <Tabs.Screen
-        name="player/[id]"
-        options={{
-          href: null,
-          title: "Profile",
-        }}
-      />
-    </Tabs>
-  );
-}
-
-export default function TabLayout() {
-  const { isDark } = React.useContext(AppContext);
-  const colorKey = isDark ? "dark" : "light";
-  const colors = Colors[colorKey];
-  const tabActiveBackground = isDark ? "rgba(34,211,238,0.16)" : "rgba(14,165,165,0.13)";
-
-  if (Platform.OS === "ios") {
-    return <IosNativeTabLayout colors={colors} isDark={isDark} />;
-  }
-
-  return <DefaultTabLayout colors={colors} tabActiveBackground={tabActiveBackground} />;
 }
