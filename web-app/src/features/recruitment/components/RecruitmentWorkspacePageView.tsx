@@ -10,7 +10,6 @@ import { Chip } from "@/components/ui/chip"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Input } from "@/components/ui/input"
 import { LoginRequiredState } from "@/components/ui/login-required-state"
-import { PremiumRequiredState } from "@/components/ui/premium-required-state"
 import { PageContainer } from "@/components/ui/page-container"
 import { Panel } from "@/components/ui/panel"
 import { SectionHeader } from "@/components/ui/section-header"
@@ -20,7 +19,6 @@ import { StatTile } from "@/components/ui/stat-tile"
 import { Text } from "@/components/ui/text"
 import { Textarea } from "@/components/ui/textarea"
 import { usePlayersQuery } from "@/features/players/hooks/usePlayersQuery"
-import { useBillingStatus } from "@/features/billing/hooks/useBilling"
 import {
   useRecruitmentCandidates,
   useRecruitmentPipelineMutations,
@@ -292,10 +290,8 @@ export function RecruitmentWorkspacePageView() {
   const { status, data: session } = useSession()
   const loggedIn = Boolean(session?.user?.id)
   const toast = useToast()
-  const billingQuery = useBillingStatus(loggedIn)
-  const premiumEnabled = loggedIn && billingQuery.data?.isPremium === true
-  const candidatesQuery = useRecruitmentCandidates(premiumEnabled)
-  const playersQuery = usePlayersQuery(premiumEnabled)
+  const candidatesQuery = useRecruitmentCandidates(loggedIn)
+  const playersQuery = usePlayersQuery(loggedIn)
   const mutations = useRecruitmentPipelineMutations()
   const [playerId, setPlayerId] = useState("")
   const [priority, setPriority] = useState<RecruitmentPriorityType>("medium")
@@ -383,45 +379,6 @@ export function RecruitmentWorkspacePageView() {
           icon="RocketLaunchIcon"
         />
         <LoginRequiredState callbackUrl="/recruitment" />
-      </PageContainer>
-    )
-
-  if (billingQuery.isLoading)
-    return (
-      <PageContainer>
-        <Panel>
-          <StatusState tone="loading" title="Checking Premium access…" />
-        </Panel>
-      </PageContainer>
-    )
-
-  if (billingQuery.isError)
-    return (
-      <PageContainer>
-        <Panel>
-          <StatusState
-            tone="error"
-            title="Premium access could not be checked"
-            description="Please check the backend connection and try again."
-          />
-        </Panel>
-      </PageContainer>
-    )
-
-  if (!premiumEnabled)
-    return (
-      <PageContainer className="space-y-4">
-        <SectionHeader
-          title="Recruitment Workspace"
-          description="Manage candidates from discovery to negotiation."
-          icon="RocketLaunchIcon"
-          badge="Premium"
-        />
-        <PremiumRequiredState
-          feature="Recruitment Workspace"
-          description="Manage recruitment targets, owners, deadlines and decision stages in one professional workflow."
-          premiumDisabled={billingQuery.data?.premiumEnabled === false}
-        />
       </PageContainer>
     )
 

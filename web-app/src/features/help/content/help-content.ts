@@ -189,16 +189,16 @@ export const faqGroups: FaqGroup[] = [
           "Your account remains stored for auditing but is marked as deactivated. Sign-in and authenticated API access are blocked until an administrator reactivates it.",
       },
       {
-        id: "premium-billing",
-        question: "How do I activate or manage Premium?",
+        id: "free-tools",
+        question: "Are Shadow Team and the Recruitment Workspace free?",
         answer:
-          "Open Premium & Billing, then continue to secure Stripe Checkout. After payment, Stripe synchronizes your access automatically. Use Manage subscription on the same page to update payment details or cancel through the Stripe Customer Portal.",
+          "Yes. Every scouting tool — including Shadow Team and the Recruitment Workspace — is available to all signed-in users at no cost. There is no paid plan or subscription.",
       },
       {
-        id: "free-plan-advertising",
+        id: "advertising",
         question: "Who sees advertising?",
         answer:
-          "Guests and users on the Free plan can see clearly labelled advertising on content pages. Premium subscribers and administrators do not receive ad units, and the external advertising script is not loaded for their sessions.",
+          "Content pages can show clearly labelled advertising, which keeps the app free for everyone. Ads never appear inside authentication, account or planning workflows.",
       },
     ],
   },
@@ -225,8 +225,8 @@ export const releaseNotes: ReleaseNote[] = [
       "Plan squad replacements with automatically suggested successors for vulnerable positions.",
       "Save talent searches, monitor changing match counts and surface new-player alerts.",
       "Rank the database with configurable Recruitment Fit Scores combining ELO, age, value and scouting progress.",
-      "Unlock Shadow Team and Recruitment Workspace with MJD Scout Premium using secure Stripe Checkout, webhook-synchronized access and self-service subscription management.",
-      "Support the Free plan with clearly labelled, responsive advertising while Premium and administrator sessions remain fully ad-free.",
+      "Use Shadow Team and the Recruitment Workspace free of charge — every scouting tool is included for all signed-in users.",
+      "Keep the app free through clearly labelled, responsive advertising on content pages.",
       "Protect new registrations with email verification, expiring one-time links, transactional security notifications and TOTP multi-factor authentication with recovery codes.",
     ],
     featured: true,
