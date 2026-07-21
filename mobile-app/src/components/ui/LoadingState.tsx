@@ -47,9 +47,9 @@ const styles = StyleSheet.create({
   },
   loaderCard: {
     borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 22,
-    paddingVertical: 16,
+    borderRadius: 24,
+    paddingHorizontal: 26,
+    paddingVertical: 20,
     alignItems: "center",
     gap: 10,
   },

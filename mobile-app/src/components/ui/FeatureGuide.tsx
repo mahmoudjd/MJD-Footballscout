@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(2,6,23,0.38)",
+    backgroundColor: "rgba(6,28,19,0.48)",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 16,
@@ -207,8 +207,8 @@ const styles = StyleSheet.create({
     maxWidth: 520,
     maxHeight: "86%",
     borderWidth: 1,
-    borderRadius: 16,
-    padding: 14,
+    borderRadius: 24,
+    padding: 18,
   },
   headerRow: {
     flexDirection: "row",

@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     width: "100%",
     minHeight: 44,
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
     flexDirection: "row",
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   },
   triggerCompact: {
     minHeight: 36,
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 7,
   },
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   },
   menu: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 18,
     maxWidth: 360,
   },
   optionsScroll: {

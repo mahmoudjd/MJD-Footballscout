@@ -1,7 +1,8 @@
 import React, { PropsWithChildren, useContext } from "react";
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
-import Colors from "@/src/constants/Colors";
+import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { AppContext } from "@/src/context/AppContext";
+import GlassSurface from "@/src/components/ui/GlassSurface";
+import { radius as radiusTokens, shadow } from "@/src/constants/Theme";
 
 type Props = PropsWithChildren<{
   style?: StyleProp<ViewStyle>;
@@ -13,42 +14,30 @@ type Props = PropsWithChildren<{
 export default function CardSurface({
   children,
   style,
-  padding = 12,
-  radius = 14,
+  padding = 16,
+  radius = radiusTokens.xl,
   withShadow = true,
 }: Props) {
   const { isDark } = useContext(AppContext);
-  const colorKey = isDark ? "dark" : "light";
-  const colors = Colors[colorKey];
-
   return (
-    <View
+    <GlassSurface
       style={[
         styles.base,
-        withShadow ? styles.shadow : undefined,
+        withShadow ? shadow(isDark).md : undefined,
         {
-          backgroundColor: colors.card,
-          borderColor: colors.border,
           borderRadius: radius,
           padding,
-          shadowColor: isDark ? "#000" : "#0f172a",
         },
         style,
       ]}
     >
       {children}
-    </View>
+    </GlassSurface>
   );
 }
 
 const styles = StyleSheet.create({
   base: {
     borderWidth: 1,
-  },
-  shadow: {
-    shadowOpacity: 0.07,
-    shadowRadius: 9,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
   },
 });
