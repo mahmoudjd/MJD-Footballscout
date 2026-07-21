@@ -1,10 +1,9 @@
 import React, { useCallback, useContext, useMemo, useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
   Alert,
   FlatList,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -31,6 +30,8 @@ import LoadingState from "@/src/components/ui/LoadingState";
 import { getPlayerDisplayName } from "@/src/utils/playerDisplay";
 import FeatureGuide, { GuideSection } from "@/src/components/ui/FeatureGuide";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
+import AppButton from "@/src/components/ui/AppButton";
+import { accentSoft, accentSoftText, onTint, radius, spacing } from "@/src/constants/Theme";
 
 type CompareTab = "selection" | "results";
 type AppliedScope = "selection" | "all";
@@ -90,6 +91,8 @@ export default function CompareScreen() {
   const { isDark } = useContext(AppContext);
   const { session, isAuthenticated, isAuthReady, refreshSession } = useAuth();
   const colorKey = isDark ? "dark" : "light";
+  const colors = Colors[colorKey];
+  const onTintColor = onTint(isDark);
 
   const [players, setPlayers] = useState<PlayerType[]>([]);
   const [search, setSearch] = useState("");
@@ -241,13 +244,12 @@ export default function CompareScreen() {
   }, [session, refreshSession, players]);
 
   if (!isAuthReady) {
-    return <LoadingState withTopInset={Platform.OS === "ios"} />;
+    return <LoadingState />;
   }
 
   if (!isAuthenticated) {
     return (
       <AuthRequiredState
-        withTopInset={Platform.OS === "ios"}
         message="Compare is available only for logged-in users."
       />
     );
@@ -255,14 +257,14 @@ export default function CompareScreen() {
 
   if (isLoadingPlayers) {
     return (
-      <ScreenContainer style={styles.center}>
-        <ActivityIndicator animating size="large" color="#008fb3" />
+      <ScreenContainer edgeToEdge withTopInset style={styles.center}>
+        <ActivityIndicator animating size="large" color={colors.tint} />
       </ScreenContainer>
     );
   }
 
   return (
-    <ScreenContainer withTopInset={Platform.OS === "ios"} style={styles.container}>
+    <ScreenContainer edgeToEdge withTopInset style={styles.container}>
       <PageHeaderCard
         icon="git-compare-outline"
         title="Compare Players"
@@ -281,97 +283,69 @@ export default function CompareScreen() {
       </PageHeaderCard>
 
       <View style={styles.tabRow}>
-        <Pressable
-          style={[
-            styles.tabButton,
-            {
-              backgroundColor: activeTab === "selection" ? Colors[colorKey].tint : Colors[colorKey].card,
-              borderColor: activeTab === "selection" ? Colors[colorKey].tint : Colors[colorKey].border,
-            },
-            activeTab === "selection" ? styles.tabButtonActive : undefined,
-          ]}
-          onPress={() => setActiveTab("selection")}
-        >
-          <Text
-            style={[
-              styles.tabButtonText,
-              { color: activeTab === "selection" ? "#fff" : Colors[colorKey].notification },
-              activeTab === "selection" ? styles.tabButtonTextActive : undefined,
-            ]}
-          >
-            Selection
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.tabButton,
-            {
-              backgroundColor: activeTab === "results" ? Colors[colorKey].tint : Colors[colorKey].card,
-              borderColor: activeTab === "results" ? Colors[colorKey].tint : Colors[colorKey].border,
-            },
-            activeTab === "results" ? styles.tabButtonActive : undefined,
-          ]}
-          onPress={() => setActiveTab("results")}
-        >
-          <Text
-            style={[
-              styles.tabButtonText,
-              { color: activeTab === "results" ? "#fff" : Colors[colorKey].notification },
-              activeTab === "results" ? styles.tabButtonTextActive : undefined,
-            ]}
-          >
-            Results
-          </Text>
-        </Pressable>
+        {(["selection", "results"] as CompareTab[]).map((tab) => {
+          const active = activeTab === tab;
+          return (
+            <Pressable
+              key={tab}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: active }}
+              style={[
+                styles.tabButton,
+                {
+                  backgroundColor: active ? colors.tint : colors.card,
+                  borderColor: active ? colors.tint : colors.border,
+                },
+              ]}
+              onPress={() => setActiveTab(tab)}
+            >
+              <Text
+                style={[
+                  styles.tabButtonText,
+                  { color: active ? onTintColor : colors.notification },
+                ]}
+              >
+                {tab === "selection" ? "Selection" : "Results"}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       {activeTab === "selection" ? (
         <>
           <View style={styles.actionRow}>
-            <Pressable
-              style={[
-                styles.primaryButton,
-                { backgroundColor: Colors[colorKey].tint },
-                selectedIds.length < 2 || isComparing || !selectionDirty
-                  ? styles.disabledButton
-                  : undefined,
-              ]}
-              onPress={handleCompareSelection}
+            <AppButton
+              label="Compare selected"
+              icon="git-compare"
+              size="md"
+              fullWidth={false}
+              style={styles.actionPrimary}
+              loading={isComparing}
               disabled={selectedIds.length < 2 || isComparing || !selectionDirty}
-            >
-              <Text style={styles.primaryButtonText}>Compare selected players</Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.ghostButton,
-                { backgroundColor: Colors[colorKey].card, borderColor: Colors[colorKey].tint },
-                isComparing ? styles.disabledButton : undefined,
-              ]}
-              onPress={handleCompareAll}
+              onPress={handleCompareSelection}
+            />
+            <AppButton
+              label={`Compare all (${players.length})`}
+              variant="ghost"
+              size="md"
+              fullWidth={false}
               disabled={isComparing}
-            >
-              <Text style={[styles.ghostButtonText, { color: Colors[colorKey].tint }]}>
-                Compare all ({players.length})
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.ghostButton,
-                { backgroundColor: Colors[colorKey].card, borderColor: Colors[colorKey].tint },
-                selectedIds.length === 0 && appliedIds.length === 0 && !comparison
-                  ? styles.disabledButton
-                  : undefined,
-              ]}
+              onPress={handleCompareAll}
+            />
+            <AppButton
+              label="Clear"
+              variant="ghost"
+              size="md"
+              fullWidth={false}
+              disabled={selectedIds.length === 0 && appliedIds.length === 0 && !comparison}
               onPress={() => {
                 setSelectedIds([]);
                 setAppliedIds([]);
                 setAppliedScope("selection");
                 setComparison(null);
               }}
-              disabled={selectedIds.length === 0 && appliedIds.length === 0 && !comparison}
-            >
-              <Text style={[styles.ghostButtonText, { color: Colors[colorKey].tint }]}>Clear</Text>
-            </Pressable>
+            />
           </View>
 
           <TextInput
@@ -409,19 +383,16 @@ export default function CompareScreen() {
                 {selectedPlayersPreview.map((player) => (
                   <View
                     key={player._id}
-                    style={[
-                      styles.selectedChip,
-                      { backgroundColor: isDark ? "rgba(34,211,238,0.2)" : "rgba(14,165,165,0.14)" },
-                    ]}
+                    style={[styles.selectedChip, { backgroundColor: accentSoft(isDark) }]}
                   >
-                    <Text style={[styles.selectedChipText, { color: isDark ? "#67e8f9" : "#0e7490" }]}>
+                    <Text style={[styles.selectedChipText, { color: accentSoftText(isDark) }]}>
                       {getPlayerDisplayName(player)}
                     </Text>
                   </View>
                 ))}
                 {selectedOverflow > 0 ? (
-                  <View style={[styles.selectedChip, { backgroundColor: "#e2e8f0" }]}>
-                    <Text style={[styles.selectedChipText, { color: "#334155" }]}>
+                  <View style={[styles.selectedChip, { backgroundColor: colors.surfaceSoft }]}>
+                    <Text style={[styles.selectedChipText, { color: colors.notification }]}>
                       +{selectedOverflow} more
                     </Text>
                   </View>
@@ -435,6 +406,7 @@ export default function CompareScreen() {
           </View>
 
           <FlatList
+            contentInsetAdjustmentBehavior="automatic"
             data={visibleCandidates}
             keyExtractor={(item) => item._id}
             contentContainerStyle={{ paddingBottom: 24 }}
@@ -449,23 +421,33 @@ export default function CompareScreen() {
                         borderColor: selected ? Colors[colorKey].tint : Colors[colorKey].border,
                         backgroundColor: selected
                           ? isDark
-                            ? "rgba(34,211,238,0.14)"
-                            : "rgba(14,165,165,0.1)"
+                            ? "rgba(215,255,69,0.10)"
+                            : "rgba(215,255,69,0.24)"
                           : Colors[colorKey].card,
                       },
                   ]}
                 >
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: Colors[colorKey].text, fontWeight: "700", fontSize: 15 }}>
+                    <Text style={{ color: colors.text, fontWeight: "800", fontSize: 15 }}>
                       {getPlayerDisplayName(item)}
                     </Text>
-                    <Text style={{ color: Colors[colorKey].notification, fontSize: 12 }}>
+                    <Text style={{ color: colors.notification, fontSize: 12 }}>
                       {item.currentClub || item.country} • {item.position}
                     </Text>
                   </View>
-                  <Text style={{ color: Colors[colorKey].tint, fontWeight: "700" }}>
-                    {selected ? "Selected" : "Add"}
-                  </Text>
+                  <View
+                    style={[
+                      styles.selectPill,
+                      selected
+                        ? { backgroundColor: colors.tint, borderColor: colors.tint }
+                        : { backgroundColor: "transparent", borderColor: colors.tint },
+                    ]}
+                  >
+                    {selected ? <Ionicons name="checkmark" size={13} color={onTintColor} /> : null}
+                    <Text style={{ color: selected ? onTintColor : colors.tint, fontWeight: "800", fontSize: 12 }}>
+                      {selected ? "Added" : "Add"}
+                    </Text>
+                  </View>
                 </Pressable>
               );
             }}
@@ -583,12 +565,7 @@ export default function CompareScreen() {
                             styles.compareTableRow,
                             {
                               borderBottomColor: Colors[colorKey].border,
-                              backgroundColor:
-                                index % 2 === 0
-                                  ? Colors[colorKey].card
-                                  : isDark
-                                    ? "#1a2432"
-                                    : "#f8fbfd",
+                              backgroundColor: index % 2 === 0 ? colors.card : colors.surfaceSoft,
                             },
                           ]}
                         >
@@ -667,46 +644,32 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 10,
+    borderWidth: 1.5,
+    borderRadius: radius.md,
+    paddingVertical: 11,
     alignItems: "center",
   },
-  tabButtonActive: {
-    backgroundColor: "#008fb3",
-  },
   tabButtonText: {
-    fontWeight: "700",
-  },
-  tabButtonTextActive: {
-    color: "#fff",
+    fontWeight: "800",
+    letterSpacing: -0.2,
   },
   actionRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: spacing.sm,
     marginBottom: 10,
   },
-  primaryButton: {
-    borderRadius: 8,
+  actionPrimary: {
+    flexGrow: 1,
+  },
+  selectPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    borderWidth: 1.5,
+    borderRadius: radius.pill,
     paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontWeight: "700",
-  },
-  ghostButton: {
-    borderWidth: 1,
-    borderRadius: 9,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  ghostButtonText: {
-    fontWeight: "700",
-  },
-  disabledButton: {
-    opacity: 0.55,
+    paddingVertical: 6,
   },
   searchInput: {
     borderWidth: 1,
