@@ -19,7 +19,7 @@ const Titles = ({ titles }: Props) => {
   return (
     <View style={[styles.sectionCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
       <View style={styles.titleRow}>
-        <View style={[styles.titleIconWrap, { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.12)" }]}>
+        <View style={[styles.titleIconWrap, { backgroundColor: isDark ? "rgba(215,255,69,0.10)" : "rgba(215,255,69,0.27)" }]}>
           <Ionicons name="trophy-outline" size={16} color={palette.tint} />
         </View>
         <Text style={[styles.sectionTitle, { color: palette.text }]}>Titles</Text>
@@ -33,7 +33,7 @@ const Titles = ({ titles }: Props) => {
               <Text style={[styles.itemName, { color: palette.text }]} numberOfLines={1}>
                 {safeDecodeURIComponent(title.name) || "-"}
               </Text>
-              <View style={[styles.countBadge, { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.12)" }]}>
+              <View style={[styles.countBadge, { backgroundColor: isDark ? "rgba(215,255,69,0.10)" : "rgba(215,255,69,0.27)" }]}>
                 <Text style={[styles.countText, { color: palette.tint }]}>{title.number || "-"}</Text>
               </View>
             </View>

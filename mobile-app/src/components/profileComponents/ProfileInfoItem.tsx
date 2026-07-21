@@ -25,11 +25,11 @@ const ProfileInfoItem = ({ icon, label, value, onPress }: Props) => {
         styles.card,
         {
           borderColor: palette.border,
-          backgroundColor: isPressable ? (isDark ? "rgba(34,211,238,0.08)" : "rgba(14,165,165,0.06)") : palette.card,
+          backgroundColor: isPressable ? (isDark ? "rgba(215,255,69,0.07)" : "rgba(215,255,69,0.16)") : palette.card,
         },
       ]}
     >
-      <View style={[styles.iconWrap, { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.12)" }]}>
+      <View style={[styles.iconWrap, { backgroundColor: isDark ? "rgba(215,255,69,0.10)" : "rgba(215,255,69,0.27)" }]}>
         <Ionicons name={icon} size={16} color={palette.tint} />
       </View>
       <View style={styles.textWrap}>
@@ -57,19 +57,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 14,
     paddingHorizontal: 12,
-    paddingVertical: 12,
-    minHeight: 106,
+    paddingVertical: 11,
     flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 10,
+    alignItems: "center",
+    gap: 11,
   },
   iconWrap: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 1,
   },
   textWrap: {
     flex: 1,

@@ -42,7 +42,7 @@ const Attributes = ({ attributes }: Props) => {
         <View
           style={[
             styles.titleIconWrap,
-            { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.12)" },
+            { backgroundColor: isDark ? "rgba(215,255,69,0.10)" : "rgba(215,255,69,0.27)" },
           ]}
         >
           <Ionicons name="speedometer-outline" size={16} color={palette.tint} />
