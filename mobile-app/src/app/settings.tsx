@@ -19,7 +19,6 @@ type QuickLink = {
   subtitle: string;
   icon: keyof typeof Ionicons.glyphMap;
   group: QuickLinkGroup;
-  badge?: string;
   href:
     | "/compare"
     | "/recruitment"
@@ -42,7 +41,6 @@ const quickLinks: QuickLink[] = [
     subtitle: "Manage targets through your scouting pipeline",
     icon: "briefcase-outline",
     group: "Scouting tools",
-    badge: "PRO",
     href: "/recruitment",
   },
   {
@@ -50,7 +48,6 @@ const quickLinks: QuickLink[] = [
     subtitle: "Plan formations and assess squad gaps",
     icon: "football-outline",
     group: "Scouting tools",
-    badge: "PRO",
     href: "/shadow-team",
   },
   {
@@ -235,16 +232,7 @@ export default function SettingsScreen() {
                           <Ionicons name={item.icon} size={18} color={accentSoftText(isDark)} />
                         </View>
                         <View style={styles.linkTextWrap}>
-                          <View style={styles.linkTitleRow}>
-                            <Text style={[styles.linkTitle, { color: colors.text }]}>{item.title}</Text>
-                            {item.badge ? (
-                              <View style={[styles.proBadge, { backgroundColor: accentSoft(isDark) }]}>
-                                <Text style={[styles.proBadgeText, { color: accentSoftText(isDark) }]}>
-                                  {item.badge}
-                                </Text>
-                              </View>
-                            ) : null}
-                          </View>
+                          <Text style={[styles.linkTitle, { color: colors.text }]}>{item.title}</Text>
                           <Text style={[styles.linkSubtitle, { color: colors.notification }]}>{item.subtitle}</Text>
                         </View>
                       </View>
@@ -431,24 +419,9 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
-  linkTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-  },
   linkTitle: {
     fontSize: 14,
     fontWeight: "700",
-  },
-  proBadge: {
-    borderRadius: 999,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-  },
-  proBadgeText: {
-    fontSize: 9,
-    fontWeight: "900",
-    letterSpacing: 0.5,
   },
   linkSubtitle: {
     fontSize: 12,

@@ -63,8 +63,8 @@ const faqGroups: FaqGroup[] = [
     items: [
       { question: "What if I forgot my password?", answer: "Open Forgot password from the login screen, submit your email and follow the reset link. The response never reveals whether an account exists." },
       { question: "Why do I need to verify my email?", answer: "New password-based accounts confirm their email before first sign-in. Verification links expire and can be requested again from the login screen." },
-      { question: "How do I activate Premium?", answer: "Premium features such as Shadow Team and Recruitment are managed on the web app with secure Stripe checkout. Your access syncs automatically to mobile." },
-      { question: "Who sees advertising?", answer: "Guests and Free-plan users see clearly labelled advertising. Premium subscribers and administrators browse fully ad-free." },
+      { question: "Are Shadow Team and Recruitment free?", answer: "Yes. Every scouting tool — including Shadow Team and the Recruitment pipeline — is available to all signed-in users at no cost." },
+      { question: "Who sees advertising?", answer: "Content pages on the web app can show clearly labelled advertising, which keeps the platform free for everyone." },
     ],
   },
 ];
@@ -160,7 +160,7 @@ export default function HelpScreen() {
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Still need help?</Text>
           </View>
           <Text style={[styles.groupDescription, { color: colors.notification }]}>
-            For account, billing or data questions, reach the team from the web app's contact page. Your Premium status and data stay in sync across web and mobile.
+            For account or data questions, reach the team from the web app's contact page. Your data stays in sync across web and mobile.
           </Text>
         </CardSurface>
       </ScrollView>

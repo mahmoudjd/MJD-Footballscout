@@ -260,16 +260,6 @@ export interface PlayerHistoryResponse {
   alerts: PlayerHistoryAlert[];
 }
 
-export interface BillingStatus {
-  premiumEnabled: boolean;
-  plan: "free" | "premium";
-  status: string;
-  isPremium: boolean;
-  currentPeriodEnd: string | null;
-  cancelAtPeriodEnd: boolean;
-  canManageSubscription: boolean;
-}
-
 export type RecruitmentStage =
   | "discovered"
   | "video_review"
