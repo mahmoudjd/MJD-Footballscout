@@ -14,6 +14,15 @@ import {
   PlayerType,
   WatchlistDetails,
   WatchlistSummary,
+  BillingStatus,
+  RecruitmentCandidate,
+  RecruitmentCandidateInput,
+  ShadowTeamAssignment,
+  ShadowTeamDetail,
+  ShadowTeamFormation,
+  ShadowTeamSummary,
+  AccountProfile,
+  MfaSetupResponse,
 } from "@/src/data/Types";
 
 type RequestOptions = RequestInit & {
@@ -195,6 +204,34 @@ export async function refreshAccessToken(refreshToken: string) {
   });
 }
 
+export async function requestPasswordReset(email: string) {
+  return requestJson<{ message?: string; resetUrl?: string }>("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function resetPassword(input: { token: string; newPassword: string }) {
+  return requestJson<{ message?: string }>("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function verifyEmail(token: string) {
+  return requestJson<{ message?: string }>("/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
+}
+
+export async function resendVerificationEmail(email: string) {
+  return requestJson<{ message?: string; verificationUrl?: string }>("/auth/resend-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
 export async function comparePlayers(input: {
   accessToken: string;
   ids?: string[];
@@ -323,5 +360,155 @@ export async function deleteScoutingReport(accessToken: string, reportId: string
 export async function getPlayerHistory(accessToken: string, playerId: string, limit = 30) {
   return requestJson<PlayerHistoryResponse>(`/players/${playerId}/history?limit=${limit}`, {
     accessToken,
+  });
+}
+
+export async function getBillingStatus(accessToken: string) {
+  return requestJson<BillingStatus>("/billing/status", { accessToken });
+}
+
+export async function getRecruitmentCandidates(accessToken: string) {
+  return requestJson<RecruitmentCandidate[]>("/recruitment/candidates", { accessToken });
+}
+
+export async function createRecruitmentCandidate(
+  accessToken: string,
+  input: RecruitmentCandidateInput,
+) {
+  return requestJson<RecruitmentCandidate>("/recruitment/candidates", {
+    method: "POST",
+    accessToken,
+    body: JSON.stringify(input),
+  });
+}
+
+export async function updateRecruitmentCandidate(
+  accessToken: string,
+  candidateId: string,
+  input: RecruitmentCandidateInput,
+) {
+  return requestJson<RecruitmentCandidate>(`/recruitment/candidates/${candidateId}`, {
+    method: "PUT",
+    accessToken,
+    body: JSON.stringify(input),
+  });
+}
+
+export async function deleteRecruitmentCandidate(accessToken: string, candidateId: string) {
+  return requestJson<void>(`/recruitment/candidates/${candidateId}`, {
+    method: "DELETE",
+    accessToken,
+  });
+}
+
+export async function getShadowTeams(accessToken: string) {
+  return requestJson<ShadowTeamSummary[]>("/shadow-teams", { accessToken });
+}
+
+export async function getShadowTeam(accessToken: string, teamId: string) {
+  return requestJson<ShadowTeamDetail>(`/shadow-teams/${teamId}`, { accessToken });
+}
+
+export async function createShadowTeam(
+  accessToken: string,
+  input: { name: string; formation: ShadowTeamFormation },
+) {
+  return requestJson<ShadowTeamSummary>("/shadow-teams", {
+    method: "POST",
+    accessToken,
+    body: JSON.stringify(input),
+  });
+}
+
+export async function updateShadowTeam(
+  accessToken: string,
+  teamId: string,
+  input: { name: string; formation: ShadowTeamFormation; assignments: ShadowTeamAssignment[] },
+) {
+  return requestJson<ShadowTeamSummary>(`/shadow-teams/${teamId}`, {
+    method: "PUT",
+    accessToken,
+    body: JSON.stringify(input),
+  });
+}
+
+export async function deleteShadowTeam(accessToken: string, teamId: string) {
+  return requestJson<void>(`/shadow-teams/${teamId}`, {
+    method: "DELETE",
+    accessToken,
+  });
+}
+
+// --- Account / profile management (mirrors web-app accountApi) ---
+
+export async function getAccountProfile(accessToken: string) {
+  return requestJson<AccountProfile>("/auth/me", { accessToken });
+}
+
+export async function updateAccountProfile(accessToken: string, name: string) {
+  return requestJson<Pick<AccountProfile, "name" | "email" | "updatedAt">>("/auth/me", {
+    method: "PATCH",
+    accessToken,
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function changeAccountPassword(
+  accessToken: string,
+  input: { currentPassword: string; newPassword: string },
+) {
+  return requestJson<{ message: string }>("/auth/change-password", {
+    method: "POST",
+    accessToken,
+    body: JSON.stringify(input),
+  });
+}
+
+export async function deactivateAccount(
+  accessToken: string,
+  input: { password?: string; reason?: string },
+) {
+  return requestJson<{ message: string }>("/auth/me", {
+    method: "DELETE",
+    accessToken,
+    body: JSON.stringify(input),
+  });
+}
+
+export async function updateNotificationPreferences(
+  accessToken: string,
+  preferences: { securityEmailsEnabled?: boolean; onboardingEmailsEnabled?: boolean },
+) {
+  return requestJson<{ message: string } & typeof preferences>("/auth/notification-preferences", {
+    method: "PATCH",
+    accessToken,
+    body: JSON.stringify(preferences),
+  });
+}
+
+export async function startMfaSetup(accessToken: string, password?: string) {
+  return requestJson<MfaSetupResponse>("/auth/mfa/setup", {
+    method: "POST",
+    accessToken,
+    body: JSON.stringify({ password }),
+  });
+}
+
+export async function enableMfa(accessToken: string, code: string) {
+  return requestJson<{ message: string; recoveryCodes: string[] }>("/auth/mfa/enable", {
+    method: "POST",
+    accessToken,
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function disableMfa(
+  accessToken: string,
+  input: { code: string; password?: string },
+) {
+  return requestJson<{ message: string }>("/auth/mfa/disable", {
+    method: "POST",
+    accessToken,
+    body: JSON.stringify(input),
   });
 }
