@@ -1,10 +1,8 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
   Alert,
-  Image,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,6 +10,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
@@ -35,6 +34,8 @@ import AppSelect from "@/src/components/ui/AppSelect";
 import { getPlayerDisplayName } from "@/src/utils/playerDisplay";
 import FeatureGuide, { GuideSection } from "@/src/components/ui/FeatureGuide";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
+import AppButton from "@/src/components/ui/AppButton";
+import { onTint, radius, shadow, spacing } from "@/src/constants/Theme";
 
 function formatBoardDate(value?: string) {
   if (!value) return "n/a";
@@ -80,7 +81,6 @@ export default function WatchlistsScreen() {
   const { isDark } = useContext(AppContext);
   const { session, isAuthenticated, isAuthReady, refreshSession } = useAuth();
   const colorKey = isDark ? "dark" : "light";
-  const withTopInset = Platform.OS === "ios";
 
   const [watchlists, setWatchlists] = useState<WatchlistSummary[]>([]);
   const [selectedWatchlistId, setSelectedWatchlistId] = useState("");
@@ -346,21 +346,21 @@ export default function WatchlistsScreen() {
   );
 
   if (!isAuthReady) {
-    return <LoadingState withTopInset={withTopInset} />;
+    return <LoadingState />;
   }
 
   if (!isAuthenticated) {
     return (
       <AuthRequiredState
-        withTopInset={withTopInset}
         message="Watchlists are available only for logged-in users."
       />
     );
   }
 
   return (
-    <ScreenContainer withTopInset={withTopInset} style={styles.container}>
+    <ScreenContainer edgeToEdge style={styles.container}>
       <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
         style={styles.pageScroll}
         contentContainerStyle={styles.pageContent}
         showsVerticalScrollIndicator={false}
@@ -417,17 +417,14 @@ export default function WatchlistsScreen() {
               },
             ]}
           />
-          <Pressable
-            style={[
-              styles.primaryButton,
-              { backgroundColor: Colors[colorKey].tint },
-              isMutating ? styles.disabled : undefined,
-            ]}
+          <AppButton
+            label="Create watchlist"
+            icon="add"
+            size="md"
+            loading={isMutating}
             disabled={isMutating}
             onPress={handleCreateWatchlist}
-          >
-            <Text style={styles.primaryButtonText}>Create watchlist</Text>
-          </Pressable>
+          />
         </View>
 
         <View style={styles.boardsSection}>
@@ -485,7 +482,7 @@ export default function WatchlistsScreen() {
                       {
                         borderColor: selected ? Colors[colorKey].tint : Colors[colorKey].border,
                         backgroundColor: selected
-                          ? (isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.08)")
+                          ? (isDark ? "rgba(215,255,69,0.10)" : "rgba(215,255,69,0.20)")
                           : Colors[colorKey].card,
                       },
                     ]}
@@ -533,7 +530,7 @@ export default function WatchlistsScreen() {
                           <Ionicons
                             name={selected ? "checkmark" : "ellipse-outline"}
                             size={12}
-                            color={selected ? "#fff" : Colors[colorKey].notification}
+                            color={selected ? onTint(isDark) : Colors[colorKey].notification}
                           />
                         </View>
                       </View>
@@ -633,22 +630,17 @@ export default function WatchlistsScreen() {
                   No available players to add.
                 </Text>
               ) : null}
-              <Pressable
-                style={[
-                  styles.primaryButton,
-                  styles.addPlayerButton,
-                  { backgroundColor: Colors[colorKey].tint },
-                  !selectedPlayerId || isMutating || isLoadingPlayers || availablePlayers.length === 0
-                    ? styles.disabled
-                    : undefined,
-                ]}
+              <AppButton
+                label="Add to watchlist"
+                icon="person-add"
+                size="md"
+                style={styles.addPlayerButton}
+                loading={isMutating}
                 disabled={
                   !selectedPlayerId || isMutating || isLoadingPlayers || availablePlayers.length === 0
                 }
                 onPress={handleAddPlayer}
-              >
-                <Text style={styles.primaryButtonText}>Add to watchlist</Text>
-              </Pressable>
+              />
 
               <View style={[styles.detailsDivider, { backgroundColor: Colors[colorKey].border }]} />
 
@@ -681,7 +673,13 @@ export default function WatchlistsScreen() {
                       ]}
                     >
                       <View style={styles.playerIdentity}>
-                        <Image source={{ uri: item.image }} style={styles.playerAvatar} />
+                        <Image
+                          source={item.image || undefined}
+                          style={styles.playerAvatar}
+                          contentFit="cover"
+                          cachePolicy="memory-disk"
+                          transition={160}
+                        />
                         <View style={{ flex: 1 }}>
                           <Text style={{ color: Colors[colorKey].text, fontWeight: "700" }} numberOfLines={1}>
                             {getPlayerDisplayName(item)}
