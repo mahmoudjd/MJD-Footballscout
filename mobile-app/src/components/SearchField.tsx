@@ -3,14 +3,16 @@ import { ActivityIndicator, StyleSheet, View, TextInput, Pressable } from "react
 import { Ionicons } from "@expo/vector-icons";
 import { AppContext } from "@/src/context/AppContext";
 import Colors from "@/src/constants/Colors";
+import { onTint, radius, shadow } from "@/src/constants/Theme";
 
 type Props = {
   value: string;
   loading?: boolean;
+  autoFocus?: boolean;
   handleChange: (text: string) => void;
   handleSearch: () => void;
 };
-const SearchField = ({ value, loading = false, handleChange, handleSearch }: Props) => {
+const SearchField = ({ value, loading = false, autoFocus = false, handleChange, handleSearch }: Props) => {
   const { isDark } = useContext(AppContext);
   const colorKey = isDark ? "dark" : "light";
   const colors = Colors[colorKey];
@@ -32,11 +34,14 @@ const SearchField = ({ value, loading = false, handleChange, handleSearch }: Pro
           placeholderTextColor={colors.notification}
           onChangeText={handleChange}
           value={value}
-          placeholder="Search by name, club, country"
+          placeholder="Search by player name"
           editable
+          autoFocus={autoFocus}
           autoCorrect={false}
           autoCapitalize="none"
           maxLength={40}
+          returnKeyType="search"
+          onSubmitEditing={handleSearch}
         />
         {value ? (
           <Pressable onPress={() => handleChange("")} hitSlop={8}>
@@ -47,6 +52,7 @@ const SearchField = ({ value, loading = false, handleChange, handleSearch }: Pro
       <Pressable
         style={[
           styles.pressField,
+          shadow(isDark).sm,
           {
             backgroundColor: colors.tint,
           },
@@ -55,7 +61,11 @@ const SearchField = ({ value, loading = false, handleChange, handleSearch }: Pro
         disabled={loading}
         onPress={handleSearch}
       >
-        {loading ? <ActivityIndicator size="small" color="#fff" /> : <Ionicons name="arrow-forward" size={18} color="#fff" />}
+        {loading ? (
+          <ActivityIndicator size="small" color={onTint(isDark)} />
+        ) : (
+          <Ionicons name="arrow-forward" size={18} color={onTint(isDark)} />
+        )}
       </Pressable>
     </View>
   );
@@ -64,16 +74,16 @@ const SearchField = ({ value, loading = false, handleChange, handleSearch }: Pro
 const styles = StyleSheet.create({
   searchField: {
     width: "92%",
-    marginBottom: 8,
+    marginBottom: 10,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 8,
   },
   inputWrap: {
-    height: 44,
+    height: 50,
     flex: 1,
-    borderRadius: 13,
+    borderRadius: 16,
     borderWidth: 1,
     paddingHorizontal: 12,
     flexDirection: "row",
@@ -86,9 +96,9 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   pressField: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+    width: 50,
+    height: 50,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
   },
