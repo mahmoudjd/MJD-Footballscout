@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import {
@@ -10,6 +10,7 @@ import {
   getRecruitmentCandidates,
   updateRecruitmentCandidate,
 } from "@/src/apiServices";
+import AppButton from "@/src/components/ui/AppButton";
 import AppSelect from "@/src/components/ui/AppSelect";
 import AuthRequiredState from "@/src/components/ui/AuthRequiredState";
 import CardSurface from "@/src/components/ui/CardSurface";
@@ -18,6 +19,7 @@ import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
 import ScreenContainer from "@/src/components/ui/ScreenContainer";
 import Colors from "@/src/constants/Colors";
 import { onTint } from "@/src/constants/Theme";
+import { WEB_URL } from "@/src/apiURLs";
 import { AppContext } from "@/src/context/AppContext";
 import { useAuth } from "@/src/context/AuthContext";
 import {
@@ -154,7 +156,21 @@ export default function RecruitmentScreen() {
   return <ScreenContainer edgeToEdge style={styles.screen}>
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <PageHeaderCard icon="briefcase-outline" title="Recruitment" subtitle="Move scouting targets from discovery to negotiation." />
-      {!premium ? <CardSurface><Text style={[styles.title, { color: colors.text }]}>Premium feature</Text><Text style={[styles.muted, { color: colors.notification }]}>Upgrade on the web app to unlock the recruitment workspace.</Text></CardSurface> : <>
+      {!premium ? <CardSurface style={styles.premiumCard}>
+        <Text style={[styles.title, { color: colors.text }]}>Premium feature</Text>
+        <Text style={[styles.muted, { color: colors.notification }]}>Upgrade on the web app to unlock the recruitment workspace.</Text>
+        <AppButton
+          label="Upgrade on the web"
+          icon="open-outline"
+          size="md"
+          style={styles.premiumButton}
+          onPress={() => {
+            Linking.openURL(`${WEB_URL}/pricing`).catch(() =>
+              Alert.alert("Error", `Could not open the web app. Visit ${WEB_URL}/pricing in your browser.`),
+            );
+          }}
+        />
+      </CardSurface> : <>
         <View style={styles.metrics}>{Object.entries(metrics).map(([label, value]) => <CardSurface key={label} style={styles.metric} padding={12} radius={16}><Text style={[styles.metricValue, { color: colors.text }]}>{value}</Text><Text style={[styles.metricLabel, { color: colors.notification }]}>{label}</Text></CardSurface>)}</View>
         <CardSurface>
           <Text style={[styles.title, { color: colors.text }]}>Add target</Text>
@@ -178,4 +194,5 @@ const styles = StyleSheet.create({
   title: { fontSize: 17, fontWeight: "800" }, muted: { fontSize: 12, lineHeight: 18, marginTop: 2 }, formRow: { flexDirection: "row", gap: 8, marginTop: 12 }, prioritySelect: { maxWidth: 120 },
   primaryButton: { minHeight: 44, borderRadius: 13, marginTop: 10, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 }, primaryText: { color: "#fff", fontWeight: "800" }, disabled: { opacity: 0.45 },
   stageSection: { gap: 8 }, stageHeading: { flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 3 }, count: { fontWeight: "900" }, cardTop: { flexDirection: "row", alignItems: "flex-start", gap: 10 }, grow: { flex: 1 }, playerName: { fontSize: 15, fontWeight: "800" },
+  premiumCard: { gap: 4 }, premiumButton: { marginTop: 12 },
 });
