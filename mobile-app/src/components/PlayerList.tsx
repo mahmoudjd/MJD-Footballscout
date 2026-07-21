@@ -450,7 +450,7 @@ export default function PlayerList() {
               styles.countBadge,
               {
                 borderColor: Colors[isDark ? "dark" : "light"].border,
-                backgroundColor: isDark ? "rgba(215,255,69,0.11)" : "rgba(215,255,69,0.24)",
+                backgroundColor: isDark ? "rgba(201,226,101,0.11)" : "rgba(215,255,69,0.24)",
               },
             ]}
           >
@@ -489,7 +489,7 @@ export default function PlayerList() {
             <View
               style={[
                 styles.searchEntryBadge,
-                { backgroundColor: isDark ? "rgba(215,255,69,0.14)" : "rgba(215,255,69,0.30)" },
+                { backgroundColor: isDark ? "rgba(201,226,101,0.14)" : "rgba(215,255,69,0.30)" },
               ]}
             >
               <Ionicons name="add" size={15} color={Colors[isDark ? "dark" : "light"].tint} />

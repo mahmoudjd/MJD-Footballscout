@@ -482,7 +482,7 @@ export default function WatchlistsScreen() {
                       {
                         borderColor: selected ? Colors[colorKey].tint : Colors[colorKey].border,
                         backgroundColor: selected
-                          ? (isDark ? "rgba(215,255,69,0.10)" : "rgba(215,255,69,0.20)")
+                          ? (isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.20)")
                           : Colors[colorKey].card,
                       },
                     ]}

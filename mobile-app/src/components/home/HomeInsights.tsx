@@ -129,7 +129,7 @@ export default function HomeInsights() {
             styles.syncBadge,
             {
               borderColor: Colors[colorKey].border,
-              backgroundColor: isDark ? "rgba(215,255,69,0.10)" : "rgba(215,255,69,0.28)",
+              backgroundColor: isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.28)",
             },
           ]}
         >
@@ -158,7 +158,7 @@ export default function HomeInsights() {
         <View style={styles.heroSearchText}>
           <Text style={[styles.heroSearchTitle, { color: onTint(isDark) }]}>Search any player</Text>
           <Text style={[styles.heroSearchSub, { color: onTint(isDark), opacity: 0.72 }]} numberOfLines={1}>
-            By name, club, country or position
+            Find any player by name
           </Text>
         </View>
         <View style={[styles.heroSearchCta, { backgroundColor: isDark ? "rgba(10,33,24,0.16)" : "rgba(255,255,255,0.18)" }]}>

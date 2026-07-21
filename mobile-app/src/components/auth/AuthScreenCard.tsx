@@ -52,7 +52,7 @@ export default function AuthScreenCard({ icon, eyebrow, title, subtitle, footer,
           </View>
 
           <GlassSurface style={styles.card} fallbackStyle={{ shadowColor: isDark ? "#000" : "#0f3224" }}>
-            <View style={[styles.iconWrap, { backgroundColor: isDark ? "rgba(215,255,69,0.10)" : "rgba(215,255,69,0.24)" }]}>
+            <View style={[styles.iconWrap, { backgroundColor: isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.24)" }]}>
               <Ionicons name={icon} size={23} color={colors.tint} />
             </View>
             <Text style={[styles.eyebrow, { color: colors.tint }]}>{eyebrow}</Text>

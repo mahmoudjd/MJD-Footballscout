@@ -96,7 +96,7 @@ export function onTint(isDark: boolean): string {
 
 /** Soft, brand-tinted background for subtle badges/pills. */
 export function accentSoft(isDark: boolean): string {
-  return isDark ? "rgba(215,255,69,0.12)" : "rgba(10,33,24,0.06)";
+  return isDark ? "rgba(201,226,101,0.14)" : "rgba(10,33,24,0.06)";
 }
 
 /** Readable text colour for content placed on an `accentSoft` background. */

@@ -125,7 +125,7 @@ export default function VerifyEmailScreen() {
       }
     >
       {resent ? (
-        <View style={[styles.noticeCard, { borderColor: colors.border, backgroundColor: isDark ? "rgba(215,255,69,0.06)" : "rgba(215,255,69,0.16)" }]}>
+        <View style={[styles.noticeCard, { borderColor: colors.border, backgroundColor: isDark ? "rgba(201,226,101,0.06)" : "rgba(215,255,69,0.16)" }]}>
           <Ionicons name="checkmark-circle-outline" size={19} color={colors.tint} />
           <Text style={[styles.noticeText, { color: colors.text }]}>
             A fresh verification link is on its way to {email.trim()}. Check your inbox and spam folder.
