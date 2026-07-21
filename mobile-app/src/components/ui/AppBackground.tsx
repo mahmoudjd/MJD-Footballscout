@@ -7,8 +7,8 @@ import { AppContext } from "@/src/context/AppContext";
 export default function AppBackground() {
   const { isDark } = useContext(AppContext);
   const gradientColors: [string, string, string] = isDark
-    ? ["#070d14", Colors.dark.background, "#0c1624"]
-    : ["#f4fafb", Colors.light.background, "#e9f2f6"];
+    ? ["#07100c", Colors.dark.background, "#0d1a14"]
+    : ["#f7f9f6", Colors.light.background, "#edf2ec"];
 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
@@ -17,29 +17,25 @@ export default function AppBackground() {
         style={[
           styles.glow,
           styles.glowTopLeft,
-          { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(20,184,166,0.12)" },
+          { backgroundColor: isDark ? "rgba(215,255,69,0.09)" : "rgba(215,255,69,0.18)" },
         ]}
       />
       <View
         style={[
           styles.glow,
           styles.glowTopRight,
-          { backgroundColor: isDark ? "rgba(59,130,246,0.10)" : "rgba(14,116,144,0.08)" },
+          { backgroundColor: isDark ? "rgba(23,82,57,0.24)" : "rgba(10,33,24,0.07)" },
         ]}
       />
       <View
         style={[
           styles.glow,
           styles.glowBottom,
-          { backgroundColor: isDark ? "rgba(45,212,191,0.07)" : "rgba(34,197,94,0.06)" },
+          { backgroundColor: isDark ? "rgba(215,255,69,0.05)" : "rgba(125,168,77,0.07)" },
         ]}
       />
-      <View
-        style={[
-          styles.noise,
-          { backgroundColor: isDark ? "rgba(255,255,255,0.008)" : "rgba(255,255,255,0.1)" },
-        ]}
-      />
+      <View style={[styles.pitchLine, styles.pitchLineOne, { borderColor: isDark ? "rgba(215,255,69,0.035)" : "rgba(10,33,24,0.025)" }]} />
+      <View style={[styles.pitchLine, styles.pitchLineTwo, { borderColor: isDark ? "rgba(215,255,69,0.025)" : "rgba(10,33,24,0.02)" }]} />
     </View>
   );
 }
@@ -67,8 +63,7 @@ const styles = StyleSheet.create({
     bottom: -170,
     left: 10,
   },
-  noise: {
-    ...StyleSheet.absoluteFillObject,
-    opacity: 0.3,
-  },
+  pitchLine: { position: "absolute", borderWidth: 1, borderRadius: 999 },
+  pitchLineOne: { width: 330, height: 330, top: 180, right: -220 },
+  pitchLineTwo: { width: 440, height: 440, bottom: 40, left: -330 },
 });

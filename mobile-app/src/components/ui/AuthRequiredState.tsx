@@ -51,7 +51,12 @@ export default function AuthRequiredState({
         <Text style={[styles.title, { color: Colors[colorKey].text }]}>{title}</Text>
         <Text style={[styles.message, { color: Colors[colorKey].notification }]}>{message}</Text>
         <Link href={{ pathname: "/login", params: { callbackUrl: normalizedCallback } }} asChild>
-          <Pressable style={[styles.button, { backgroundColor: Colors[colorKey].tint }]}>
+          <Pressable
+            style={StyleSheet.flatten([
+              styles.button,
+              { backgroundColor: Colors[colorKey].tint },
+            ])}
+          >
             <Text style={styles.buttonText}>{actionLabel}</Text>
           </Pressable>
         </Link>
@@ -72,9 +77,9 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 420,
     borderWidth: 1,
-    borderRadius: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 18,
+    borderRadius: 24,
+    paddingHorizontal: 22,
+    paddingVertical: 22,
     alignItems: "center",
   },
   iconWrap: {
@@ -83,7 +88,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(14,165,165,0.12)",
+    backgroundColor: "rgba(215,255,69,0.28)",
     marginBottom: 8,
   },
   title: {
@@ -97,7 +102,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    borderRadius: 10,
+    borderRadius: 12,
     paddingHorizontal: 18,
     paddingVertical: 11,
   },
