@@ -33,7 +33,7 @@ export default function TabLayout() {
     >
       {/* Order follows priority: Search is the app's primary function, so it sits
           right after the Home overview. Then find (Players) → track (Watchlists) → more.
-          Analysis (Compare) and premium tools (Recruitment, Shadow Team) live in More. */}
+          Analysis (Compare) and scouting tools (Recruitment, Shadow Team) live in More. */}
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

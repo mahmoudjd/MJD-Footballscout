@@ -14,7 +14,6 @@ import {
   PlayerType,
   WatchlistDetails,
   WatchlistSummary,
-  BillingStatus,
   RecruitmentCandidate,
   RecruitmentCandidateInput,
   ShadowTeamAssignment,
@@ -361,10 +360,6 @@ export async function getPlayerHistory(accessToken: string, playerId: string, li
   return requestJson<PlayerHistoryResponse>(`/players/${playerId}/history?limit=${limit}`, {
     accessToken,
   });
-}
-
-export async function getBillingStatus(accessToken: string) {
-  return requestJson<BillingStatus>("/billing/status", { accessToken });
 }
 
 export async function getRecruitmentCandidates(accessToken: string) {

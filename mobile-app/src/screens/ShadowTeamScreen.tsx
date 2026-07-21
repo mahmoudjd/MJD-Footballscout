@@ -1,10 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
-import { createShadowTeam, deleteShadowTeam, getBillingStatus, getShadowTeam, getShadowTeams, updateShadowTeam } from "@/src/apiServices";
-import { WEB_URL } from "@/src/apiURLs";
-import AppButton from "@/src/components/ui/AppButton";
+import { createShadowTeam, deleteShadowTeam, getShadowTeam, getShadowTeams, updateShadowTeam } from "@/src/apiServices";
 import AppSelect from "@/src/components/ui/AppSelect";
 import AuthRequiredState from "@/src/components/ui/AuthRequiredState";
 import CardSurface from "@/src/components/ui/CardSurface";
@@ -33,7 +31,6 @@ export default function ShadowTeamScreen() {
   const [selectedSlotId, setSelectedSlotId] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [premium, setPremium] = useState(true);
 
   const authorized = useCallback(async <T,>(request: (token: string) => Promise<T>) => {
     if (!session) throw new Error("Login required");
@@ -44,24 +41,22 @@ export default function ShadowTeamScreen() {
     if (!session) return;
     setLoading(true);
     try {
-      const [billing, nextTeams] = await Promise.all([authorized(getBillingStatus), authorized(getShadowTeams)]);
-      setPremium(!billing.premiumEnabled || billing.isPremium);
+      const nextTeams = await authorized(getShadowTeams);
       setTeams(nextTeams);
       setSelectedId((current) => current || nextTeams[0]?._id || "");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Shadow Teams could not be loaded";
-      if (message.toLowerCase().includes("premium")) setPremium(false);
-      else Alert.alert("Could not load", message);
+      Alert.alert("Could not load", message);
     } finally { setLoading(false); }
   }, [session, authorized]);
 
   useFocusEffect(useCallback(() => { void loadTeams(); }, [loadTeams]));
   useEffect(() => {
-    if (!selectedId || !premium) { setDetail(null); return; }
+    if (!selectedId) { setDetail(null); return; }
     void authorized((token) => getShadowTeam(token, selectedId)).then((value) => {
       setDetail(value); setSelectedSlotId(value.slots[0]?.id || "");
     }).catch((error) => Alert.alert("Could not open team", error instanceof Error ? error.message : "Please try again"));
-  }, [selectedId, premium, authorized]);
+  }, [selectedId, authorized]);
 
   const playersById = useMemo(() => new Map((detail?.players || []).map((player) => [player._id, player])), [detail?.players]);
   const selectedSlot = detail?.slots.find((slot) => slot.id === selectedSlotId);
@@ -117,21 +112,7 @@ export default function ShadowTeamScreen() {
 
   return <ScreenContainer edgeToEdge style={styles.screen}><ScrollView contentInsetAdjustmentBehavior="automatic" style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
     <PageHeaderCard icon="football-outline" title="Shadow Team" subtitle="Build future squads, identify gaps and compare alternatives." />
-    {!premium ? <CardSurface style={styles.premiumCard}>
-      <Text style={[styles.title, { color: colors.text }]}>Premium feature</Text>
-      <Text style={[styles.muted, { color: colors.notification }]}>Upgrade on the web app to unlock Shadow Teams.</Text>
-      <AppButton
-        label="Upgrade on the web"
-        icon="open-outline"
-        size="md"
-        style={styles.premiumButton}
-        onPress={() => {
-          Linking.openURL(`${WEB_URL}/pricing`).catch(() =>
-            Alert.alert("Error", `Could not open the web app. Visit ${WEB_URL}/pricing in your browser.`),
-          );
-        }}
-      />
-    </CardSurface> : <>
+    <>
       <CardSurface><Text style={[styles.title, { color: colors.text }]}>Create team</Text><TextInput value={newName} onChangeText={setNewName} placeholder="Summer recruitment 2027" placeholderTextColor={colors.notification} style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]} /><View style={styles.row}><AppSelect placeholder="Formation" options={formations.map((item) => ({ value: item, label: item }))} value={newFormation} onChange={(value) => setNewFormation(value as ShadowTeamFormation)} /><Pressable disabled={!newName.trim() || saving} onPress={create} style={[styles.addButton, { backgroundColor: colors.tint }, (!newName.trim() || saving) && styles.disabled]}><Ionicons name="add" size={20} color={onTint(isDark)} /></Pressable></View></CardSurface>
       {teams.length ? <AppSelect placeholder="Choose team" options={teams.map((team) => ({ value: team._id, label: `${team.name} · ${team.formation}` }))} value={selectedId} onChange={setSelectedId} /> : null}
       {detail ? <>
@@ -139,7 +120,7 @@ export default function ShadowTeamScreen() {
         <View style={styles.slotGrid}>{detail.slots.map((slot) => { const primaryId = detail.assignments.find((item) => item.slotId === slot.id)?.playerIds[0]; const active = slot.id === selectedSlotId; return <Pressable key={slot.id} onPress={() => setSelectedSlotId(slot.id)} style={[styles.slot, { backgroundColor: active ? colors.tint : colors.card, borderColor: active ? colors.tint : colors.border }]}><Text style={[styles.slotCode, { color: active ? onTint(isDark) : colors.text }]}>{slot.shortLabel}</Text><Text numberOfLines={1} style={[styles.slotPlayer, { color: active ? onTint(isDark) : colors.notification }]}>{primaryId ? getPlayerDisplayName(playersById.get(primaryId)) : "Open"}</Text></Pressable>; })}</View>
         {selectedSlot ? <CardSurface><Text style={[styles.title, { color: colors.text }]}>{selectedSlot.label}</Text><Text style={[styles.muted, { color: colors.notification }]}>Select a recommended {selectedSlot.positionGroup.toLowerCase()} as primary player.</Text>{selectedAssignment?.playerIds.map((id, index) => <View key={id} style={[styles.assignedRow, { borderColor: colors.border }]}><Text style={[styles.grow, { color: colors.text, fontWeight: "700" }]}>{index === 0 ? "★ " : ""}{getPlayerDisplayName(playersById.get(id)) || id}</Text>{index > 0 ? <Pressable onPress={() => setPrimary(id)}><Text style={{ color: colors.tint, fontWeight: "800" }}>Make primary</Text></Pressable> : null}</View>)}<AppSelect placeholder="Add recommended player" options={roleOptions} value="" onChange={setPrimary} style={styles.recommendSelect} />{selectedAssignment ? <Pressable onPress={clearSlot} style={styles.clearButton}><Text style={styles.clearText}>Clear position</Text></Pressable> : null}</CardSurface> : null}
       </> : teams.length === 0 ? <CardSurface><Text style={[styles.title, { color: colors.text }]}>No Shadow Teams yet</Text><Text style={[styles.muted, { color: colors.notification }]}>Create your first formation above.</Text></CardSurface> : <LoadingState />}
-    </>}
+    </>
   </ScrollView></ScreenContainer>;
 }
 
@@ -147,5 +128,5 @@ const styles = StyleSheet.create({
   screen: { alignItems: "center" }, scroll: { width: "92%", flex: 1 }, content: { gap: 12, paddingBottom: 24 }, title: { fontSize: 17, fontWeight: "800" }, muted: { fontSize: 12, lineHeight: 18, marginTop: 3 },
   input: { minHeight: 44, borderWidth: 1, borderRadius: 12, marginTop: 12, paddingHorizontal: 12, fontSize: 14 }, row: { flexDirection: "row", gap: 8, marginTop: 8 }, addButton: { width: 48, borderRadius: 12, alignItems: "center", justifyContent: "center" }, disabled: { opacity: 0.45 }, headingRow: { flexDirection: "row", alignItems: "center", gap: 10 }, grow: { flex: 1 }, teamName: { fontSize: 21, fontWeight: "900" },
   slotGrid: { flexDirection: "row", flexWrap: "wrap", gap: 7 }, slot: { width: "31.5%", minHeight: 67, borderRadius: 15, borderWidth: 1, padding: 9, justifyContent: "center" }, slotCode: { fontSize: 13, fontWeight: "900" }, slotPlayer: { fontSize: 10, marginTop: 4 }, assignedRow: { minHeight: 44, borderBottomWidth: 1, flexDirection: "row", alignItems: "center", gap: 8 }, recommendSelect: { marginTop: 12 }, clearButton: { marginTop: 9, padding: 10, alignItems: "center" }, clearText: { color: "#dc2626", fontWeight: "800" },
-  premiumCard: { gap: 4 }, premiumButton: { marginTop: 12 },
+
 });

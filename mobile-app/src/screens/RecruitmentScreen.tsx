@@ -1,16 +1,14 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import {
   createRecruitmentCandidate,
   deleteRecruitmentCandidate,
   getAllPlayers,
-  getBillingStatus,
   getRecruitmentCandidates,
   updateRecruitmentCandidate,
 } from "@/src/apiServices";
-import AppButton from "@/src/components/ui/AppButton";
 import AppSelect from "@/src/components/ui/AppSelect";
 import AuthRequiredState from "@/src/components/ui/AuthRequiredState";
 import CardSurface from "@/src/components/ui/CardSurface";
@@ -19,7 +17,6 @@ import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
 import ScreenContainer from "@/src/components/ui/ScreenContainer";
 import Colors from "@/src/constants/Colors";
 import { onTint } from "@/src/constants/Theme";
-import { WEB_URL } from "@/src/apiURLs";
 import { AppContext } from "@/src/context/AppContext";
 import { useAuth } from "@/src/context/AuthContext";
 import {
@@ -65,7 +62,6 @@ export default function RecruitmentScreen() {
   const [priority, setPriority] = useState<RecruitmentPriority>("medium");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [premium, setPremium] = useState(true);
 
   const authorized = useCallback(
     async <T,>(request: (token: string) => Promise<T>) => {
@@ -79,18 +75,15 @@ export default function RecruitmentScreen() {
     if (!session) return;
     setLoading(true);
     try {
-      const [billing, nextCandidates, nextPlayers] = await Promise.all([
-        authorized(getBillingStatus),
+      const [nextCandidates, nextPlayers] = await Promise.all([
         authorized(getRecruitmentCandidates),
         getAllPlayers(),
       ]);
-      setPremium(!billing.premiumEnabled || billing.isPremium);
       setCandidates(nextCandidates);
       setPlayers(nextPlayers);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Recruitment data could not be loaded";
-      if (message.toLowerCase().includes("premium")) setPremium(false);
-      else Alert.alert("Could not load", message);
+      Alert.alert("Could not load", message);
     } finally {
       setLoading(false);
     }
@@ -156,21 +149,7 @@ export default function RecruitmentScreen() {
   return <ScreenContainer edgeToEdge style={styles.screen}>
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <PageHeaderCard icon="briefcase-outline" title="Recruitment" subtitle="Move scouting targets from discovery to negotiation." />
-      {!premium ? <CardSurface style={styles.premiumCard}>
-        <Text style={[styles.title, { color: colors.text }]}>Premium feature</Text>
-        <Text style={[styles.muted, { color: colors.notification }]}>Upgrade on the web app to unlock the recruitment workspace.</Text>
-        <AppButton
-          label="Upgrade on the web"
-          icon="open-outline"
-          size="md"
-          style={styles.premiumButton}
-          onPress={() => {
-            Linking.openURL(`${WEB_URL}/pricing`).catch(() =>
-              Alert.alert("Error", `Could not open the web app. Visit ${WEB_URL}/pricing in your browser.`),
-            );
-          }}
-        />
-      </CardSurface> : <>
+      <>
         <View style={styles.metrics}>{Object.entries(metrics).map(([label, value]) => <CardSurface key={label} style={styles.metric} padding={12} radius={16}><Text style={[styles.metricValue, { color: colors.text }]}>{value}</Text><Text style={[styles.metricLabel, { color: colors.notification }]}>{label}</Text></CardSurface>)}</View>
         <CardSurface>
           <Text style={[styles.title, { color: colors.text }]}>Add target</Text>
@@ -183,7 +162,7 @@ export default function RecruitmentScreen() {
           return <View key={stage.value} style={styles.stageSection}><View style={styles.stageHeading}><Text style={[styles.title, { color: colors.text }]}>{stage.label}</Text><Text style={[styles.count, { color: colors.tint }]}>{items.length}</Text></View>{items.map((candidate) => <CardSurface key={candidate._id} padding={14} radius={18}><View style={styles.cardTop}><View style={styles.grow}><Text style={[styles.playerName, { color: colors.text }]}>{getPlayerDisplayName(candidate.player || undefined)}</Text><Text style={[styles.muted, { color: colors.notification }]}>{candidate.player?.position || "Unknown position"} · {candidate.player?.currentClub || candidate.player?.country || "No club"}</Text></View><Pressable onPress={() => remove(candidate)} hitSlop={10}><Ionicons name="trash-outline" size={19} color="#dc2626" /></Pressable></View><View style={styles.formRow}><AppSelect compact placeholder="Stage" options={stages} value={candidate.stage} onChange={(value) => void update(candidate, { stage: value as RecruitmentStage })} /><AppSelect compact placeholder="Priority" options={priorities.map((item) => ({ value: item, label: item }))} value={candidate.priority} onChange={(value) => void update(candidate, { priority: value as RecruitmentPriority })} /></View></CardSurface>)}</View>;
         })}
         {!candidates.length ? <CardSurface><Text style={[styles.title, { color: colors.text }]}>Pipeline is empty</Text><Text style={[styles.muted, { color: colors.notification }]}>Add your first player above to start a recruitment process.</Text></CardSurface> : null}
-      </>}
+      </>
     </ScrollView>
   </ScreenContainer>;
 }
@@ -194,5 +173,5 @@ const styles = StyleSheet.create({
   title: { fontSize: 17, fontWeight: "800" }, muted: { fontSize: 12, lineHeight: 18, marginTop: 2 }, formRow: { flexDirection: "row", gap: 8, marginTop: 12 }, prioritySelect: { maxWidth: 120 },
   primaryButton: { minHeight: 44, borderRadius: 13, marginTop: 10, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 }, primaryText: { color: "#fff", fontWeight: "800" }, disabled: { opacity: 0.45 },
   stageSection: { gap: 8 }, stageHeading: { flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 3 }, count: { fontWeight: "900" }, cardTop: { flexDirection: "row", alignItems: "flex-start", gap: 10 }, grow: { flex: 1 }, playerName: { fontSize: 15, fontWeight: "800" },
-  premiumCard: { gap: 4 }, premiumButton: { marginTop: 12 },
+
 });
