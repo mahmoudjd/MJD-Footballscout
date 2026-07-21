@@ -315,9 +315,34 @@ export interface ShadowTeamSummary {
   updatedAt: string;
 }
 
+export interface ShadowTeamPositionRef {
+  slotId: string;
+  label: string;
+  shortLabel: string;
+}
+
+export interface ShadowTeamAnalytics {
+  filledSlots: number;
+  totalSlots: number;
+  missingPositions: ShadowTeamPositionRef[];
+  overstaffedPositions: Array<ShadowTeamPositionRef & { count: number }>;
+  duplicatePlayers: Array<{ playerId: string; slotIds: string[] }>;
+  primaryPlayerCount: number;
+  averageAge: number | null;
+  averageElo: number | null;
+  totalMarketValue: number;
+}
+
+export interface ShadowTeamAlternative {
+  slotId: string;
+  players: Array<{ player: PlayerType; score: number; reasons: string[] }>;
+}
+
 export interface ShadowTeamDetail extends ShadowTeamSummary {
   slots: ShadowTeamSlot[];
   players: PlayerType[];
+  analytics?: ShadowTeamAnalytics;
+  alternatives?: ShadowTeamAlternative[];
 }
 
 export interface AccountProfile {
