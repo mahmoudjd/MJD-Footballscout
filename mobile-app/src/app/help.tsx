@@ -126,7 +126,7 @@ export default function HelpScreen() {
                 onPress={() => router.push(step.href as never)}
                 style={({ pressed }) => [styles.stepItem, { borderColor: colors.border, backgroundColor: colors.background, opacity: pressed ? 0.7 : 1 }]}
               >
-                <View style={[styles.stepIcon, { backgroundColor: isDark ? "rgba(215,255,69,0.10)" : "rgba(215,255,69,0.28)" }]}>
+                <View style={[styles.stepIcon, { backgroundColor: isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.28)" }]}>
                   <Ionicons name={step.icon} size={17} color={colors.tint} />
                 </View>
                 <View style={styles.stepText}>

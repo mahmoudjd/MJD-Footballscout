@@ -19,7 +19,7 @@ export default function PageHeaderCard({ icon, title, subtitle, children, style 
 
   return (
     <CardSurface style={[styles.shell, style]} padding={0} radius={26}>
-      <LinearGradient colors={isDark ? ["#10271e", "#091610"] : ["#123c2c", "#071b13"]} style={styles.gradient}>
+      <LinearGradient colors={isDark ? ["#172a20", "#101c15"] : ["#123c2c", "#071b13"]} style={styles.gradient}>
         <View style={styles.eyebrowRow}>
           <View style={styles.liveDot} />
           <Text style={styles.eyebrow}>MJD · SCOUTING INTELLIGENCE</Text>

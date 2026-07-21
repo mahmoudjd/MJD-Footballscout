@@ -121,7 +121,7 @@ function formatEloDelta(value: number | null | undefined) {
 function getDecisionColor(decision: string, isDark: boolean) {
   if (decision === "sign") return isDark ? "#22c55e" : "#15803d";
   if (decision === "reject") return isDark ? "#f87171" : "#dc2626";
-  return isDark ? "#d7ff45" : "#0e7490";
+  return isDark ? "#c9e265" : "#0e7490";
 }
 
 function SectionSkeleton({ rows = 4, isDark }: { rows?: number; isDark: boolean }) {

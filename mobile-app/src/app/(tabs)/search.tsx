@@ -369,12 +369,12 @@ export default function SearchScreen() {
                       </Text>
                       <View style={styles.unsavedPills}>
                         {player.country ? (
-                          <View style={[styles.unsavedPill, { backgroundColor: isDark ? "rgba(215,255,69,0.12)" : "rgba(10,33,24,0.06)" }]}>
+                          <View style={[styles.unsavedPill, { backgroundColor: isDark ? "rgba(201,226,101,0.12)" : "rgba(10,33,24,0.06)" }]}>
                             <Text style={[styles.unsavedPillText, { color: isDark ? colors.accent : colors.tint }]}>{player.country}</Text>
                           </View>
                         ) : null}
                         {player.position ? (
-                          <View style={[styles.unsavedPill, { backgroundColor: isDark ? "rgba(215,255,69,0.12)" : "rgba(10,33,24,0.06)" }]}>
+                          <View style={[styles.unsavedPill, { backgroundColor: isDark ? "rgba(201,226,101,0.12)" : "rgba(10,33,24,0.06)" }]}>
                             <Text style={[styles.unsavedPillText, { color: isDark ? colors.accent : colors.tint }]}>{player.position}</Text>
                           </View>
                         ) : null}

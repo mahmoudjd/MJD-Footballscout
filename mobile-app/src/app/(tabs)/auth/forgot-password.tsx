@@ -48,7 +48,7 @@ export default function ForgotPasswordScreen() {
           </Text>
         }
       >
-        <View style={[styles.noticeCard, { borderColor: colors.border, backgroundColor: isDark ? "rgba(215,255,69,0.06)" : "rgba(215,255,69,0.16)" }]}>
+        <View style={[styles.noticeCard, { borderColor: colors.border, backgroundColor: isDark ? "rgba(201,226,101,0.06)" : "rgba(215,255,69,0.16)" }]}>
           <Ionicons name="information-circle-outline" size={19} color={colors.tint} />
           <Text style={[styles.noticeText, { color: colors.text }]}>
             Did not get an email? Check your spam folder or try again in a few minutes.
