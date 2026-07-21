@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     height: 50,
     marginHorizontal: 10,
     marginVertical: 20,
-    backgroundColor: "#008fb3",
+    backgroundColor: "#123c2c",
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
