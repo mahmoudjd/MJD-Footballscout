@@ -257,14 +257,14 @@ export default function CompareScreen() {
 
   if (isLoadingPlayers) {
     return (
-      <ScreenContainer edgeToEdge withTopInset style={styles.center}>
+      <ScreenContainer edgeToEdge style={styles.center}>
         <ActivityIndicator animating size="large" color={colors.tint} />
       </ScreenContainer>
     );
   }
 
   return (
-    <ScreenContainer edgeToEdge withTopInset style={styles.container}>
+    <ScreenContainer edgeToEdge style={styles.container}>
       <PageHeaderCard
         icon="git-compare-outline"
         title="Compare Players"

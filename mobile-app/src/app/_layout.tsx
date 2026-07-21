@@ -154,6 +154,39 @@ function RootLayoutNav() {
                 }}
               />
               <Stack.Screen
+                name="compare"
+                options={{
+                  headerShown: true,
+                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
+                  headerStyle: {
+                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
+                  },
+                  title: "Compare",
+                }}
+              />
+              <Stack.Screen
+                name="recruitment"
+                options={{
+                  headerShown: true,
+                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
+                  headerStyle: {
+                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
+                  },
+                  title: "Recruitment",
+                }}
+              />
+              <Stack.Screen
+                name="shadow-team"
+                options={{
+                  headerShown: true,
+                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
+                  headerStyle: {
+                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
+                  },
+                  title: "Shadow Team",
+                }}
+              />
+              <Stack.Screen
                 name="help"
                 options={{
                   headerShown: true,
