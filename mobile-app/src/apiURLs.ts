@@ -20,3 +20,10 @@ if (!envApiUrl && process.env.EXPO_PUBLIC_API_URL) {
 }
 
 export const API_URL = envApiUrl || DEFAULT_REMOTE_API_URL;
+
+const DEFAULT_WEB_URL = "https://mjd-football-scout.vercel.app";
+
+const envWebUrl = normalizeApiUrl(process.env.EXPO_PUBLIC_WEB_URL);
+
+/** Base URL of the web app — used for flows deferred to web (e.g. billing upgrade). */
+export const WEB_URL = envWebUrl || DEFAULT_WEB_URL;
