@@ -1,238 +1,106 @@
 import React from "react";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
 import { useAuth } from "@/src/context/AuthContext";
-import {
-  getGoogleLoginConfigurationError,
-  isGoogleLoginConfigured,
-  requestGoogleIdToken,
-} from "@/src/utils/googleAuth";
-import AppBackground from "@/src/components/ui/AppBackground";
+import { getGoogleLoginConfigurationError, isGoogleLoginConfigured, requestGoogleIdToken } from "@/src/utils/googleAuth";
+import AuthScreenCard from "@/src/components/auth/AuthScreenCard";
 
 function resolveCallbackUrl(rawValue: unknown) {
   const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
-  if (typeof value === "string" && value.trim().startsWith("/")) {
-    return value.trim();
-  }
-  return "/";
+  return typeof value === "string" && value.trim().startsWith("/") ? value.trim() : "/";
 }
 
 export default function LoginScreen() {
   const { isDark } = React.useContext(AppContext);
   const { isAuthLoading, isAuthReady, isAuthenticated, login, loginWithGoogleIdToken } = useAuth();
   const { callbackUrl } = useLocalSearchParams<{ callbackUrl?: string | string[] }>();
-
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-
-  const colorKey = isDark ? "dark" : "light";
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState("");
+  const colors = Colors[isDark ? "dark" : "light"];
   const callback = React.useMemo(() => resolveCallbackUrl(callbackUrl), [callbackUrl]);
 
   React.useEffect(() => {
-    if (isAuthenticated) {
-      router.replace(callback as never);
-    }
+    if (isAuthenticated) router.replace(callback as never);
   }, [isAuthenticated, callback]);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert("Validation", "Email and password are required.");
+      setErrorMessage("Enter your email address and password.");
       return;
     }
-
     try {
-      await login({
-        email: email.trim(),
-        password: password.trim(),
-      });
+      setErrorMessage("");
+      await login({ email: email.trim(), password: password.trim() });
       router.replace(callback as never);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Login failed";
-      Alert.alert("Error", message);
+      setErrorMessage(error instanceof Error ? error.message : "Sign-in failed. Please try again.");
     }
   };
 
   const handleGoogleLogin = async () => {
     if (!isGoogleLoginConfigured()) {
-      const configMessage =
-        getGoogleLoginConfigurationError() ||
-        "Set EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID / EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID in mobile-app/.env and restart Expo.";
-      Alert.alert(
-        "Google login not configured",
-        configMessage,
-      );
+      Alert.alert("Google login not configured", getGoogleLoginConfigurationError() || "Add the Google client IDs to mobile-app/.env and restart Expo.");
       return;
     }
-
     try {
+      setErrorMessage("");
       const idToken = await requestGoogleIdToken();
       await loginWithGoogleIdToken(idToken);
       router.replace(callback as never);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Google login failed";
-      Alert.alert("Error", message);
+      setErrorMessage(error instanceof Error ? error.message : "Google sign-in failed. Please try again.");
     }
   };
 
   if (!isAuthReady) {
-    return (
-      <SafeAreaView style={[styles.center, { backgroundColor: Colors[colorKey].background }]}>
-        <AppBackground />
-        <ActivityIndicator animating size="large" color="#008fb3" />
-      </SafeAreaView>
-    );
+    return <View style={[styles.center, { backgroundColor: colors.background }]}><ActivityIndicator size="large" color={colors.tint} /></View>;
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right", "bottom"]} style={[styles.container, { backgroundColor: Colors[colorKey].background }]}>
-      <AppBackground />
-      <View
-        style={[
-          styles.card,
-          {
-            backgroundColor: Colors[colorKey].card,
-            borderColor: Colors[colorKey].border,
-            shadowColor: isDark ? "#000" : "#0f172a",
-          },
-        ]}
-      >
-        <View style={styles.titleRow}>
-          <Ionicons name="log-in-outline" size={22} color={Colors[colorKey].tint} />
-          <Text style={[styles.title, { color: Colors[colorKey].text }]}>Login</Text>
-        </View>
-        <Text style={[styles.subtitle, { color: Colors[colorKey].notification }]}>
-          Sign in to access profiles, compare and watchlists.
-        </Text>
-
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          placeholderTextColor={Colors[colorKey].notification}
-          style={[styles.input, { color: Colors[colorKey].text, borderColor: Colors[colorKey].border }]}
-        />
-
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Password"
-          autoCapitalize="none"
-          secureTextEntry
-          placeholderTextColor={Colors[colorKey].notification}
-          style={[styles.input, { color: Colors[colorKey].text, borderColor: Colors[colorKey].border }]}
-        />
-
-        <Pressable
-          disabled={isAuthLoading}
-          onPress={handleLogin}
-          style={[styles.primaryButton, { backgroundColor: Colors[colorKey].tint }, isAuthLoading && styles.disabled]}
-        >
-          <Text style={styles.primaryButtonText}>{isAuthLoading ? "Please wait..." : "Login"}</Text>
-        </Pressable>
-
-        <Pressable
-          disabled={isAuthLoading}
-          onPress={handleGoogleLogin}
-          style={[
-            styles.secondaryButton,
-            {
-              borderColor: Colors[colorKey].border,
-              backgroundColor: Colors[colorKey].background,
-            },
-            isAuthLoading && styles.disabled,
-          ]}
-        >
-          <Text style={[styles.secondaryButtonText, { color: Colors[colorKey].text }]}>Continue with Google</Text>
-        </Pressable>
-
-        <Text style={[styles.footerText, { color: Colors[colorKey].notification }]}>
-          No account?{" "}
-          <Link href={{ pathname: "/signup", params: { callbackUrl: callback } }} style={styles.footerLink}>
-            Create one
-          </Link>
-        </Text>
+    <AuthScreenCard
+      icon="log-in-outline"
+      eyebrow="Scout workspace"
+      title="Welcome back"
+      subtitle="Sign in to access profiles, comparisons, watchlists & recruitment tools."
+      footer={<Text style={[styles.footerText, { color: colors.notification }]}>No account?{" "}<Link href={{ pathname: "/signup", params: { callbackUrl: callback } }} style={styles.footerLink}>Create one</Link></Text>}
+    >
+      <View style={styles.field}>
+        <Text style={[styles.label, { color: colors.text }]}>Email</Text>
+        <TextInput accessibilityLabel="Email address" value={email} onChangeText={(value) => { setEmail(value); setErrorMessage(""); }} placeholder="name@club.com" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" keyboardType="email-address" placeholderTextColor={colors.notification} style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.58)" }]} />
       </View>
-    </SafeAreaView>
+      <View style={styles.field}>
+        <Text style={[styles.label, { color: colors.text }]}>Password</Text>
+        <View style={[styles.passwordWrap, { borderColor: colors.border, backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.58)" }]}>
+          <TextInput accessibilityLabel="Password" value={password} onChangeText={(value) => { setPassword(value); setErrorMessage(""); }} placeholder="Enter your password" autoCapitalize="none" autoComplete="current-password" textContentType="password" secureTextEntry={!showPassword} placeholderTextColor={colors.notification} style={[styles.passwordInput, { color: colors.text }]} />
+          <Pressable accessibilityRole="button" accessibilityLabel={showPassword ? "Hide password" : "Show password"} hitSlop={8} onPress={() => setShowPassword((current) => !current)}><Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.notification} /></Pressable>
+        </View>
+        <Link href="/forgot-password" style={[styles.forgotLink, { color: colors.tint }]}>Forgot password?</Link>
+      </View>
+      {errorMessage ? <View accessibilityLiveRegion="polite" style={styles.errorRow}><Ionicons name="alert-circle-outline" size={17} color="#ef4444" /><Text style={styles.errorText}>{errorMessage}</Text></View> : null}
+      <Pressable disabled={isAuthLoading} onPress={handleLogin} style={({ pressed }) => [styles.primaryButton, { backgroundColor: colors.accent, opacity: pressed || isAuthLoading ? 0.72 : 1 }]}>
+        {isAuthLoading ? <ActivityIndicator size="small" color={colors.accentText} /> : <Ionicons name="arrow-forward" size={18} color={colors.accentText} />}
+        <Text style={[styles.primaryButtonText, { color: colors.accentText }]}>{isAuthLoading ? "Signing in…" : "Sign in"}</Text>
+      </Pressable>
+      <View style={styles.dividerRow}><View style={[styles.divider, { backgroundColor: colors.border }]} /><Text style={[styles.dividerText, { color: colors.notification }]}>OR</Text><View style={[styles.divider, { backgroundColor: colors.border }]} /></View>
+      <Pressable disabled={isAuthLoading} onPress={handleGoogleLogin} style={({ pressed }) => [styles.secondaryButton, { borderColor: colors.border, opacity: pressed || isAuthLoading ? 0.66 : 1 }]}><Ionicons name="logo-google" size={18} color={colors.text} /><Text style={[styles.secondaryButtonText, { color: colors.text }]}>Continue with Google</Text></Pressable>
+    </AuthScreenCard>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  card: {
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 18,
-    gap: 12,
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
-    elevation: 2,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 6,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
-  },
-  primaryButton: {
-    borderRadius: 10,
-    paddingVertical: 11,
-    alignItems: "center",
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontWeight: "700",
-  },
-  secondaryButton: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingVertical: 11,
-    alignItems: "center",
-  },
-  secondaryButtonText: {
-    fontWeight: "700",
-  },
-  disabled: {
-    opacity: 0.7,
-  },
-  footerText: {
-    marginTop: 4,
-    textAlign: "center",
-    fontSize: 14,
-  },
-  footerLink: {
-    color: "#0ea5a5",
-    fontWeight: "700",
-  },
+  center: { flex: 1, alignItems: "center", justifyContent: "center" },
+  field: { gap: 7 }, label: { fontSize: 13, fontWeight: "800" }, forgotLink: { alignSelf: "flex-end", fontSize: 12.5, fontWeight: "800", marginTop: 2 },
+  input: { minHeight: 50, borderWidth: 1, borderRadius: 15, paddingHorizontal: 14, fontSize: 15 },
+  passwordWrap: { minHeight: 50, borderWidth: 1, borderRadius: 15, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 10 },
+  passwordInput: { flex: 1, minWidth: 0, fontSize: 15, paddingVertical: 12 },
+  errorRow: { flexDirection: "row", alignItems: "flex-start", gap: 7 }, errorText: { flex: 1, color: "#ef4444", fontSize: 12, lineHeight: 17, fontWeight: "600" },
+  primaryButton: { minHeight: 50, borderRadius: 16, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 8 }, primaryButtonText: { fontWeight: "900", fontSize: 14 },
+  secondaryButton: { minHeight: 50, borderWidth: 1, borderRadius: 16, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 9 }, secondaryButtonText: { fontWeight: "800", fontSize: 14 },
+  dividerRow: { flexDirection: "row", alignItems: "center", gap: 10 }, divider: { flex: 1, height: StyleSheet.hairlineWidth }, dividerText: { fontSize: 9, fontWeight: "900", letterSpacing: 1 },
+  footerText: { textAlign: "center", fontSize: 14 }, footerLink: { color: "#76a800", fontWeight: "900" },
 });
