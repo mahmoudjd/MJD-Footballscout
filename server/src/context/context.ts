@@ -54,13 +54,6 @@ export async function createContext({
   );
   await users.createIndex({ passwordResetTokenHash: 1 }, { sparse: true });
   await users.createIndex({ emailVerificationTokenHash: 1 }, { sparse: true });
-  await users.createIndex(
-    { stripeCustomerId: 1 },
-    {
-      unique: true,
-      partialFilterExpression: { stripeCustomerId: { $type: "string" } },
-    },
-  );
   await watchlists.createIndex({ userId: 1, updatedAt: -1 });
   await shadowTeams.createIndex({ userId: 1, updatedAt: -1 });
   await recruitmentCandidates.createIndex(
