@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import { createShadowTeam, deleteShadowTeam, getShadowTeam, getShadowTeams, updateShadowTeam } from "@/src/apiServices";
 import AppSelect from "@/src/components/ui/AppSelect";
+import FormationBoard from "@/src/components/shadow/FormationBoard";
 import AuthRequiredState from "@/src/components/ui/AuthRequiredState";
 import CardSurface from "@/src/components/ui/CardSurface";
 import LoadingState from "@/src/components/ui/LoadingState";
@@ -117,7 +118,13 @@ export default function ShadowTeamScreen() {
       {teams.length ? <AppSelect placeholder="Choose team" options={teams.map((team) => ({ value: team._id, label: `${team.name} · ${team.formation}` }))} value={selectedId} onChange={setSelectedId} /> : null}
       {detail ? <>
         <CardSurface><View style={styles.headingRow}><View style={styles.grow}><Text style={[styles.teamName, { color: colors.text }]}>{detail.name}</Text><Text style={[styles.muted, { color: colors.notification }]}>{detail.formation} · {detail.assignments.filter((item) => item.playerIds.length).length}/11 positions filled</Text></View><Pressable onPress={removeTeam} hitSlop={10}><Ionicons name="trash-outline" size={20} color="#dc2626" /></Pressable></View></CardSurface>
-        <View style={styles.slotGrid}>{detail.slots.map((slot) => { const primaryId = detail.assignments.find((item) => item.slotId === slot.id)?.playerIds[0]; const active = slot.id === selectedSlotId; return <Pressable key={slot.id} onPress={() => setSelectedSlotId(slot.id)} style={[styles.slot, { backgroundColor: active ? colors.tint : colors.card, borderColor: active ? colors.tint : colors.border }]}><Text style={[styles.slotCode, { color: active ? onTint(isDark) : colors.text }]}>{slot.shortLabel}</Text><Text numberOfLines={1} style={[styles.slotPlayer, { color: active ? onTint(isDark) : colors.notification }]}>{primaryId ? getPlayerDisplayName(playersById.get(primaryId)) : "Open"}</Text></Pressable>; })}</View>
+        <FormationBoard
+          slots={detail.slots}
+          assignments={detail.assignments}
+          playersById={playersById}
+          selectedSlotId={selectedSlotId}
+          onSelectSlot={setSelectedSlotId}
+        />
         {selectedSlot ? <CardSurface><Text style={[styles.title, { color: colors.text }]}>{selectedSlot.label}</Text><Text style={[styles.muted, { color: colors.notification }]}>Select a recommended {selectedSlot.positionGroup.toLowerCase()} as primary player.</Text>{selectedAssignment?.playerIds.map((id, index) => <View key={id} style={[styles.assignedRow, { borderColor: colors.border }]}><Text style={[styles.grow, { color: colors.text, fontWeight: "700" }]}>{index === 0 ? "★ " : ""}{getPlayerDisplayName(playersById.get(id)) || id}</Text>{index > 0 ? <Pressable onPress={() => setPrimary(id)}><Text style={{ color: colors.tint, fontWeight: "800" }}>Make primary</Text></Pressable> : null}</View>)}<AppSelect placeholder="Add recommended player" options={roleOptions} value="" onChange={setPrimary} style={styles.recommendSelect} />{selectedAssignment ? <Pressable onPress={clearSlot} style={styles.clearButton}><Text style={styles.clearText}>Clear position</Text></Pressable> : null}</CardSurface> : null}
       </> : teams.length === 0 ? <CardSurface><Text style={[styles.title, { color: colors.text }]}>No Shadow Teams yet</Text><Text style={[styles.muted, { color: colors.notification }]}>Create your first formation above.</Text></CardSurface> : <LoadingState />}
     </>
@@ -127,6 +134,6 @@ export default function ShadowTeamScreen() {
 const styles = StyleSheet.create({
   screen: { alignItems: "center" }, scroll: { width: "92%", flex: 1 }, content: { gap: 12, paddingBottom: 24 }, title: { fontSize: 17, fontWeight: "800" }, muted: { fontSize: 12, lineHeight: 18, marginTop: 3 },
   input: { minHeight: 44, borderWidth: 1, borderRadius: 12, marginTop: 12, paddingHorizontal: 12, fontSize: 14 }, row: { flexDirection: "row", gap: 8, marginTop: 8 }, addButton: { width: 48, borderRadius: 12, alignItems: "center", justifyContent: "center" }, disabled: { opacity: 0.45 }, headingRow: { flexDirection: "row", alignItems: "center", gap: 10 }, grow: { flex: 1 }, teamName: { fontSize: 21, fontWeight: "900" },
-  slotGrid: { flexDirection: "row", flexWrap: "wrap", gap: 7 }, slot: { width: "31.5%", minHeight: 67, borderRadius: 15, borderWidth: 1, padding: 9, justifyContent: "center" }, slotCode: { fontSize: 13, fontWeight: "900" }, slotPlayer: { fontSize: 10, marginTop: 4 }, assignedRow: { minHeight: 44, borderBottomWidth: 1, flexDirection: "row", alignItems: "center", gap: 8 }, recommendSelect: { marginTop: 12 }, clearButton: { marginTop: 9, padding: 10, alignItems: "center" }, clearText: { color: "#dc2626", fontWeight: "800" },
+  assignedRow: { minHeight: 44, borderBottomWidth: 1, flexDirection: "row", alignItems: "center", gap: 8 }, recommendSelect: { marginTop: 12 }, clearButton: { marginTop: 9, padding: 10, alignItems: "center" }, clearText: { color: "#dc2626", fontWeight: "800" },
 
 });
