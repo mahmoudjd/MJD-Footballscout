@@ -3,7 +3,7 @@ import {AppContext} from "../../context/types";
 import {normalizePosition} from "../../scraper/position";
 import {parseCompactCurrency} from "../players/players.controller";
 import {calculatePlayerSimilarity, PlayerSimilarityInput} from "../players/player-similarity";
-import {ApiError} from "../players/scouting.controller";
+import {ApiError} from "../../middleware/customErrors";
 import {analyzeShadowTeam, ShadowTeamAnalyticsPlayer} from "./shadow-team-analytics";
 import {getFormationSlots} from "./shadow-team-formations";
 import {

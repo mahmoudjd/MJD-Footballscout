@@ -16,7 +16,7 @@ function parseAmount(amount: string): { display: string; fullValue?: string; ico
     return {
       display: "Undisclosed",
       icon: (
-        <OutlineIcons.QuestionMarkCircleIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+        <OutlineIcons.QuestionMarkCircleIcon className="h-5 w-5 text-stone-500" aria-hidden="true" />
       ),
     }
   }

@@ -153,7 +153,7 @@ export function CompareSelectionPanel({
                         sizes="40px"
                       />
                       <div className="min-w-0 flex-1">
-                        <Text as="p" weight="semibold" className="truncate text-slate-900">
+                        <Text as="p" weight="semibold" className="truncate text-stone-900">
                           {player.name}
                         </Text>
                         <Text as="p" variant="caption" tone="muted" className="truncate">

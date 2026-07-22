@@ -11,7 +11,7 @@ export function SearchResultsList({ players }: SearchResultsListProps) {
 
   return (
     <Panel className="mt-0 overflow-hidden p-0">
-      <div className="flex flex-col divide-y divide-gray-200">
+      <div className="flex flex-col divide-y divide-stone-200">
         {players.map((player, index) => (
           <SearchPlayerCard
             player={player}

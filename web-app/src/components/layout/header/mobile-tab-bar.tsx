@@ -14,47 +14,41 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  isNavPathActive,
+  mobileMoreLinks,
+  mobileTabLinks,
+  navLinkShortLabel,
+  resolveNavHref,
+} from "@/components/layout/header/nav-links"
 import { cn } from "@/lib/cn"
 
-type MobileTabItem = {
-  href: string
-  label: string
-  icon: keyof typeof OutlineIcons
-  authRequired?: boolean
-}
+const tabClassName =
+  "inline-flex min-w-0 flex-1 touch-manipulation flex-col items-center gap-1 rounded-2xl border border-transparent px-2 py-2 transition-[background-color,border-color,color,box-shadow,transform] focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none active:scale-[0.98] motion-reduce:transform-none"
 
-const primaryTabs: MobileTabItem[] = [
-  { href: "/", label: "Home", icon: "GlobeAltIcon" },
-  { href: "/players", label: "Players", icon: "UserGroupIcon" },
-  { href: "/search", label: "Search", icon: "SparklesIcon" },
-  { href: "/shadow-team", label: "Squad", icon: "Squares2X2Icon", authRequired: true },
-]
+const tabActiveClassName = "border-emerald-900 bg-emerald-950 text-white shadow-sm"
 
-function isPathActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/"
-  return pathname === href || pathname.startsWith(`${href}/`)
-}
+const tabIdleClassName =
+  "text-stone-600 hover:border-emerald-100 hover:bg-emerald-50 hover:text-emerald-950"
+
+const sheetLinkClassName =
+  "inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/75 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
+
+/** Account routes are not product navigation, but they still live in the sheet. */
+const accountRoutes = ["/profile", "/login", "/signup", "/forgot-password", "/reset-password"]
 
 export function MobileTabBar() {
   const pathname = usePathname()
   const { status, data: session } = useSession()
   const [isMoreOpen, setIsMoreOpen] = useState(false)
 
+  const isAuthenticated = status === "authenticated"
   const userName = session?.user?.name || "Guest"
   const userRole = session?.user?.role === "admin" ? "Admin" : "User"
 
   const moreActive = useMemo(() => {
-    return [
-      "/watchlists",
-      "/compare",
-      "/recruitment",
-      "/profile",
-      "/login",
-      "/signup",
-      "/forgot-password",
-      "/reset-password",
-      "/help",
-    ].some((route) => isPathActive(pathname, route))
+    const moreRoutes = [...mobileMoreLinks.map((link) => link.href), ...accountRoutes]
+    return moreRoutes.some((route) => isNavPathActive(pathname, route))
   }, [pathname])
 
   return (
@@ -64,28 +58,20 @@ export function MobileTabBar() {
           aria-label="Mobile tab navigation"
           className="mx-auto flex w-full max-w-xl items-center justify-between rounded-3xl border border-emerald-950/10 bg-[#f8faf7]/95 px-2 py-2 shadow-[0_18px_40px_rgba(15,50,36,0.16)] backdrop-blur-xl"
         >
-          {primaryTabs.map((tab) => {
+          {mobileTabLinks.map((tab) => {
             const Icon = OutlineIcons[tab.icon]
-            const isActive = isPathActive(pathname, tab.href)
-            const href =
-              tab.authRequired && status !== "authenticated"
-                ? `/login?callbackUrl=${encodeURIComponent(tab.href)}`
-                : tab.href
+            const isActive = isNavPathActive(pathname, tab.href)
             return (
               <Link
                 key={tab.href}
-                href={href}
+                href={resolveNavHref(tab, isAuthenticated)}
                 prefetch={false}
-                className={cn(
-                  "inline-flex min-w-0 flex-1 touch-manipulation flex-col items-center gap-1 rounded-2xl border border-transparent px-2 py-2 transition-[background-color,border-color,color,box-shadow,transform] focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none active:scale-[0.98] motion-reduce:transform-none",
-                  isActive
-                    ? "border-emerald-900 bg-emerald-950 text-white shadow-sm"
-                    : "text-stone-500 hover:border-emerald-100 hover:bg-emerald-50 hover:text-emerald-950",
-                )}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(tabClassName, isActive ? tabActiveClassName : tabIdleClassName)}
               >
                 <Icon className="h-5 w-5" aria-hidden="true" />
                 <Text as="span" variant="caption" tone="inherit" className="truncate text-[11px]">
-                  {tab.label}
+                  {navLinkShortLabel(tab)}
                 </Text>
               </Link>
             )
@@ -94,12 +80,7 @@ export function MobileTabBar() {
           <button
             type="button"
             onClick={() => setIsMoreOpen(true)}
-            className={cn(
-              "inline-flex min-w-0 flex-1 touch-manipulation flex-col items-center gap-1 rounded-2xl border border-transparent px-2 py-2 transition-[background-color,border-color,color,box-shadow,transform] focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none active:scale-[0.98] motion-reduce:transform-none",
-              moreActive
-                ? "border-emerald-900 bg-emerald-950 text-white shadow-sm"
-                : "text-stone-500 hover:border-emerald-100 hover:bg-emerald-50 hover:text-emerald-950",
-            )}
+            className={cn(tabClassName, moreActive ? tabActiveClassName : tabIdleClassName)}
             aria-label="Open more actions"
           >
             <OutlineIcons.Bars4Icon className="h-5 w-5" aria-hidden="true" />
@@ -117,75 +98,39 @@ export function MobileTabBar() {
         >
           <DialogHeader>
             <DialogTitle>More</DialogTitle>
-            <DialogDescription>Account und weitere Bereiche</DialogDescription>
+            <DialogDescription>Account and other sections</DialogDescription>
           </DialogHeader>
 
           <div className="mt-4 grid gap-2">
-            <Link
-              href={
-                status === "authenticated"
-                  ? "/recruitment"
-                  : `/login?callbackUrl=${encodeURIComponent("/recruitment")}`
-              }
-              prefetch={false}
-              onClick={() => setIsMoreOpen(false)}
-              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/70 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
-            >
-              <OutlineIcons.RocketLaunchIcon className="h-5 w-5" aria-hidden="true" />
-              Recruitment Workspace
-            </Link>
+            {mobileMoreLinks.map((link) => {
+              const Icon = OutlineIcons[link.icon]
+              return (
+                <Link
+                  key={link.href}
+                  href={resolveNavHref(link, isAuthenticated)}
+                  prefetch={false}
+                  onClick={() => setIsMoreOpen(false)}
+                  className={sheetLinkClassName}
+                >
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                  {link.label}
+                </Link>
+              )
+            })}
 
-            <Link
-              href={
-                status === "authenticated"
-                  ? "/compare"
-                  : `/login?callbackUrl=${encodeURIComponent("/compare")}`
-              }
-              prefetch={false}
-              onClick={() => setIsMoreOpen(false)}
-              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/70 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
-            >
-              <OutlineIcons.ArrowsRightLeftIcon className="h-5 w-5" aria-hidden="true" />
-              Compare
-            </Link>
-
-            <Link
-              href="/help"
-              prefetch={false}
-              onClick={() => setIsMoreOpen(false)}
-              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/70 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
-            >
-              <OutlineIcons.QuestionMarkCircleIcon className="h-5 w-5" aria-hidden="true" />
-              Help & What’s New
-            </Link>
-
-            <Link
-              href={
-                status === "authenticated"
-                  ? "/watchlists"
-                  : `/login?callbackUrl=${encodeURIComponent("/watchlists")}`
-              }
-              prefetch={false}
-              onClick={() => setIsMoreOpen(false)}
-              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/70 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
-            >
-              <OutlineIcons.HeartIcon className="h-5 w-5" aria-hidden="true" />
-              Watchlists
-            </Link>
-
-            {status === "authenticated" ? (
+            {isAuthenticated ? (
               <Link
                 href="/profile"
                 prefetch={false}
                 onClick={() => setIsMoreOpen(false)}
-                className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/70 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
+                className={sheetLinkClassName}
               >
                 <OutlineIcons.UserIcon className="h-5 w-5" aria-hidden="true" />
-                Profile & Security
+                Profile &amp; Security
               </Link>
             ) : null}
 
-            {status === "authenticated" ? (
+            {isAuthenticated ? (
               <div className="rounded-2xl border border-stone-200 bg-stone-50 px-3 py-3">
                 <Text as="p" variant="body" weight="semibold">
                   {userName}
@@ -201,11 +146,11 @@ export function MobileTabBar() {
                 tone="muted"
                 className="rounded-2xl bg-stone-50 px-3 py-2"
               >
-                Du bist aktuell nicht eingeloggt.
+                You are not signed in.
               </Text>
             )}
 
-            {status === "authenticated" ? (
+            {isAuthenticated ? (
               <Button
                 type="button"
                 variant="outline"

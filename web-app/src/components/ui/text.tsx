@@ -36,7 +36,7 @@ const variantClasses: Record<TextVariant, string> = {
 }
 
 const toneClasses: Record<TextTone, string> = {
-  default: "text-slate-900",
+  default: "text-stone-900",
   muted: "text-stone-600",
   subtle: "text-stone-500",
   primary: "text-emerald-700",

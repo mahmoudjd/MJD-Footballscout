@@ -45,7 +45,7 @@ function showCustomToast(
           onClick={() => toast.dismiss(t.id)}
           variant="ghost"
           size="icon-sm"
-          className="rounded-md text-gray-500 hover:bg-transparent hover:text-gray-800"
+          className="rounded-md text-stone-500 hover:bg-transparent hover:text-stone-800"
           aria-label="Dismiss notification"
         >
           <OutlineIcons.XMarkIcon className="h-4 w-4" aria-hidden="true" />

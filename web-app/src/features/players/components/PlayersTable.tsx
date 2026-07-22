@@ -88,19 +88,19 @@ const PlayersTable = memo(
 
                 <dl className="relative mt-4 grid grid-cols-3 divide-x divide-emerald-950/8 rounded-2xl border border-emerald-950/7 bg-white/75 px-1 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
                   <div className="min-w-0 px-2">
-                    <dt className="text-[10px] font-bold tracking-[0.08em] text-stone-400 uppercase">
+                    <dt className="text-[10px] font-bold tracking-[0.08em] text-stone-600 uppercase">
                       Age
                     </dt>
                     <dd className="mt-1 text-sm font-bold text-stone-700 tabular-nums">{age}</dd>
                   </div>
                   <div className="min-w-0 px-2">
-                    <dt className="text-[10px] font-bold tracking-[0.08em] text-stone-400 uppercase">
+                    <dt className="text-[10px] font-bold tracking-[0.08em] text-stone-600 uppercase">
                       ELO
                     </dt>
                     <dd className="mt-1 text-sm font-bold text-emerald-700 tabular-nums">{elo}</dd>
                   </div>
                   <div className="min-w-0 px-2">
-                    <dt className="text-[10px] font-bold tracking-[0.08em] text-stone-400 uppercase">
+                    <dt className="text-[10px] font-bold tracking-[0.08em] text-stone-600 uppercase">
                       Value
                     </dt>
                     <dd

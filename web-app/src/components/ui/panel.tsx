@@ -6,7 +6,6 @@ interface PanelProps {
   className?: string
   tone?: "default" | "glass" | "soft"
   spacing?: "default" | "compact" | "none"
-  radius?: "default" | "large"
 }
 
 const toneClasses: Record<NonNullable<PanelProps["tone"]>, string> = {
@@ -23,21 +22,13 @@ const spacingClasses: Record<NonNullable<PanelProps["spacing"]>, string> = {
   none: "p-0",
 }
 
-const radiusClasses: Record<NonNullable<PanelProps["radius"]>, string> = {
-  default: "rounded-3xl",
-  large: "rounded-3xl",
-}
+/** Cards use a single radius across the app — see docs/design-critique-2026-07.md. */
+const panelRadiusClassName = "rounded-3xl"
 
-export function Panel({
-  children,
-  className,
-  tone = "default",
-  spacing = "default",
-  radius = "default",
-}: PanelProps) {
+export function Panel({ children, className, tone = "default", spacing = "default" }: PanelProps) {
   return (
     <section
-      className={cn(radiusClasses[radius], spacingClasses[spacing], toneClasses[tone], className)}
+      className={cn(panelRadiusClassName, spacingClasses[spacing], toneClasses[tone], className)}
     >
       {children}
     </section>

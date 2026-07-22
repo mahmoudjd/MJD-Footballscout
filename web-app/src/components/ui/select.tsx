@@ -51,7 +51,7 @@ export function Select({
   const toneClasses = {
     default: {
       trigger:
-        "border-emerald-950/15 bg-white text-emerald-950 shadow-[0_9px_22px_-18px_rgba(15,50,36,0.42)] data-[placeholder]:text-stone-400 hover:border-emerald-900/30",
+        "border-emerald-950/15 bg-white text-emerald-950 shadow-[0_9px_22px_-18px_rgba(15,50,36,0.42)] data-[placeholder]:text-stone-500 hover:border-emerald-900/30",
       icon: "text-stone-500",
       content: "border-emerald-950/10 bg-white",
       scroll: "bg-white text-stone-600",
@@ -59,11 +59,11 @@ export function Select({
     },
     glass: {
       trigger:
-        "border-white/40 bg-white/15 text-white shadow-[0_6px_18px_-16px_rgba(2,6,23,0.75)] data-[placeholder]:text-slate-100/85",
-      icon: "text-slate-100",
-      content: "border-white/30 bg-slate-900/90 text-white",
-      scroll: "bg-slate-900 text-slate-200",
-      item: "text-slate-100 data-[highlighted]:bg-white/15 data-[highlighted]:text-white",
+        "border-white/40 bg-white/15 text-white shadow-[0_6px_18px_-16px_rgba(2,6,23,0.75)] data-[placeholder]:text-stone-100/85",
+      icon: "text-stone-100",
+      content: "border-white/30 bg-stone-900/90 text-white",
+      scroll: "bg-stone-900 text-stone-200",
+      item: "text-stone-100 data-[highlighted]:bg-white/15 data-[highlighted]:text-white",
     },
   }[tone]
 

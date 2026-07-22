@@ -39,7 +39,7 @@ export function SectionHeader({
         "border-white/30 bg-white/12 shadow-[0_16px_40px_-24px_rgba(2,6,23,0.75)] backdrop-blur-md",
       iconWrap: "border-white/25 bg-white/20 text-lime-100",
       title: "text-white",
-      description: "text-slate-100/90",
+      description: "text-stone-100/90",
       badge: "border-white/35 bg-white/20 text-lime-50",
     },
   }[tone]
