@@ -9,13 +9,17 @@ type Props = {
   label: string;
   value: string | number;
   onPress?: () => void;
+  /** Category colour for the icon chip: `{ fg, soft }`. Defaults to brand tint. */
+  tone?: { fg: string; soft: string };
 };
 
-const ProfileInfoItem = ({ icon, label, value, onPress }: Props) => {
+const ProfileInfoItem = ({ icon, label, value, onPress, tone }: Props) => {
   const { isDark } = useContext(AppContext);
   const palette = Colors[isDark ? "dark" : "light"];
   const displayValue = String(value ?? "").trim() || "-";
   const isPressable = typeof onPress === "function";
+  const chipFg = tone?.fg ?? palette.tint;
+  const chipSoft = tone?.soft ?? (isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.27)");
 
   return (
     <Pressable
@@ -29,8 +33,8 @@ const ProfileInfoItem = ({ icon, label, value, onPress }: Props) => {
         },
       ]}
     >
-      <View style={[styles.iconWrap, { backgroundColor: isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.27)" }]}>
-        <Ionicons name={icon} size={16} color={palette.tint} />
+      <View style={[styles.iconWrap, { backgroundColor: chipSoft }]}>
+        <Ionicons name={icon} size={16} color={chipFg} />
       </View>
       <View style={styles.textWrap}>
         <Text style={[styles.label, { color: palette.notification }]}>

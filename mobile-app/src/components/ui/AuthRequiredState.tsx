@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
 import AppBackground from "@/src/components/ui/AppBackground";
+import { onTint } from "@/src/constants/Theme";
 
 type Props = {
   message?: string;
@@ -57,7 +58,7 @@ export default function AuthRequiredState({
               { backgroundColor: Colors[colorKey].tint },
             ])}
           >
-            <Text style={styles.buttonText}>{actionLabel}</Text>
+            <Text style={[styles.buttonText, { color: onTint(isDark) }]}>{actionLabel}</Text>
           </Pressable>
         </Link>
       </View>
@@ -107,7 +108,6 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
   },
   buttonText: {
-    color: "#fff",
     fontWeight: "700",
   },
 });

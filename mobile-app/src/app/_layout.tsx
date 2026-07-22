@@ -7,6 +7,7 @@ import { AppContext } from "../context/AppContext";
 import { AuthProvider } from "../context/AuthContext";
 import Colors from "../constants/Colors";
 import { StatusBar } from "expo-status-bar";
+import * as SystemUI from "expo-system-ui";
 import { useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
@@ -56,6 +57,12 @@ function RootLayoutNav() {
   );
 
   const appContext = useMemo(() => ({ isDark, setIsDark }), [isDark]);
+
+  // Paint the native root window so the home-indicator / behind-nav area never
+  // falls back to the default black window (showed as a black bar at the bottom).
+  useEffect(() => {
+    void SystemUI.setBackgroundColorAsync(Colors[isDark ? "dark" : "light"].background);
+  }, [isDark]);
   const paperTheme = useMemo(() => {
     const colorKey = isDark ? "dark" : "light";
     const baseTheme = isDark ? MD3DarkTheme : MD3LightTheme;
@@ -94,7 +101,7 @@ function RootLayoutNav() {
   }, [isDark]);
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: Colors[isDark ? "dark" : "light"].background }}>
       <PaperProvider theme={paperTheme}>
         <AuthProvider>
           <AppContext.Provider value={appContext}>
@@ -146,6 +153,7 @@ function RootLayoutNav() {
                 name="profile"
                 options={{
                   headerShown: true,
+                  headerTitleAlign: "center",
                   headerTintColor: Colors[isDark ? "dark" : "light"].text,
                   headerStyle: {
                     backgroundColor: isDark ? Colors.dark.primary : "#fff",
@@ -173,17 +181,6 @@ function RootLayoutNav() {
                     backgroundColor: isDark ? Colors.dark.primary : "#fff",
                   },
                   title: "Recruitment",
-                }}
-              />
-              <Stack.Screen
-                name="shadow-team"
-                options={{
-                  headerShown: true,
-                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
-                  headerStyle: {
-                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
-                  },
-                  title: "Shadow Team",
                 }}
               />
               <Stack.Screen

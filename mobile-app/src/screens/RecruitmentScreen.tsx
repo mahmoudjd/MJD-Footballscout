@@ -10,13 +10,15 @@ import {
   updateRecruitmentCandidate,
 } from "@/src/apiServices";
 import AppSelect from "@/src/components/ui/AppSelect";
+import AppButton from "@/src/components/ui/AppButton";
+import AnimatedEntrance from "@/src/components/ui/AnimatedEntrance";
 import AuthRequiredState from "@/src/components/ui/AuthRequiredState";
 import CardSurface from "@/src/components/ui/CardSurface";
 import LoadingState from "@/src/components/ui/LoadingState";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
 import ScreenContainer from "@/src/components/ui/ScreenContainer";
 import Colors from "@/src/constants/Colors";
-import { onTint } from "@/src/constants/Theme";
+import { accentSoft, accentSoftText, numeric } from "@/src/constants/Theme";
 import { AppContext } from "@/src/context/AppContext";
 import { useAuth } from "@/src/context/AuthContext";
 import {
@@ -39,6 +41,13 @@ const stages: Array<{ value: RecruitmentStage; label: string }> = [
   { value: "rejected", label: "Rejected" },
 ];
 const priorities: RecruitmentPriority[] = ["low", "medium", "high", "critical"];
+
+const PRIORITY_TONE: Record<RecruitmentPriority, { fg: string; soft: string }> = {
+  low: { fg: "#64748b", soft: "rgba(100,116,139,0.14)" },
+  medium: { fg: "#0ea5e9", soft: "rgba(14,165,233,0.14)" },
+  high: { fg: "#f59e0b", soft: "rgba(245,158,11,0.16)" },
+  critical: { fg: "#f43f5e", soft: "rgba(244,63,94,0.14)" },
+};
 
 function payload(candidate: RecruitmentCandidate, changes: Partial<RecruitmentCandidateInput>) {
   return {
@@ -150,16 +159,60 @@ export default function RecruitmentScreen() {
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <PageHeaderCard icon="briefcase-outline" title="Recruitment" subtitle="Move scouting targets from discovery to negotiation." />
       <>
-        <View style={styles.metrics}>{Object.entries(metrics).map(([label, value]) => <CardSurface key={label} style={styles.metric} padding={12} radius={16}><Text style={[styles.metricValue, { color: colors.text }]}>{value}</Text><Text style={[styles.metricLabel, { color: colors.notification }]}>{label}</Text></CardSurface>)}</View>
+        <View style={styles.metrics}>
+          {[
+            { key: "active", label: "Active", value: metrics.active, icon: "pulse" as const, fg: "#0ea5e9", soft: "rgba(14,165,233,0.14)" },
+            { key: "ready", label: "Ready", value: metrics.ready, icon: "checkmark-circle" as const, fg: "#10b981", soft: "rgba(16,185,129,0.14)" },
+            { key: "critical", label: "Critical", value: metrics.critical, icon: "flame" as const, fg: "#f43f5e", soft: "rgba(244,63,94,0.14)" },
+          ].map((m) => (
+            <CardSurface key={m.key} style={styles.metric} padding={12} radius={16}>
+              <View style={[styles.metricIcon, { backgroundColor: m.soft }]}>
+                <Ionicons name={m.icon} size={14} color={m.fg} />
+              </View>
+              <Text style={[styles.metricValue, numeric, { color: colors.text }]}>{m.value}</Text>
+              <Text style={[styles.metricLabel, { color: colors.notification }]}>{m.label}</Text>
+            </CardSurface>
+          ))}
+        </View>
         <CardSurface>
           <Text style={[styles.title, { color: colors.text }]}>Add target</Text>
           <View style={styles.formRow}><AppSelect placeholder="Choose player" options={playerOptions} value={playerId} onChange={setPlayerId} /><AppSelect compact placeholder="Priority" options={priorities.map((item) => ({ value: item, label: item }))} value={priority} onChange={(value) => setPriority(value as RecruitmentPriority)} style={styles.prioritySelect} /></View>
-          <Pressable disabled={!playerId || saving} onPress={create} style={[styles.primaryButton, { backgroundColor: colors.tint }, (!playerId || saving) && styles.disabled]}><Ionicons name="add" size={18} color={onTint(isDark)} /><Text style={[styles.primaryText, { color: onTint(isDark) }]}>{saving ? "Adding…" : "Add to pipeline"}</Text></Pressable>
+          <AppButton label="Add to pipeline" icon="add" size="md" loading={saving} disabled={!playerId || saving} onPress={create} style={styles.addBtn} />
         </CardSurface>
         {stages.map((stage) => {
           const items = candidatesByStage.get(stage.value) || [];
           if (!items.length) return null;
-          return <View key={stage.value} style={styles.stageSection}><View style={styles.stageHeading}><Text style={[styles.title, { color: colors.text }]}>{stage.label}</Text><Text style={[styles.count, { color: colors.tint }]}>{items.length}</Text></View>{items.map((candidate) => <CardSurface key={candidate._id} padding={14} radius={18}><View style={styles.cardTop}><View style={styles.grow}><Text style={[styles.playerName, { color: colors.text }]}>{getPlayerDisplayName(candidate.player || undefined)}</Text><Text style={[styles.muted, { color: colors.notification }]}>{candidate.player?.position || "Unknown position"} · {candidate.player?.currentClub || candidate.player?.country || "No club"}</Text></View><Pressable onPress={() => remove(candidate)} hitSlop={10}><Ionicons name="trash-outline" size={19} color="#dc2626" /></Pressable></View><View style={styles.formRow}><AppSelect compact placeholder="Stage" options={stages} value={candidate.stage} onChange={(value) => void update(candidate, { stage: value as RecruitmentStage })} /><AppSelect compact placeholder="Priority" options={priorities.map((item) => ({ value: item, label: item }))} value={candidate.priority} onChange={(value) => void update(candidate, { priority: value as RecruitmentPriority })} /></View></CardSurface>)}</View>;
+          return (
+            <View key={stage.value} style={styles.stageSection}>
+              <View style={styles.stageHeading}>
+                <Text style={[styles.title, { color: colors.text }]}>{stage.label}</Text>
+                <View style={[styles.countChip, { backgroundColor: accentSoft(isDark) }]}>
+                  <Text style={[styles.count, { color: accentSoftText(isDark) }]}>{items.length}</Text>
+                </View>
+              </View>
+              {items.map((candidate, index) => {
+                const pt = PRIORITY_TONE[candidate.priority];
+                return (
+                  <AnimatedEntrance key={candidate._id} delay={index * 60}>
+                    <CardSurface padding={14} radius={18}>
+                      <View style={styles.cardTop}>
+                        <View style={styles.grow}>
+                          <Text style={[styles.playerName, { color: colors.text }]}>{getPlayerDisplayName(candidate.player || undefined)}</Text>
+                          <Text style={[styles.muted, { color: colors.notification }]}>{candidate.player?.position || "Unknown position"} · {candidate.player?.currentClub || candidate.player?.country || "No club"}</Text>
+                        </View>
+                        <View style={[styles.priorityPill, { backgroundColor: pt.soft }]}>
+                          <View style={[styles.priorityDot, { backgroundColor: pt.fg }]} />
+                          <Text style={[styles.priorityText, { color: pt.fg }]}>{candidate.priority}</Text>
+                        </View>
+                        <Pressable onPress={() => remove(candidate)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Remove candidate"><Ionicons name="trash-outline" size={19} color="#dc2626" /></Pressable>
+                      </View>
+                      <View style={styles.formRow}><AppSelect compact placeholder="Stage" options={stages} value={candidate.stage} onChange={(value) => void update(candidate, { stage: value as RecruitmentStage })} /><AppSelect compact placeholder="Priority" options={priorities.map((item) => ({ value: item, label: item }))} value={candidate.priority} onChange={(value) => void update(candidate, { priority: value as RecruitmentPriority })} /></View>
+                    </CardSurface>
+                  </AnimatedEntrance>
+                );
+              })}
+            </View>
+          );
         })}
         {!candidates.length ? <CardSurface><Text style={[styles.title, { color: colors.text }]}>Pipeline is empty</Text><Text style={[styles.muted, { color: colors.notification }]}>Add your first player above to start a recruitment process.</Text></CardSurface> : null}
       </>
@@ -169,9 +222,14 @@ export default function RecruitmentScreen() {
 
 const styles = StyleSheet.create({
   screen: { alignItems: "center" }, scroll: { flex: 1, width: "92%" }, content: { gap: 12, paddingBottom: 24 },
-  metrics: { flexDirection: "row", gap: 8 }, metric: { flex: 1 }, metricValue: { fontSize: 23, fontWeight: "900" }, metricLabel: { fontSize: 11, textTransform: "capitalize" },
-  title: { fontSize: 17, fontWeight: "800" }, muted: { fontSize: 12, lineHeight: 18, marginTop: 2 }, formRow: { flexDirection: "row", gap: 8, marginTop: 12 }, prioritySelect: { maxWidth: 120 },
-  primaryButton: { minHeight: 44, borderRadius: 13, marginTop: 10, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 }, primaryText: { color: "#fff", fontWeight: "800" }, disabled: { opacity: 0.45 },
-  stageSection: { gap: 8 }, stageHeading: { flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 3 }, count: { fontWeight: "900" }, cardTop: { flexDirection: "row", alignItems: "flex-start", gap: 10 }, grow: { flex: 1 }, playerName: { fontSize: 15, fontWeight: "800" },
-
+  metrics: { flexDirection: "row", gap: 8 }, metric: { flex: 1 },
+  metricIcon: { width: 26, height: 26, borderRadius: 8, alignItems: "center", justifyContent: "center", marginBottom: 8 },
+  metricValue: { fontSize: 23, fontWeight: "900", letterSpacing: -0.5 }, metricLabel: { fontSize: 10, fontWeight: "800", textTransform: "uppercase", letterSpacing: 0.6, marginTop: 2 },
+  title: { fontSize: 17, fontWeight: "800" }, muted: { fontSize: 12, lineHeight: 18, marginTop: 2 }, formRow: { flexDirection: "row", gap: 8, marginTop: 12 }, prioritySelect: { maxWidth: 120 }, addBtn: { marginTop: 10 },
+  stageSection: { gap: 8 }, stageHeading: { flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 3 },
+  countChip: { minWidth: 24, alignItems: "center", borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 }, count: { fontWeight: "900", fontSize: 12 },
+  cardTop: { flexDirection: "row", alignItems: "flex-start", gap: 10 }, grow: { flex: 1 }, playerName: { fontSize: 15, fontWeight: "800" },
+  priorityPill: { flexDirection: "row", alignItems: "center", gap: 5, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4 },
+  priorityDot: { width: 6, height: 6, borderRadius: 3 },
+  priorityText: { fontSize: 11, fontWeight: "800", textTransform: "capitalize" },
 });

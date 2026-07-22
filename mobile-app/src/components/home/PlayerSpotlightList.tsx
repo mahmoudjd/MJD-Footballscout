@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { Link } from "expo-router";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
+import PressableScale from "@/src/components/ui/PressableScale";
 import { PlayerHighlightItem } from "@/src/data/Types";
 import { radius, shadow, spacing, typography } from "@/src/constants/Theme";
 
@@ -43,12 +44,14 @@ export default function PlayerSpotlightList({ title, players, emptyText }: Props
         <View style={styles.list}>
           {players.slice(0, 4).map((player) => (
             <Link key={player._id} href={`/${player._id}`} asChild>
-              <Pressable
-                style={({ pressed }) => [
+              {/* Style must be flattened, not an array: <Link asChild> renders
+                  through a Slot that rejects array `style` props on its child. */}
+              <PressableScale
+                scaleTo={0.97}
+                style={StyleSheet.flatten([
                   styles.rowCard,
                   { backgroundColor: colors.surfaceSoft, borderColor: colors.border },
-                  pressed ? styles.rowPressed : null,
-                ]}
+                ])}
               >
                 <View style={styles.rowInner}>
                   <Image
@@ -75,7 +78,7 @@ export default function PlayerSpotlightList({ title, players, emptyText }: Props
                     </Text>
                   </View>
                 </View>
-              </Pressable>
+              </PressableScale>
             </Link>
           ))}
         </View>
@@ -111,9 +114,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-  },
-  rowPressed: {
-    opacity: 0.7,
   },
   avatar: {
     width: 42,

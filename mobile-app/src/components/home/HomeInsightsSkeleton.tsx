@@ -1,23 +1,10 @@
 import React, { useContext } from "react";
-import { DimensionValue, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
+import Skeleton from "@/src/components/ui/Skeleton";
 
-function SkeletonBlock({ height, width = "100%" }: { height: number; width?: DimensionValue }) {
-  const { isDark } = useContext(AppContext);
-  return (
-    <View
-      style={[
-        {
-          height,
-          width,
-          borderRadius: 8,
-          backgroundColor: isDark ? "#2f3a4a" : "#e2e8f0",
-        },
-      ]}
-    />
-  );
-}
+const SkeletonBlock = Skeleton;
 
 export default function HomeInsightsSkeleton() {
   const { isDark } = useContext(AppContext);

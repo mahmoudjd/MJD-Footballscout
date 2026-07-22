@@ -5,6 +5,7 @@ import { Award } from "../../data/Types";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
 import { safeDecodeURIComponent } from "@/src/utils/playerDisplay";
+import AnimatedEntrance from "@/src/components/ui/AnimatedEntrance";
 
 type Props = {
   awards: Award[];
@@ -27,9 +28,15 @@ const Awards = ({ awards }: Props) => {
 
       <View style={styles.grid}>
         {awards.map((award, index) => (
-          <View key={`${award.name}-${award.number}-${index}`} style={[styles.gridItem, twoColumns ? styles.gridItemHalf : null]}>
+          <AnimatedEntrance
+            key={`${award.name}-${award.number}-${index}`}
+            delay={index * 60}
+            style={[styles.gridItem, twoColumns ? styles.gridItemHalf : null]}
+          >
             <View style={[styles.itemCard, { borderColor: palette.border, backgroundColor: palette.background }]}>
-              <Ionicons name="star" size={19} color="#f59e0b" />
+              <View style={styles.iconChip}>
+                <Ionicons name="star" size={17} color="#f59e0b" />
+              </View>
               <Text style={[styles.itemName, { color: palette.text }]} numberOfLines={1}>
                 {safeDecodeURIComponent(award.name) || "-"}
               </Text>
@@ -37,7 +44,7 @@ const Awards = ({ awards }: Props) => {
                 <Text style={[styles.countText, { color: palette.tint }]}>{award.number || "-"}</Text>
               </View>
             </View>
-          </View>
+          </AnimatedEntrance>
         ))}
       </View>
     </View>
@@ -92,6 +99,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 9,
+  },
+  iconChip: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(245,158,11,0.16)",
   },
   itemName: {
     flex: 1,

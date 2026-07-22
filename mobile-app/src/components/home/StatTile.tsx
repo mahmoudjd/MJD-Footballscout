@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
-import { radius, shadow, spacing, typography } from "@/src/constants/Theme";
+import { numeric, radius, shadow, spacing, typography } from "@/src/constants/Theme";
 
 type Props = {
   label: string;
@@ -26,7 +26,7 @@ export default function StatTile({ label, value }: Props) {
         <Text style={[styles.label, { color: colors.notification }]} numberOfLines={1}>
           {label}
         </Text>
-        <Text style={[styles.value, { color: valueColor }]}>{value}</Text>
+        <Text style={[styles.value, numeric, { color: valueColor }]}>{value}</Text>
       </LinearGradient>
     </View>
   );

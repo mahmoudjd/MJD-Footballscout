@@ -338,7 +338,7 @@ export default function AccountProfileScreen() {
   ];
 
   if (!isAuthReady) {
-    return <LoadingState withTopInset />;
+    return <LoadingState />;
   }
 
   if (!isAuthenticated) {
@@ -361,7 +361,7 @@ export default function AccountProfileScreen() {
   ];
 
   return (
-    <ScreenContainer withTopInset style={styles.screen}>
+    <ScreenContainer style={styles.screen}>
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -990,6 +990,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
+    flexGrow: 1,
     paddingBottom: 24,
     gap: 12,
   },

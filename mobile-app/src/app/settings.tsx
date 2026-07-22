@@ -1,6 +1,6 @@
 import React from "react";
 import { router } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
@@ -10,6 +10,7 @@ import ScreenContainer from "@/src/components/ui/ScreenContainer";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
 import CardSurface from "@/src/components/ui/CardSurface";
 import AppButton from "@/src/components/ui/AppButton";
+import PressableScale from "@/src/components/ui/PressableScale";
 import { accentSoft, accentSoftText } from "@/src/constants/Theme";
 
 type QuickLinkGroup = "Analysis" | "Scouting tools" | "Support";
@@ -22,7 +23,7 @@ type QuickLink = {
   href:
     | "/compare"
     | "/recruitment"
-    | "/shadow-team"
+    | "/watchlists-screen"
     | "/help";
 };
 
@@ -37,18 +38,18 @@ const quickLinks: QuickLink[] = [
     href: "/compare",
   },
   {
+    title: "Watchlists",
+    subtitle: "Track and organise your target players",
+    icon: "heart-outline",
+    group: "Scouting tools",
+    href: "/watchlists-screen",
+  },
+  {
     title: "Recruitment",
     subtitle: "Manage targets through your scouting pipeline",
     icon: "briefcase-outline",
     group: "Scouting tools",
     href: "/recruitment",
-  },
-  {
-    title: "Shadow Team",
-    subtitle: "Plan formations and assess squad gaps",
-    icon: "football-outline",
-    group: "Scouting tools",
-    href: "/shadow-team",
   },
   {
     title: "Help center",
@@ -81,8 +82,13 @@ export default function SettingsScreen() {
   const initial = resolveInitial(displayName, displayEmail);
 
   return (
-    <ScreenContainer withTopInset style={styles.screen}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScreenContainer edgeToEdge style={styles.screen}>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <PageHeaderCard
           icon="ellipsis-horizontal-circle-outline"
           title="Account & Settings"
@@ -129,12 +135,12 @@ export default function SettingsScreen() {
             ) : null}
           </View>
 
-          <Pressable
+          <PressableScale
             accessibilityRole={isAuthenticated ? "button" : undefined}
             accessibilityLabel={isAuthenticated ? "Manage your account" : undefined}
             disabled={!isAuthenticated}
             onPress={() => router.push("/profile" as never)}
-            style={({ pressed }) => [styles.profileRow, pressed && isAuthenticated ? { opacity: 0.72 } : null]}
+            style={styles.profileRow}
           >
             <View style={[styles.avatar, { backgroundColor: accentSoft(isDark) }]}>
               <Text style={[styles.avatarText, { color: accentSoftText(isDark) }]}>{initial}</Text>
@@ -152,7 +158,7 @@ export default function SettingsScreen() {
             {isAuthenticated ? (
               <Ionicons name="chevron-forward-outline" size={18} color={colors.notification} />
             ) : null}
-          </Pressable>
+          </PressableScale>
 
           {isAuthenticated ? (
             <AppButton
@@ -216,8 +222,12 @@ export default function SettingsScreen() {
                 {quickLinks
                   .filter((item) => item.group === group)
                   .map((item) => (
-                    <Pressable
+                    <PressableScale
                       key={item.href}
+                      scaleTo={0.98}
+                      accessibilityRole="button"
+                      accessibilityLabel={item.title}
+                      accessibilityHint={item.subtitle}
                       style={[
                         styles.linkItem,
                         {
@@ -237,7 +247,7 @@ export default function SettingsScreen() {
                         </View>
                       </View>
                       <Ionicons name="chevron-forward-outline" size={18} color={colors.notification} />
-                    </Pressable>
+                    </PressableScale>
                   ))}
               </View>
             </View>
@@ -249,14 +259,16 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    alignItems: "center",
-  },
+  screen: {},
+  // Full-width scroll (like Home) so contentInsetAdjustmentBehavior="automatic"
+  // applies the top inset — an inset/centered scroll silently loses it, which
+  // pushed the hero under the Dynamic Island. Side margin lives in the content.
   scroll: {
-    width: "92%",
     flex: 1,
+    width: "100%",
   },
   content: {
+    paddingHorizontal: 16,
     paddingTop: 0,
     paddingBottom: 20,
     gap: 12,

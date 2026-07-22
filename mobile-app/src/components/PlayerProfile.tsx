@@ -46,7 +46,9 @@ import { runAuthorizedRequest } from "@/src/utils/runAuthorizedRequest";
 import AppBackground from "@/src/components/ui/AppBackground";
 import AppSelect from "@/src/components/ui/AppSelect";
 import AppButton from "@/src/components/ui/AppButton";
-import { accentSoft, accentSoftText, onTint, radius, shadow, spacing } from "@/src/constants/Theme";
+import PressableScale from "@/src/components/ui/PressableScale";
+import AnimatedEntrance from "@/src/components/ui/AnimatedEntrance";
+import { accentSoft, accentSoftText, numeric, onTint, radius, shadow, spacing } from "@/src/constants/Theme";
 import { getPlayerDisplayName as displayNameOf } from "@/src/utils/playerDisplay";
 
 type Props = {
@@ -157,7 +159,6 @@ const PlayerProfile = ({ person }: Props) => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [player, setPlayer] = useState<PlayerType>(normalizePlayer(person));
   const [activeTab, setActiveTab] = useState<ProfileTabKey>("overview");
-  const [showAllDetails, setShowAllDetails] = useState(false);
 
   const [allPlayers, setAllPlayers] = useState<PlayerType[]>([]);
   const [isLoadingSimilar, setIsLoadingSimilar] = useState(false);
@@ -292,13 +293,13 @@ const PlayerProfile = ({ person }: Props) => {
       headerRight: () => (
         <View style={styles.headerActions}>
           {isAdmin ? (
-            <Pressable onPress={confirmDelete} disabled={isLoading}>
-              <Ionicons name="trash" size={23} color={isDark ? "#fff" : "#000"} />
+            <Pressable onPress={confirmDelete} disabled={isLoading} hitSlop={8} accessibilityRole="button" accessibilityLabel="Delete player">
+              <Ionicons name="trash" size={22} color={palette.text} />
             </Pressable>
           ) : null}
           {isAuthenticated ? (
-            <Pressable onPress={handleUpdate} disabled={isLoading}>
-              <Ionicons name="refresh" size={23} color={isDark ? "#fff" : "#000"} />
+            <Pressable onPress={handleUpdate} disabled={isLoading} hitSlop={8} accessibilityRole="button" accessibilityLabel="Refresh player data">
+              <Ionicons name="refresh" size={22} color={palette.text} />
             </Pressable>
           ) : null}
         </View>
@@ -422,35 +423,13 @@ const PlayerProfile = ({ person }: Props) => {
   };
 
   const renderOverviewTab = () => (
-    <>
-      <View style={[styles.sectionCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
-        <View style={styles.sectionHeadingRow}>
-          <Ionicons name="information-circle-outline" size={17} color={palette.tint} />
-          <Text style={[styles.heading, { color: palette.text }]}>Details</Text>
-        </View>
-        <ProfileInfo player={player} maxItems={showAllDetails ? undefined : 8} />
-        <Pressable
-          onPress={() => setShowAllDetails((current) => !current)}
-          style={[styles.inlineLink, { borderColor: palette.border, backgroundColor: palette.background }]}
-        >
-          <Ionicons
-            name={showAllDetails ? "chevron-up-outline" : "chevron-down-outline"}
-            size={14}
-            color={palette.tint}
-          />
-          <Text style={[styles.inlineLinkText, { color: palette.tint }]}>
-            {showAllDetails ? "Show fewer details" : "Show all details"}
-          </Text>
-        </Pressable>
+    <View style={[styles.sectionCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
+      <View style={styles.sectionHeadingRow}>
+        <Ionicons name="information-circle-outline" size={17} color={palette.tint} />
+        <Text style={[styles.heading, { color: palette.text }]}>Details</Text>
       </View>
-
-      <View style={[styles.overviewHintCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
-        <Text style={[styles.overviewHintTitle, { color: palette.text }]}>Player Analysis</Text>
-        <Text style={[styles.overviewHintText, { color: palette.notification }]}>
-          Use tabs to review attributes, transfer timeline, scouting reports, and full change history.
-        </Text>
-      </View>
-    </>
+      <ProfileInfo player={player} />
+    </View>
   );
 
   const renderScoutingTab = () => (
@@ -467,30 +446,22 @@ const PlayerProfile = ({ person }: Props) => {
       ) : (
         <>
           <View style={styles.summaryGrid}>
-            <View style={[styles.summaryItem, { borderColor: palette.border, backgroundColor: palette.background }]}>
-              <Text style={[styles.summaryLabel, { color: palette.notification }]}>Reports</Text>
-              <Text style={[styles.summaryValue, { color: palette.text }]}>
-                {reportsData.summary.totalReports || 0}
-              </Text>
-            </View>
-            <View style={[styles.summaryItem, { borderColor: palette.border, backgroundColor: palette.background }]}>
-              <Text style={[styles.summaryLabel, { color: palette.notification }]}>Avg rating</Text>
-              <Text style={[styles.summaryValue, { color: palette.text }]}>
-                {reportsData.summary.averageRating ?? "-"}
-              </Text>
-            </View>
-            <View style={[styles.summaryItem, { borderColor: palette.border, backgroundColor: palette.background }]}>
-              <Text style={[styles.summaryLabel, { color: palette.notification }]}>Sign</Text>
-              <Text style={[styles.summaryValue, { color: palette.text }]}>
-                {reportsData.summary.decisions.sign || 0}
-              </Text>
-            </View>
-            <View style={[styles.summaryItem, { borderColor: palette.border, backgroundColor: palette.background }]}>
-              <Text style={[styles.summaryLabel, { color: palette.notification }]}>Reject</Text>
-              <Text style={[styles.summaryValue, { color: palette.text }]}>
-                {reportsData.summary.decisions.reject || 0}
-              </Text>
-            </View>
+            {[
+              { icon: "documents-outline" as const, label: "Reports", value: reportsData.summary.totalReports || 0, fg: "#0ea5e9", soft: "rgba(14,165,233,0.14)" },
+              { icon: "star" as const, label: "Avg rating", value: reportsData.summary.averageRating ?? "-", fg: "#f59e0b", soft: "rgba(245,158,11,0.16)" },
+              { icon: "checkmark-circle" as const, label: "Sign", value: reportsData.summary.decisions.sign || 0, fg: "#10b981", soft: "rgba(16,185,129,0.14)" },
+              { icon: "close-circle" as const, label: "Reject", value: reportsData.summary.decisions.reject || 0, fg: "#f43f5e", soft: "rgba(244,63,94,0.14)" },
+            ].map((card) => (
+              <View key={card.label} style={[styles.summaryItem, { borderColor: palette.border, backgroundColor: palette.background }]}>
+                <View style={styles.summaryTop}>
+                  <View style={[styles.summaryIcon, { backgroundColor: card.soft }]}>
+                    <Ionicons name={card.icon} size={14} color={card.fg} />
+                  </View>
+                  <Text style={[styles.summaryLabel, { color: palette.notification }]}>{card.label}</Text>
+                </View>
+                <Text style={[styles.summaryValue, numeric, { color: palette.text }]}>{card.value}</Text>
+              </View>
+            ))}
           </View>
 
           <View style={[styles.formBox, { borderColor: palette.border, backgroundColor: palette.background }]}>
@@ -740,14 +711,16 @@ const PlayerProfile = ({ person }: Props) => {
         <Text style={{ color: palette.notification }}>No similar players found.</Text>
       ) : (
         <View style={styles.similarList}>
-          {similarPlayers.map((sp) => (
-            <Link key={sp._id} href={`/${sp._id}`} asChild>
-              <Pressable
-                style={({ pressed }) => [
+          {similarPlayers.map((sp, index) => (
+            <AnimatedEntrance key={sp._id} delay={index * 70}>
+            <Link href={`/${sp._id}`} asChild>
+              {/* Flattened style: <Link asChild>'s Slot rejects array styles. */}
+              <PressableScale
+                scaleTo={0.98}
+                style={StyleSheet.flatten([
                   styles.similarRow,
                   { borderColor: palette.border, backgroundColor: palette.background },
-                  pressed ? styles.disabled : undefined,
-                ]}
+                ])}
               >
                 <View style={styles.similarRowInner}>
                   <Image
@@ -766,14 +739,15 @@ const PlayerProfile = ({ person }: Props) => {
                     </Text>
                   </View>
                   <View style={[styles.similarElo, { backgroundColor: palette.tint }]}>
-                    <Text style={[styles.similarEloText, { color: onTint(isDark) }]}>
+                    <Text style={[styles.similarEloText, numeric, { color: onTint(isDark) }]}>
                       {typeof sp.elo === "number" ? sp.elo : "–"}
                     </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={16} color={palette.notification} />
                 </View>
-              </Pressable>
+              </PressableScale>
             </Link>
+            </AnimatedEntrance>
           ))}
         </View>
       )}
@@ -859,7 +833,7 @@ const PlayerProfile = ({ person }: Props) => {
                   {stat.label}
                 </Text>
               </View>
-              <Text style={[styles.quickStatValue, { color: palette.text }]} numberOfLines={1}>
+              <Text style={[styles.quickStatValue, numeric, { color: palette.text }]} numberOfLines={1}>
                 {stat.value}
               </Text>
             </View>
@@ -884,28 +858,29 @@ const PlayerProfile = ({ person }: Props) => {
             {PROFILE_TABS.map((tab) => {
               const selected = activeTab === tab.key;
               return (
-                <Pressable
+                <PressableScale
                   key={tab.key}
+                  scaleTo={0.94}
                   accessibilityRole="tab"
                   accessibilityState={{ selected }}
                   onPress={() => setActiveTab(tab.key)}
                   style={[
                     styles.segment,
-                    selected ? { backgroundColor: palette.tint } : null,
+                    selected ? { backgroundColor: palette.accent } : null,
                     selected ? shadow(isDark).sm : null,
                   ]}
                 >
                   <Ionicons
                     name={tab.icon}
                     size={15}
-                    color={selected ? onTint(isDark) : palette.notification}
+                    color={selected ? palette.accentText : palette.notification}
                   />
                   <Text
-                    style={[styles.segmentText, { color: selected ? onTint(isDark) : palette.notification }]}
+                    style={[styles.segmentText, { color: selected ? palette.accentText : palette.notification }]}
                   >
                     {tab.label}
                   </Text>
-                </Pressable>
+                </PressableScale>
               );
             })}
           </ScrollView>
@@ -1035,37 +1010,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "800",
   },
-  inlineLink: {
-    marginTop: 6,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-  inlineLinkText: {
-    fontWeight: "700",
-    fontSize: 12,
-  },
-  overviewHintCard: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 12,
-  },
-  overviewHintTitle: {
-    fontSize: 14,
-    fontWeight: "800",
-  },
-  overviewHintText: {
-    marginTop: 4,
-    fontSize: 13,
-    lineHeight: 18,
-  },
   summaryGrid: {
     marginTop: 2,
     flexDirection: "row",
@@ -1073,19 +1017,37 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   summaryItem: {
-    minWidth: "47%",
-    borderRadius: 8,
+    flexGrow: 1,
+    flexBasis: "47%",
+    borderRadius: radius.md,
     borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingHorizontal: 11,
+    paddingVertical: 10,
+  },
+  summaryTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    marginBottom: 8,
+  },
+  summaryIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 7,
+    alignItems: "center",
+    justifyContent: "center",
   },
   summaryLabel: {
-    fontSize: 11,
+    flex: 1,
+    fontSize: 10,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   summaryValue: {
-    marginTop: 2,
-    fontSize: 17,
-    fontWeight: "700",
+    fontSize: 22,
+    fontWeight: "900",
+    letterSpacing: -0.4,
   },
   formBox: {
     marginTop: 10,
@@ -1121,9 +1083,6 @@ const styles = StyleSheet.create({
   },
   actionPrimary: {
     flexGrow: 1,
-  },
-  disabled: {
-    opacity: 0.6,
   },
   reportsList: {
     marginTop: 10,
