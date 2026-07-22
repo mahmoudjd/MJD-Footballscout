@@ -5,7 +5,8 @@ export type NavLink = {
   label: string
   icon: keyof typeof OutlineIcons
   authRequired?: boolean
-  compactUntilWide?: boolean
+  /** Collapsed into the "More" dropdown instead of shown inline. */
+  secondary?: boolean
 }
 
 export const navLinks: NavLink[] = [
@@ -19,19 +20,22 @@ export const navLinks: NavLink[] = [
     label: "Shadow Team",
     icon: "Squares2X2Icon",
     authRequired: true,
-    compactUntilWide: true,
+    secondary: true,
   },
   {
     href: "/recruitment",
     label: "Recruitment",
     icon: "RocketLaunchIcon",
     authRequired: true,
-    compactUntilWide: true,
+    secondary: true,
   },
   {
     href: "/help",
     label: "Help",
     icon: "QuestionMarkCircleIcon",
-    compactUntilWide: true,
+    secondary: true,
   },
 ]
+
+export const primaryNavLinks = navLinks.filter((link) => !link.secondary)
+export const secondaryNavLinks = navLinks.filter((link) => link.secondary)
