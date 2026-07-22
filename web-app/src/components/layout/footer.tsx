@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn"
 const footerLinks = [
   { href: "/players", label: "Players" },
   { href: "/search", label: "Search" },
+  { href: "/shadow-team", label: "Squad Builder" },
   { href: "/compare", label: "Compare" },
   { href: "/watchlists", label: "Watchlists" },
   { href: "/help", label: "Help" },
