@@ -10,6 +10,9 @@ const footerLinks = [
   { href: "/watchlists", label: "Watchlists" },
   { href: "/help", label: "Help" },
   { href: "/help#whats-new", label: "What’s New" },
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+  { href: "/impressum", label: "Impressum" },
 ]
 
 export function Footer() {

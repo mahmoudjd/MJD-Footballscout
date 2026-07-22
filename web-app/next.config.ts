@@ -24,6 +24,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // iOS requires the Apple App Site Association file to be served as JSON.
+  async headers() {
+    return [
+      {
+        source: "/.well-known/apple-app-site-association",
+        headers: [{ key: "Content-Type", value: "application/json" }],
+      },
+    ]
+  },
 }
 
 export default nextConfig
