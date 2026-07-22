@@ -41,7 +41,9 @@ export default function SignupScreen() {
     try {
       setErrorMessage("");
       await register({ name: name.trim(), email: email.trim(), password: password.trim() });
-      router.replace(callback as never);
+      // Account created but not verified — send them to verify their email,
+      // not into the app. They can't sign in until they do.
+      router.replace({ pathname: "/verify-email", params: { email: email.trim(), sent: "1" } } as never);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Account creation failed. Please try again.");
     }

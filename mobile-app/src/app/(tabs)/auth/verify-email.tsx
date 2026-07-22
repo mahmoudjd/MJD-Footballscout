@@ -17,13 +17,15 @@ type Status = "idle" | "verifying" | "success" | "error";
 export default function VerifyEmailScreen() {
   const { isDark } = React.useContext(AppContext);
   const colors = Colors[isDark ? "dark" : "light"];
-  const params = useLocalSearchParams<{ token?: string | string[]; email?: string | string[] }>();
+  const params = useLocalSearchParams<{ token?: string | string[]; email?: string | string[]; sent?: string | string[] }>();
   const initialToken = resolveParam(params.token);
   const [status, setStatus] = React.useState<Status>(initialToken ? "verifying" : "idle");
   const [message, setMessage] = React.useState("");
   const [email, setEmail] = React.useState(() => resolveParam(params.email));
   const [resending, setResending] = React.useState(false);
-  const [resent, setResent] = React.useState(false);
+  // Arriving straight from signup (sent=1): the backend already emailed a link,
+  // so confirm that instead of asking them to request one.
+  const [resent, setResent] = React.useState(() => resolveParam(params.sent) === "1");
   const inputColors = { color: colors.text, borderColor: colors.border, backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.58)" };
 
   React.useEffect(() => {
