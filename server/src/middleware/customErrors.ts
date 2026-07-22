@@ -4,3 +4,13 @@ export class ScraperError extends Error {
         this.name = "ScraperError";
     }
 }
+
+export class ApiError extends Error {
+    constructor(
+        public readonly status: number,
+        message: string,
+    ) {
+        super(message);
+        this.name = "ApiError";
+    }
+}

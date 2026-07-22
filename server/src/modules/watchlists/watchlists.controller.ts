@@ -2,7 +2,7 @@ import {ObjectId} from "mongodb";
 import {z} from "zod";
 import {AppContext} from "../../context/types";
 import {WatchlistInputSchema} from "./watchlist.model";
-import {ApiError} from "../players/scouting.controller";
+import {ApiError} from "../../middleware/customErrors";
 
 const WatchlistPlayerMutationSchema = z.object({
     playerId: z.string().min(1),

@@ -13,46 +13,26 @@ import {
 import { AppContext } from "../../context/types";
 import logger from "../../logger/logger";
 import { createActiveAuthMiddleware } from "../../middleware/auth-middleware";
+import { handleControllerError } from "../../middleware/controller-error-handler";
+import { createFeatureRequestLogger } from "../../middleware/feature-request-logger";
 import {
   comparePlayers,
   findSimilarPlayers,
   getAdvancedPlayers,
 } from "./player-query.controller";
 import {
-  ApiError,
   deleteScoutingReport,
   getPlayerHistory,
   getPlayerReports,
   updateScoutingReport,
   upsertPlayerReport,
 } from "./scouting.controller";
-import { ZodError } from "zod";
-import { AuthenticatedRequest } from "../../shared/auth";
+import { getAuthenticatedUserId, getRouteParam } from "../../shared/http";
 import { requireRole } from "../../middleware/role-middleware";
-
-function getUserId(req: Request) {
-  return (req as AuthenticatedRequest).user?.userId || null;
-}
-
-function getRouteParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] || "" : value || "";
-}
-
-function handleControllerError(error: unknown, res: Response) {
-  if (error instanceof ApiError) {
-    return res.status(error.status).json({ error: error.message });
-  }
-  if (error instanceof ZodError) {
-    return res
-      .status(400)
-      .json({ error: "Invalid input", details: error.issues });
-  }
-  logger.error("Request failed: ", error);
-  return res.status(500).json({ error: "Internal server error" });
-}
 
 const createPlayersRouter = (context: AppContext) => {
   const router = express.Router();
+  router.use(createFeatureRequestLogger("players"));
   const activeAuthMiddleware = createActiveAuthMiddleware(context);
 
   router.get("/players", async (req: Request, res: Response) => {
@@ -93,7 +73,7 @@ const createPlayersRouter = (context: AppContext) => {
       );
       return res.status(200).json(result);
     } catch (error) {
-      return handleControllerError(error, res);
+      return handleControllerError("players", "advanced", error, req, res);
     }
   });
 
@@ -108,7 +88,7 @@ const createPlayersRouter = (context: AppContext) => {
         );
         return res.status(200).json(comparison);
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "compare", error, req, res);
       }
     },
   );
@@ -124,7 +104,7 @@ const createPlayersRouter = (context: AppContext) => {
         );
         return res.status(200).json(comparison);
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "compare", error, req, res);
       }
     },
   );
@@ -157,7 +137,7 @@ const createPlayersRouter = (context: AppContext) => {
         );
         return res.status(200).json(history);
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "get-history", error, req, res);
       }
     },
   );
@@ -174,7 +154,7 @@ const createPlayersRouter = (context: AppContext) => {
         );
         return res.status(200).json(result);
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "find-similar", error, req, res);
       }
     },
   );
@@ -189,7 +169,7 @@ const createPlayersRouter = (context: AppContext) => {
         if (!player) return res.status(404).json("not found player");
         return res.status(200).json(player);
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "get-detail", error, req, res);
       }
     },
   );
@@ -205,7 +185,7 @@ const createPlayersRouter = (context: AppContext) => {
         );
         return res.status(200).json(reports);
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "list-reports", error, req, res);
       }
     },
   );
@@ -214,7 +194,7 @@ const createPlayersRouter = (context: AppContext) => {
     "/players/:id/reports",
     activeAuthMiddleware,
     async (req: Request, res: Response): Promise<any> => {
-      const userId = getUserId(req);
+      const userId = getAuthenticatedUserId(req);
       if (!userId) {
         return res.status(401).json({ error: "Unauthorized" });
       }
@@ -227,7 +207,7 @@ const createPlayersRouter = (context: AppContext) => {
         );
         return res.status(201).json(report);
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "create-report", error, req, res);
       }
     },
   );
@@ -236,7 +216,7 @@ const createPlayersRouter = (context: AppContext) => {
     "/reports/:reportId",
     activeAuthMiddleware,
     async (req: Request, res: Response): Promise<any> => {
-      const userId = getUserId(req);
+      const userId = getAuthenticatedUserId(req);
       if (!userId) {
         return res.status(401).json({ error: "Unauthorized" });
       }
@@ -249,7 +229,7 @@ const createPlayersRouter = (context: AppContext) => {
         );
         return res.status(200).json(report);
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "update-report", error, req, res);
       }
     },
   );
@@ -258,7 +238,7 @@ const createPlayersRouter = (context: AppContext) => {
     "/reports/:reportId",
     activeAuthMiddleware,
     async (req: Request, res: Response): Promise<any> => {
-      const userId = getUserId(req);
+      const userId = getAuthenticatedUserId(req);
       if (!userId) {
         return res.status(401).json({ error: "Unauthorized" });
       }
@@ -270,7 +250,7 @@ const createPlayersRouter = (context: AppContext) => {
         );
         return res.status(204).send();
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "delete-report", error, req, res);
       }
     },
   );
@@ -285,7 +265,7 @@ const createPlayersRouter = (context: AppContext) => {
         if (!player) return res.status(404).json("not found player");
         return res.status(202).json(player);
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "update-player", error, req, res);
       }
     },
   );
@@ -320,7 +300,7 @@ const createPlayersRouter = (context: AppContext) => {
         if (!player) return res.status(404).json("not found player");
         return res.status(204).send();
       } catch (error) {
-        return handleControllerError(error, res);
+        return handleControllerError("players", "delete-player", error, req, res);
       }
     },
   );

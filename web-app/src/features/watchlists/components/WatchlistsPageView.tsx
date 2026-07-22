@@ -425,7 +425,7 @@ export function WatchlistsPageView() {
                             disabled={index === 0}
                             variant="outline"
                             size="xs"
-                            className="rounded-lg px-2 py-1 text-slate-700 hover:bg-slate-100"
+                            className="rounded-lg px-2 py-1 text-stone-700 hover:bg-stone-100"
                           >
                             Up
                           </Button>
@@ -435,7 +435,7 @@ export function WatchlistsPageView() {
                             disabled={index === selectedWatchlist.players.length - 1}
                             variant="outline"
                             size="xs"
-                            className="rounded-lg px-2 py-1 text-slate-700 hover:bg-slate-100"
+                            className="rounded-lg px-2 py-1 text-stone-700 hover:bg-stone-100"
                           >
                             Down
                           </Button>

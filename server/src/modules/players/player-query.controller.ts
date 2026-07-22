@@ -4,7 +4,7 @@ import {AppContext} from "../../context/types";
 import {parseCompactCurrency} from "./players.controller";
 import logger from "../../logger/logger";
 import {normalizePosition} from "../../scraper/position";
-import {ApiError} from "./scouting.controller";
+import {ApiError} from "../../middleware/customErrors";
 import {calculatePlayerSimilarity, PlayerSimilarityInput} from "./player-similarity";
 
 const AdvancedSearchQuerySchema = z.object({

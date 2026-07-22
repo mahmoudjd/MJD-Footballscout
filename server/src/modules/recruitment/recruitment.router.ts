@@ -1,14 +1,10 @@
 import express, { Request, Response } from "express";
-import { ZodError } from "zod";
 import { AppContext } from "../../context/types";
-import { authMiddleware } from "../../middleware/auth-middleware";
-import {
-  createFeatureRequestLogger,
-  logFeatureError,
-} from "../../middleware/feature-request-logger";
+import { createActiveAuthMiddleware } from "../../middleware/auth-middleware";
+import { handleControllerError } from "../../middleware/controller-error-handler";
+import { createFeatureRequestLogger } from "../../middleware/feature-request-logger";
 import { disablePrivateApiCaching } from "../../middleware/private-api-cache";
-import { AuthenticatedRequest } from "../../shared/auth";
-import { ApiError } from "../players/scouting.controller";
+import { getAuthenticatedUserId, getRouteParam } from "../../shared/http";
 import {
   createRecruitmentCandidate,
   deleteRecruitmentCandidate,
@@ -18,96 +14,115 @@ import {
   updateRecruitmentWorkspace,
 } from "./recruitment.controller";
 
-function userId(req: Request) {
-  return (req as AuthenticatedRequest).user?.userId || "";
-}
-
-function param(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] || "" : value || "";
-}
-
-function fail(
-  error: unknown,
-  req: Request,
-  res: Response,
-  operation: string,
-) {
-  if (error instanceof ApiError) {
-    logFeatureError("recruitment", operation, req, error, error.status);
-    return res.status(error.status).json({ error: error.message });
-  }
-  if (error instanceof ZodError) {
-    logFeatureError("recruitment", operation, req, error, 400);
-    return res
-      .status(400)
-      .json({ error: "Invalid input", details: error.issues });
-  }
-  logFeatureError("recruitment", operation, req, error, 500);
-  return res.status(500).json({ error: "Internal server error" });
-}
-
 export default function createRecruitmentRouter(context: AppContext) {
   const router = express.Router();
   router.use(disablePrivateApiCaching);
   router.use(createFeatureRequestLogger("recruitment"));
-  router.use(authMiddleware);
+  router.use(createActiveAuthMiddleware(context));
 
-  router.get("/candidates", async (req, res) => {
+  router.get("/candidates", async (req: Request, res: Response) => {
+    const userId = getAuthenticatedUserId(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     try {
-      return res.json(await listRecruitmentCandidates(context, userId(req)));
+      return res.json(await listRecruitmentCandidates(context, userId));
     } catch (error) {
-      return fail(error, req, res, "list-candidates");
+      return handleControllerError(
+        "recruitment",
+        "list-candidates",
+        error,
+        req,
+        res,
+      );
     }
   });
-  router.get("/workspace", async (req, res) => {
+
+  router.get("/workspace", async (req: Request, res: Response) => {
+    const userId = getAuthenticatedUserId(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     try {
-      return res.json(await getRecruitmentWorkspace(context, userId(req)));
+      return res.json(await getRecruitmentWorkspace(context, userId));
     } catch (error) {
-      return fail(error, req, res, "get-workspace");
+      return handleControllerError("recruitment", "get-workspace", error, req, res);
     }
   });
-  router.put("/workspace", async (req, res) => {
+
+  router.put("/workspace", async (req: Request, res: Response) => {
+    const userId = getAuthenticatedUserId(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     try {
       return res.json(
-        await updateRecruitmentWorkspace(context, userId(req), req.body),
+        await updateRecruitmentWorkspace(context, userId, req.body),
       );
     } catch (error) {
-      return fail(error, req, res, "update-workspace");
+      return handleControllerError(
+        "recruitment",
+        "update-workspace",
+        error,
+        req,
+        res,
+      );
     }
   });
-  router.post("/candidates", async (req, res) => {
+
+  router.post("/candidates", async (req: Request, res: Response) => {
+    const userId = getAuthenticatedUserId(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     try {
       return res
         .status(201)
-        .json(await createRecruitmentCandidate(context, userId(req), req.body));
+        .json(await createRecruitmentCandidate(context, userId, req.body));
     } catch (error) {
-      return fail(error, req, res, "create-candidate");
+      return handleControllerError(
+        "recruitment",
+        "create-candidate",
+        error,
+        req,
+        res,
+      );
     }
   });
-  router.put("/candidates/:id", async (req, res) => {
+
+  router.put("/candidates/:id", async (req: Request, res: Response) => {
+    const userId = getAuthenticatedUserId(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     try {
       return res.json(
         await updateRecruitmentCandidate(
           context,
-          param(req.params.id),
-          userId(req),
+          getRouteParam(req.params.id),
+          userId,
           req.body,
         ),
       );
     } catch (error) {
-      return fail(error, req, res, "update-candidate");
+      return handleControllerError(
+        "recruitment",
+        "update-candidate",
+        error,
+        req,
+        res,
+      );
     }
   });
-  router.delete("/candidates/:id", async (req, res) => {
+
+  router.delete("/candidates/:id", async (req: Request, res: Response) => {
+    const userId = getAuthenticatedUserId(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     try {
       await deleteRecruitmentCandidate(
         context,
-        param(req.params.id),
-        userId(req),
+        getRouteParam(req.params.id),
+        userId,
       );
       return res.status(204).send();
     } catch (error) {
-      return fail(error, req, res, "delete-candidate");
+      return handleControllerError(
+        "recruitment",
+        "delete-candidate",
+        error,
+        req,
+        res,
+      );
     }
   });
 

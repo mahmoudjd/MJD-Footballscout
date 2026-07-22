@@ -121,7 +121,7 @@ function PipelineCard({
               sizes="44px"
             />
           ) : (
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-400">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-500">
               <OutlineIcons.UserIcon className="h-5 w-5" aria-hidden="true" />
             </div>
           )}

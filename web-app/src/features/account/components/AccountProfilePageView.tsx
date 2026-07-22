@@ -453,7 +453,7 @@ export function AccountProfilePageView() {
         </div>
 
         <TabsContent value="overview">
-          <Panel radius="large" className="overflow-hidden p-0">
+          <Panel className="overflow-hidden p-0">
             <div className="grid lg:grid-cols-[minmax(0,1fr)_340px]">
               <div className="space-y-6 p-4 sm:p-6 lg:p-7">
                 <SectionIntro
@@ -569,7 +569,7 @@ export function AccountProfilePageView() {
           </Panel>
 
           <div className="mt-5 grid gap-5 lg:grid-cols-2">
-            <Panel radius="large" className="space-y-5">
+            <Panel className="space-y-5">
               <SectionIntro
                 title="Multi-Factor Authentication"
                 description="Add an authenticator app as a second sign-in step."
@@ -747,7 +747,7 @@ export function AccountProfilePageView() {
               ) : null}
             </Panel>
 
-            <Panel radius="large" className="space-y-5">
+            <Panel className="space-y-5">
               <SectionIntro
                 title="Email Notifications"
                 description="Control important account and security alerts."
@@ -808,7 +808,7 @@ export function AccountProfilePageView() {
         </TabsContent>
 
         <TabsContent value="security">
-          <Panel radius="large" className="overflow-hidden p-0">
+          <Panel className="overflow-hidden p-0">
             <div className="grid lg:grid-cols-[minmax(0,1fr)_340px]">
               <div className="space-y-6 p-4 sm:p-6 lg:p-7">
                 <SectionIntro
@@ -935,7 +935,7 @@ export function AccountProfilePageView() {
         </TabsContent>
 
         <TabsContent value="danger">
-          <Panel radius="large" className="overflow-hidden border-red-200 bg-white p-0">
+          <Panel className="overflow-hidden border-red-200 bg-white p-0">
             <div className="grid lg:grid-cols-[minmax(0,1fr)_340px]">
               <div className="space-y-6 p-4 sm:p-6 lg:p-7">
                 <SectionIntro

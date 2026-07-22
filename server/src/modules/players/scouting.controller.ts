@@ -1,16 +1,8 @@
 import {ObjectId} from "mongodb";
 import {z} from "zod";
 import {AppContext} from "../../context/types";
+import {ApiError} from "../../middleware/customErrors";
 import {ScoutingReportInputSchema} from "./scouting-report.model";
-
-export class ApiError extends Error {
-    status: number;
-
-    constructor(status: number, message: string) {
-        super(message);
-        this.status = status;
-    }
-}
 
 function toSerializedReport(report: any) {
     return {
