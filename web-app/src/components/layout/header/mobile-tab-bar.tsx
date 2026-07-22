@@ -27,7 +27,7 @@ const primaryTabs: MobileTabItem[] = [
   { href: "/", label: "Home", icon: "GlobeAltIcon" },
   { href: "/players", label: "Players", icon: "UserGroupIcon" },
   { href: "/search", label: "Search", icon: "SparklesIcon" },
-  { href: "/compare", label: "Compare", icon: "ArrowsRightLeftIcon", authRequired: true },
+  { href: "/shadow-team", label: "Squad", icon: "Squares2X2Icon", authRequired: true },
 ]
 
 function isPathActive(pathname: string, href: string) {
@@ -46,7 +46,7 @@ export function MobileTabBar() {
   const moreActive = useMemo(() => {
     return [
       "/watchlists",
-      "/shadow-team",
+      "/compare",
       "/recruitment",
       "/profile",
       "/login",
@@ -138,15 +138,15 @@ export function MobileTabBar() {
             <Link
               href={
                 status === "authenticated"
-                  ? "/shadow-team"
-                  : `/login?callbackUrl=${encodeURIComponent("/shadow-team")}`
+                  ? "/compare"
+                  : `/login?callbackUrl=${encodeURIComponent("/compare")}`
               }
               prefetch={false}
               onClick={() => setIsMoreOpen(false)}
               className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-emerald-950/10 bg-white px-3 py-2.5 text-sm font-semibold text-emerald-950/70 transition-[background-color,border-color,color] hover:border-emerald-700/20 hover:bg-emerald-50 hover:text-emerald-950 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
             >
-              <OutlineIcons.Squares2X2Icon className="h-5 w-5" aria-hidden="true" />
-              Squad Builder
+              <OutlineIcons.ArrowsRightLeftIcon className="h-5 w-5" aria-hidden="true" />
+              Compare
             </Link>
 
             <Link
