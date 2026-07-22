@@ -13,7 +13,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "mjd.football.de",
+      "buildNumber": "1",
+      "associatedDomains": [
+        "applinks:mjd-football-scout.vercel.app"
+      ],
       "infoPlist": {
+        "NSFaceIDUsageDescription": "Use Face ID to unlock your MJD FootballScout account.",
+        "ITSAppUsesNonExemptEncryption": false,
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
@@ -29,7 +35,22 @@
         "backgroundColor": "#ffffff"
       },
       "package": "mjd.football.de",
+      "versionCode": 1,
       "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "mjd-football-scout.vercel.app"
+            }
+          ]
+        },
         {
           "action": "VIEW",
           "category": [
@@ -59,7 +80,8 @@
           "backgroundColor": "#f5f7f4"
         }
       ],
-      "expo-image"
+      "expo-image",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

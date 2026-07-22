@@ -34,6 +34,7 @@ import {
   updateNotificationPreferences,
 } from "@/src/apiServices";
 import { AccountProfile, MfaSetupResponse } from "@/src/data/Types";
+import { canUseBiometrics, isBiometricEnabled, setBiometricEnabled } from "@/src/utils/authSessionStorage";
 import { BRAND, accentSoft, accentSoftText, onTint, radius, shadow, spacing } from "@/src/constants/Theme";
 
 type AccountTab = "overview" | "security" | "danger";
@@ -77,6 +78,35 @@ export default function AccountProfileScreen() {
   const [nameDraft, setNameDraft] = useState<string | null>(null);
   const [isSavingName, setIsSavingName] = useState(false);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+
+  // Biometric unlock state
+  const [biometricAvailable] = useState(canUseBiometrics);
+  const [biometricEnabled, setBiometricEnabledState] = useState(false);
+  const [isBiometricBusy, setIsBiometricBusy] = useState(false);
+
+  useEffect(() => {
+    void isBiometricEnabled().then(setBiometricEnabledState);
+  }, []);
+
+  const handleToggleBiometric = useCallback(
+    async (next: boolean) => {
+      setIsBiometricBusy(true);
+      try {
+        const ok = await setBiometricEnabled(next, session);
+        if (ok) {
+          setBiometricEnabledState(next);
+        } else {
+          Alert.alert(
+            "Couldn't update",
+            "Biometric unlock could not be changed. Make sure Face ID / fingerprint is set up on this device.",
+          );
+        }
+      } finally {
+        setIsBiometricBusy(false);
+      }
+    },
+    [session],
+  );
 
   // Security state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -770,6 +800,27 @@ export default function AccountProfileScreen() {
           </>
         ) : activeTab === "security" ? (
           <>
+            {biometricAvailable ? (
+              <CardSurface style={styles.sectionCard}>
+                <View style={[styles.toggleRow, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                  <View style={styles.toggleText}>
+                    <Text style={[styles.toggleTitle, { color: colors.text }]}>Biometric unlock</Text>
+                    <Text style={[styles.toggleSubtitle, { color: colors.notification }]}>
+                      Require Face ID / fingerprint to open the app. Your sign-in stays locked in this device's secure
+                      keychain.
+                    </Text>
+                  </View>
+                  <Switch
+                    value={biometricEnabled}
+                    disabled={isBiometricBusy}
+                    onValueChange={handleToggleBiometric}
+                    trackColor={{ false: "#94a3b8", true: colors.tint }}
+                    thumbColor="#f8fafc"
+                  />
+                </View>
+              </CardSurface>
+            ) : null}
+
             <CardSurface style={styles.sectionCard}>
               <View style={styles.sectionIntro}>
                 <View style={[styles.sectionIcon, { backgroundColor: accentSoft(isDark) }]}>

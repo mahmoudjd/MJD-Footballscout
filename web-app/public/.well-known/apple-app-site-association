@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["REPLACE_WITH_APPLE_TEAM_ID.mjd.football.de"],
+        "components": [
+          { "/": "/*" }
+        ]
+      }
+    ]
+  }
+}
