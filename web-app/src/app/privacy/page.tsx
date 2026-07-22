@@ -64,27 +64,13 @@ export default function PrivacyPolicyPage() {
             service reliable.
           </li>
           <li>
-            <strong>Consent (Art. 6(1)(a))</strong> — for optional advertising cookies (see section&nbsp;4). You can
-            withdraw consent at any time.
-          </li>
-          <li>
             <strong>Legal obligation (Art. 6(1)(c))</strong> — where we must retain limited records.
           </li>
         </ul>
       </section>
 
       <section>
-        <h2>4. Advertising</h2>
-        <p>
-          Our <strong>website</strong> may display ads via Google AdSense. Google may use cookies and device
-          identifiers to serve and measure ads. Where required, we ask for your consent first, and you can manage ad
-          personalisation through your Google account and your browser settings. Our mobile apps do not use
-          third-party advertising SDKs to track you.
-        </p>
-      </section>
-
-      <section>
-        <h2>5. Third-party services (processors)</h2>
+        <h2>4. Third-party services (processors)</h2>
         <p>We share data only with providers that help us operate the service:</p>
         <ul>
           <li>
@@ -99,14 +85,11 @@ export default function PrivacyPolicyPage() {
           <li>
             <strong>Resend</strong> — delivery of transactional and security emails.
           </li>
-          <li>
-            <strong>Google AdSense</strong> — website advertising (see section&nbsp;3).
-          </li>
         </ul>
       </section>
 
       <section>
-        <h2>6. Data retention</h2>
+        <h2>5. Data retention</h2>
         <p>
           We keep your account data while your account is active. When you delete your account, we remove your
           personal profile data and the content associated with it, except where we must retain limited records to
@@ -115,7 +98,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section>
-        <h2>7. Your rights</h2>
+        <h2>6. Your rights</h2>
         <p>
           Depending on your location (e.g. under the GDPR or CCPA), you may have the right to access, correct, export
           or delete your personal data, and to object to or restrict certain processing. You can exercise most of
@@ -133,7 +116,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section>
-        <h2>8. Children</h2>
+        <h2>7. Children</h2>
         <p>
           {LEGAL.appName} is not directed to children under 13 (or the minimum age required in your country), and we
           do not knowingly collect their data.
@@ -141,7 +124,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section>
-        <h2>9. Security</h2>
+        <h2>8. Security</h2>
         <p>
           We use encryption in transit, hashed passwords, encrypted 2FA secrets and secure on-device token storage.
           No system is perfectly secure, but we work to protect your data and to respond promptly to incidents.
@@ -149,7 +132,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section>
-        <h2>10. Changes to this policy</h2>
+        <h2>9. Changes to this policy</h2>
         <p>
           We may update this policy from time to time. Material changes will be reflected by the &quot;Last
           updated&quot; date above and, where appropriate, communicated in the app.
@@ -157,7 +140,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section>
-        <h2>11. Data controller &amp; contact</h2>
+        <h2>10. Data controller &amp; contact</h2>
         <p>
           The data controller responsible for processing is identified in our{" "}
           <a href="/impressum">Impressum</a>. For privacy questions or requests, contact us at{" "}
