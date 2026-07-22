@@ -5,6 +5,7 @@ import { Transfer } from "../../data/Types";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
 import { safeDecodeURIComponent } from "@/src/utils/playerDisplay";
+import AnimatedEntrance from "@/src/components/ui/AnimatedEntrance";
 
 type Props = {
   transfers: Transfer[];
@@ -75,45 +76,51 @@ const Transfers = ({ transfers }: Props) => {
           const amountMeta = parseAmount(transfer.amount);
           const last = index === transfers.length - 1;
           return (
-            <View key={`${transfer.season}-${transfer.team}-${transfer.amount}-${index}`} style={styles.timelineRow}>
-              <View style={styles.timelineMarkerCol}>
-                <View style={[styles.dot, { backgroundColor: palette.tint }]} />
-                {!last ? (
-                  <View style={[styles.line, { backgroundColor: isDark ? "#263445" : "#d7e2ea" }]} />
-                ) : null}
+            <AnimatedEntrance
+              key={`${transfer.season}-${transfer.team}-${transfer.amount}-${index}`}
+              delay={index * 80}
+              offset={16}
+            >
+              <View style={styles.timelineRow}>
+                <View style={styles.timelineMarkerCol}>
+                  <View style={[styles.dot, { backgroundColor: amountMeta.iconColor, borderColor: palette.card }]} />
+                  {!last ? (
+                    <View style={[styles.line, { backgroundColor: isDark ? "#263445" : "#d7e2ea" }]} />
+                  ) : null}
+                </View>
+
+                <View
+                  style={[
+                    styles.entryCard,
+                    {
+                      borderColor: palette.border,
+                      backgroundColor: palette.background,
+                    },
+                  ]}
+                >
+                  <View style={styles.entryHeader}>
+                    <Ionicons name="calendar-outline" size={15} color={palette.tint} />
+                    <Text style={[styles.season, { color: palette.text }]} numberOfLines={1}>
+                      {safeText(transfer.season)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.entryRow}>
+                    <Ionicons name="shield-outline" size={14} color="#6366f1" />
+                    <Text style={[styles.team, { color: palette.text }]} numberOfLines={1}>
+                      {safeDecodeURIComponent(safeText(transfer.team))}
+                    </Text>
+                  </View>
+
+                  <View style={styles.entryRow}>
+                    <Ionicons name={amountMeta.icon} size={14} color={amountMeta.iconColor} />
+                    <Text style={[styles.amount, { color: palette.notification }]} numberOfLines={1}>
+                      {amountMeta.display}
+                    </Text>
+                  </View>
+                </View>
               </View>
-
-              <View
-                style={[
-                  styles.entryCard,
-                  {
-                    borderColor: palette.border,
-                    backgroundColor: palette.background,
-                  },
-                ]}
-              >
-                <View style={styles.entryHeader}>
-                  <Ionicons name="calendar-outline" size={15} color={palette.tint} />
-                  <Text style={[styles.season, { color: palette.text }]} numberOfLines={1}>
-                    {safeText(transfer.season)}
-                  </Text>
-                </View>
-
-                <View style={styles.entryRow}>
-                  <Ionicons name="shield-outline" size={14} color="#6366f1" />
-                  <Text style={[styles.team, { color: palette.text }]} numberOfLines={1}>
-                    {safeDecodeURIComponent(safeText(transfer.team))}
-                  </Text>
-                </View>
-
-                <View style={styles.entryRow}>
-                  <Ionicons name={amountMeta.icon} size={14} color={amountMeta.iconColor} />
-                  <Text style={[styles.amount, { color: palette.notification }]} numberOfLines={1}>
-                    {amountMeta.display}
-                  </Text>
-                </View>
-              </View>
-            </View>
+            </AnimatedEntrance>
           );
         })}
       </View>
@@ -163,9 +170,10 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   dot: {
-    width: 9,
-    height: 9,
-    borderRadius: 5,
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    borderWidth: 2,
   },
   line: {
     width: 2,

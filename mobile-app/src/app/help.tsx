@@ -27,8 +27,8 @@ const helpSteps: HelpStep[] = [
   { title: "Discover players", description: "Browse the database and narrow it with position and profile filters.", action: "Open Players", icon: "people-outline", href: "/(tabs)/playerList" },
   { title: "Search the web", description: "Find a player by name and import scouting data from connected sources.", action: "Start Search", icon: "search-outline", href: "/(tabs)/search" },
   { title: "Compare profiles", description: "Review ELO, market value, age and profile details side by side.", action: "Compare", icon: "git-compare-outline", href: "/compare" },
-  { title: "Build watchlists", description: "Group interesting players into shortlists for later decisions.", action: "Open Watchlists", icon: "heart-outline", href: "/(tabs)/watchlists" },
-  { title: "Plan a shadow team", description: "Place primary targets and alternatives into a formation and reveal gaps.", action: "Build Shadow Team", icon: "football-outline", href: "/shadow-team" },
+  { title: "Build watchlists", description: "Group interesting players into shortlists for later decisions.", action: "Open Watchlists", icon: "heart-outline", href: "/watchlists-screen" },
+  { title: "Build your squad", description: "Place primary targets and alternatives into a formation and reveal gaps.", action: "Open Squad Builder", icon: "grid-outline", href: "/shadow-team" },
   { title: "Manage recruitment", description: "Move candidates through a pipeline and coordinate every decision.", action: "Open Recruitment", icon: "briefcase-outline", href: "/recruitment" },
 ];
 
@@ -106,7 +106,7 @@ export default function HelpScreen() {
   const colors = Colors[isDark ? "dark" : "light"];
 
   return (
-    <ScreenContainer withTopInset style={styles.screen}>
+    <ScreenContainer style={styles.screen}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <PageHeaderCard
           icon="help-buoy-outline"

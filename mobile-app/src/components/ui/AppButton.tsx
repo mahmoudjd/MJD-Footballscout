@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   StyleProp,
   StyleSheet,
   Text,
@@ -12,6 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
+import PressableScale from "@/src/components/ui/PressableScale";
 import { onTint, radius, shadow, spacing } from "@/src/constants/Theme";
 
 type Variant = "primary" | "ghost" | "danger";
@@ -83,14 +83,15 @@ export default function AppButton({
   }
 
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       onPress={onPress}
       disabled={isDisabled}
-      style={({ pressed }) => [
+      containerStyle={fullWidth ? styles.fullWidth : styles.auto}
+      style={[
         styles.base,
         {
           minHeight: dims.minHeight,
@@ -100,9 +101,8 @@ export default function AppButton({
           borderColor,
         },
         elevated ? shadow(isDark).sm : undefined,
-        fullWidth ? styles.fullWidth : styles.auto,
+        fullWidth ? styles.fullWidth : undefined,
         isDisabled ? styles.disabled : undefined,
-        pressed && !isDisabled ? styles.pressed : undefined,
         style,
       ]}
     >
@@ -121,7 +121,7 @@ export default function AppButton({
           ) : null}
         </View>
       )}
-    </Pressable>
+    </PressableScale>
   );
 }
 

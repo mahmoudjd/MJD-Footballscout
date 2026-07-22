@@ -31,7 +31,8 @@ import { getPlayerDisplayName } from "@/src/utils/playerDisplay";
 import FeatureGuide, { GuideSection } from "@/src/components/ui/FeatureGuide";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
 import AppButton from "@/src/components/ui/AppButton";
-import { accentSoft, accentSoftText, onTint, radius, spacing } from "@/src/constants/Theme";
+import PressableScale from "@/src/components/ui/PressableScale";
+import { accentSoft, accentSoftText, numeric, onTint, radius, spacing } from "@/src/constants/Theme";
 
 type CompareTab = "selection" | "results";
 type AppliedScope = "selection" | "all";
@@ -285,29 +286,33 @@ export default function CompareScreen() {
       <View style={styles.tabRow}>
         {(["selection", "results"] as CompareTab[]).map((tab) => {
           const active = activeTab === tab;
+          const icon = tab === "selection" ? "people-outline" : "podium-outline";
           return (
-            <Pressable
+            <PressableScale
               key={tab}
+              scaleTo={0.96}
               accessibilityRole="tab"
               accessibilityState={{ selected: active }}
+              containerStyle={styles.tabButtonWrap}
               style={[
                 styles.tabButton,
                 {
-                  backgroundColor: active ? colors.tint : colors.card,
-                  borderColor: active ? colors.tint : colors.border,
+                  backgroundColor: active ? colors.accent : colors.card,
+                  borderColor: active ? colors.accent : colors.border,
                 },
               ]}
               onPress={() => setActiveTab(tab)}
             >
+              <Ionicons name={icon} size={16} color={active ? colors.accentText : colors.notification} />
               <Text
                 style={[
                   styles.tabButtonText,
-                  { color: active ? onTintColor : colors.notification },
+                  { color: active ? colors.accentText : colors.notification },
                 ]}
               >
                 {tab === "selection" ? "Selection" : "Results"}
               </Text>
-            </Pressable>
+            </PressableScale>
           );
         })}
       </View>
@@ -413,7 +418,11 @@ export default function CompareScreen() {
             renderItem={({ item }) => {
               const selected = selectedIds.includes(item._id);
               return (
-                <Pressable
+                <PressableScale
+                  scaleTo={0.98}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                  accessibilityLabel={getPlayerDisplayName(item)}
                   onPress={() => toggleSelection(item._id)}
                   style={[
                     styles.playerRow,
@@ -448,7 +457,7 @@ export default function CompareScreen() {
                       {selected ? "Added" : "Add"}
                     </Text>
                   </View>
-                </Pressable>
+                </PressableScale>
               );
             }}
             ListFooterComponent={
@@ -476,7 +485,12 @@ export default function CompareScreen() {
               </Text>
             </View>
           ) : (
-            <>
+            <ScrollView
+              style={styles.resultsScroll}
+              contentContainerStyle={styles.resultsScrollContent}
+              showsVerticalScrollIndicator={false}
+              contentInsetAdjustmentBehavior="automatic"
+            >
               <View
                 style={[
                   styles.statusCard,
@@ -512,18 +526,24 @@ export default function CompareScreen() {
                 ]}
               >
                 <Text style={[styles.cardTitle, { color: Colors[colorKey].text }]}>Leaders</Text>
-                <Text style={[styles.metricText, { color: Colors[colorKey].notification }]}>
-                  Highest ELO: {formatWinners(comparison.metrics.highestElo)}
-                </Text>
-                <Text style={[styles.metricText, { color: Colors[colorKey].notification }]}>
-                  Highest value: {formatWinners(comparison.metrics.highestMarketValue)}
-                </Text>
-                <Text style={[styles.metricText, { color: Colors[colorKey].notification }]}>
-                  Youngest: {formatWinners(comparison.metrics.youngest)}
-                </Text>
-                <Text style={[styles.metricText, { color: Colors[colorKey].notification }]}>
-                  Recently updated: {formatWinners(comparison.metrics.recentlyUpdated)}
-                </Text>
+                {[
+                  { icon: "stats-chart" as const, label: "Highest ELO", ids: comparison.metrics.highestElo, fg: "#10b981", soft: "rgba(16,185,129,0.14)" },
+                  { icon: "cash" as const, label: "Highest value", ids: comparison.metrics.highestMarketValue, fg: "#f59e0b", soft: "rgba(245,158,11,0.16)" },
+                  { icon: "hourglass" as const, label: "Youngest", ids: comparison.metrics.youngest, fg: "#8b5cf6", soft: "rgba(139,92,246,0.14)" },
+                  { icon: "time" as const, label: "Recently updated", ids: comparison.metrics.recentlyUpdated, fg: "#0ea5e9", soft: "rgba(14,165,233,0.14)" },
+                ].map((leader) => (
+                  <View key={leader.label} style={styles.leaderRow}>
+                    <View style={[styles.leaderIcon, { backgroundColor: leader.soft }]}>
+                      <Ionicons name={leader.icon} size={15} color={leader.fg} />
+                    </View>
+                    <View style={styles.grow}>
+                      <Text style={[styles.leaderLabel, { color: Colors[colorKey].notification }]}>{leader.label}</Text>
+                      <Text style={[styles.leaderValue, { color: Colors[colorKey].text }]} numberOfLines={2}>
+                        {formatWinners(leader.ids)}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
               </View>
 
               <View
@@ -569,7 +589,7 @@ export default function CompareScreen() {
                             },
                           ]}
                         >
-                          <Text style={[styles.compareTableCell, styles.colRank, { color: Colors[colorKey].tint }]}>
+                          <Text style={[styles.compareTableCell, styles.colRank, numeric, { color: Colors[colorKey].tint, fontWeight: "800" }]}>
                             {index + 1}
                           </Text>
                           <Text style={[styles.compareTableCell, styles.colPlayer, { color: Colors[colorKey].text }]}>
@@ -593,16 +613,16 @@ export default function CompareScreen() {
                           >
                             {player?.position || "-"}
                           </Text>
-                          <Text style={[styles.compareTableCell, styles.colAge, { color: Colors[colorKey].text }]}>
+                          <Text style={[styles.compareTableCell, styles.colAge, numeric, { color: Colors[colorKey].text }]}>
                             {typeof player?.age === "number" ? player.age : "-"}
                           </Text>
-                          <Text style={[styles.compareTableCell, styles.colElo, { color: Colors[colorKey].text }]}>
+                          <Text style={[styles.compareTableCell, styles.colElo, numeric, { color: Colors[colorKey].text }]}>
                             {typeof player?.elo === "number" ? player.elo : "-"}
                           </Text>
-                          <Text style={[styles.compareTableCell, styles.colValue, { color: Colors[colorKey].text }]}>
+                          <Text style={[styles.compareTableCell, styles.colValue, numeric, { color: Colors[colorKey].text }]}>
                             {formatMarketValue(player)}
                           </Text>
-                          <Text style={[styles.compareTableCell, styles.colScore, { color: Colors[colorKey].text }]}>
+                          <Text style={[styles.compareTableCell, styles.colScore, numeric, { color: Colors[colorKey].text, fontWeight: "800" }]}>
                             {Number.isFinite(item.score) ? item.score.toFixed(2) : "-"}
                           </Text>
                         </View>
@@ -619,7 +639,7 @@ export default function CompareScreen() {
                   </Pressable>
                 ) : null}
               </View>
-            </>
+            </ScrollView>
           )}
         </View>
       )}
@@ -642,12 +662,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 8,
   },
-  tabButton: {
+  tabButtonWrap: {
     flex: 1,
+  },
+  tabButton: {
     borderWidth: 1.5,
     borderRadius: radius.md,
     paddingVertical: 11,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
   },
   tabButtonText: {
     fontWeight: "800",
@@ -712,6 +737,12 @@ const styles = StyleSheet.create({
   resultsContainer: {
     flex: 1,
   },
+  resultsScroll: {
+    flex: 1,
+  },
+  resultsScrollContent: {
+    paddingBottom: 24,
+  },
   metricsCard: {
     borderWidth: 1,
     borderRadius: 10,
@@ -738,6 +769,34 @@ const styles = StyleSheet.create({
   metricText: {
     fontSize: 13,
     marginBottom: 4,
+  },
+  grow: {
+    flex: 1,
+    minWidth: 0,
+  },
+  leaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 6,
+  },
+  leaderIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  leaderLabel: {
+    fontSize: 10,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  leaderValue: {
+    fontSize: 13.5,
+    fontWeight: "700",
+    marginTop: 1,
   },
   rankRow: {
     borderWidth: 1,

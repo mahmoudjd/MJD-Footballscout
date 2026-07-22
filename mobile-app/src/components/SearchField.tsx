@@ -1,8 +1,9 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ActivityIndicator, StyleSheet, View, TextInput, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { AppContext } from "@/src/context/AppContext";
 import Colors from "@/src/constants/Colors";
+import PressableScale from "@/src/components/ui/PressableScale";
 import { onTint, radius, shadow } from "@/src/constants/Theme";
 
 type Props = {
@@ -16,6 +17,7 @@ const SearchField = ({ value, loading = false, autoFocus = false, handleChange, 
   const { isDark } = useContext(AppContext);
   const colorKey = isDark ? "dark" : "light";
   const colors = Colors[colorKey];
+  const [focused, setFocused] = useState(false);
 
   return (
     <View style={styles.searchField}>
@@ -24,11 +26,13 @@ const SearchField = ({ value, loading = false, autoFocus = false, handleChange, 
           styles.inputWrap,
           {
             backgroundColor: colors.card,
-            borderColor: colors.border,
+            borderColor: focused ? colors.tint : colors.border,
+            borderWidth: focused ? 1.5 : 1,
           },
+          focused ? shadow(isDark).sm : null,
         ]}
       >
-        <Ionicons name="search-outline" size={18} color={colors.notification} />
+        <Ionicons name="search-outline" size={18} color={focused ? colors.tint : colors.notification} />
         <TextInput
           style={[styles.input, { color: colors.text }]}
           placeholderTextColor={colors.notification}
@@ -42,6 +46,8 @@ const SearchField = ({ value, loading = false, autoFocus = false, handleChange, 
           maxLength={40}
           returnKeyType="search"
           onSubmitEditing={handleSearch}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
         />
         {value ? (
           <Pressable onPress={() => handleChange("")} hitSlop={8}>
@@ -49,7 +55,9 @@ const SearchField = ({ value, loading = false, autoFocus = false, handleChange, 
           </Pressable>
         ) : null}
       </View>
-      <Pressable
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel="Search"
         style={[
           styles.pressField,
           shadow(isDark).sm,
@@ -66,7 +74,7 @@ const SearchField = ({ value, loading = false, autoFocus = false, handleChange, 
         ) : (
           <Ionicons name="arrow-forward" size={18} color={onTint(isDark)} />
         )}
-      </Pressable>
+      </PressableScale>
     </View>
   );
 };

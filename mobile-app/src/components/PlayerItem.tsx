@@ -1,13 +1,14 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { PlayerType } from "../data/Types";
 import Colors from "../constants/Colors";
 import { AppContext } from "../context/AppContext";
 import { Link } from "expo-router";
+import PressableScale from "@/src/components/ui/PressableScale";
 import { getPlayerDisplayName, safeDecodeURIComponent } from "@/src/utils/playerDisplay";
-import { radius, shadow, spacing } from "@/src/constants/Theme";
+import { numeric, radius, shadow, spacing } from "@/src/constants/Theme";
 
 interface Props {
   player: PlayerType;
@@ -63,25 +64,26 @@ const PlayerItem = ({ player }: Props) => {
   const secondary = player.currentClub || player.country || "Unknown";
 
   return (
-    <View
-      style={[
-        styles.card,
-        shadow(isDark).sm,
-        { backgroundColor: colors.card, borderColor: colors.border },
-      ]}
-    >
-      <Link href={`/${player._id}`} asChild>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`${displayName}, ${positionLabel}, ${secondary}, ELO ${player.elo || "not available"}`}
-          accessibilityHint="Opens the player profile"
-          style={({ pressed }) => [styles.body, pressed ? styles.pressed : undefined]}
-        >
+    <Link href={`/${player._id}`} asChild>
+      {/* Style must be flattened, not an array: <Link asChild> renders through a
+          Slot that rejects array `style` props on its child. */}
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel={`${displayName}, ${positionLabel}, ${secondary}, ELO ${player.elo || "not available"}`}
+        accessibilityHint="Opens the player profile"
+        containerStyle={styles.cardOuter}
+        style={StyleSheet.flatten([
+          styles.card,
+          shadow(isDark).sm,
+          { backgroundColor: colors.card, borderColor: colors.border },
+        ])}
+      >
+        <View style={styles.body}>
           <View style={styles.topRow}>
             <View style={styles.avatarWrap}>
               <Image
                 source={player.image || undefined}
-                style={[styles.avatar, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}
+                style={[styles.avatar, { backgroundColor: tone.bg, borderColor: tone.dot }]}
                 contentFit="cover"
                 cachePolicy="memory-disk"
                 transition={180}
@@ -106,7 +108,7 @@ const PlayerItem = ({ player }: Props) => {
 
             <View style={styles.eloRight}>
               <View style={styles.eloValueRow}>
-                <Text style={[styles.eloValue, { color: eloTextColor }]}>{player.elo || "–"}</Text>
+                <Text style={[styles.eloValue, numeric, { color: eloTextColor }]}>{player.elo || "–"}</Text>
                 <Ionicons name="trending-up" size={13} color={eloTextColor} />
               </View>
               <Text style={[styles.eloLabel, { color: colors.notification }]}>ELO</Text>
@@ -120,38 +122,39 @@ const PlayerItem = ({ player }: Props) => {
                 {positionLabel}
               </Text>
             </View>
-            <View style={[styles.valuePill, { backgroundColor: colors.surfaceSoft }]}>
-              <Text style={[styles.valueText, { color: colors.text }]} numberOfLines={1}>
+            <View style={[styles.valuePill, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}>
+              <Ionicons name="pricetag" size={10} color={colors.notification} />
+              <Text style={[styles.valueText, numeric, { color: colors.text }]} numberOfLines={1}>
                 {marketValue}
               </Text>
             </View>
           </View>
-        </Pressable>
-      </Link>
+        </View>
 
-      {/* ELO progress as a full-width accent at the card's bottom edge */}
-      <View style={[styles.progressTrack, { backgroundColor: colors.surfaceSoft }]}>
-        <View style={[styles.progressFill, { width: `${eloProgress}%`, backgroundColor: eloBarColor }]} />
-      </View>
-    </View>
+        {/* ELO progress as a full-width accent at the card's bottom edge */}
+        <View style={[styles.progressTrack, { backgroundColor: colors.surfaceSoft }]}>
+          <View style={[styles.progressFill, { width: `${eloProgress}%`, backgroundColor: eloBarColor }]} />
+        </View>
+      </PressableScale>
+    </Link>
   );
 };
 
 const styles = StyleSheet.create({
+  cardOuter: {
+    width: "100%",
+    marginBottom: 10,
+  },
   card: {
     width: "100%",
     borderWidth: 1,
     borderRadius: radius.lg,
-    marginBottom: 10,
     overflow: "hidden",
   },
   body: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
     paddingBottom: spacing.md,
-  },
-  pressed: {
-    opacity: 0.85,
   },
   topRow: {
     flexDirection: "row",
@@ -166,7 +169,7 @@ const styles = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: radius.pill,
-    borderWidth: 1,
+    borderWidth: 2,
   },
   numberChip: {
     position: "absolute",
@@ -245,6 +248,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   valuePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    borderWidth: 1,
     borderRadius: radius.pill,
     paddingHorizontal: 9,
     paddingVertical: 4,

@@ -32,8 +32,9 @@ export default function TabLayout() {
       tabBarRespectsIMEInsets
     >
       {/* Order follows priority: Search is the app's primary function, so it sits
-          right after the Home overview. Then find (Players) → track (Watchlists) → more.
-          Analysis (Compare) and scouting tools (Recruitment, Shadow Team) live in More. */}
+          right after the Home overview. Then find (Players) → build (Squad Builder,
+          i.e. the shadow-team route) → more. Analysis (Compare), Recruitment and
+          Watchlists live in the More hub. */}
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
@@ -58,11 +59,11 @@ export default function TabLayout() {
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="watchlists">
-        <NativeTabs.Trigger.Label>Watchlists</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="shadow-team">
+        <NativeTabs.Trigger.Label>Squad</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          sf={{ default: "heart", selected: "heart.fill" }}
-          md={{ default: "favorite_border", selected: "favorite" }}
+          sf={{ default: "sportscourt", selected: "sportscourt.fill" }}
+          md={{ default: "stadium", selected: "stadium" }}
         />
       </NativeTabs.Trigger>
 
@@ -71,7 +72,7 @@ export default function TabLayout() {
         <NativeTabs.Trigger.Icon sf="ellipsis.circle" md="more_horiz" />
       </NativeTabs.Trigger>
 
-      {/* Compare, Recruitment and Shadow Team are root-level stack screens
+      {/* Compare, Recruitment and Watchlists are root-level stack screens
           pushed OVER the tabs (see src/app/_layout.tsx) and surfaced in the
           More hub. Hidden NativeTabs triggers were tried first, but pushing a
           route whose trigger is not part of the native bar fails silently. */}

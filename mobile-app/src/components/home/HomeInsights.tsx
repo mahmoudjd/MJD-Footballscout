@@ -22,6 +22,8 @@ import StatTile from "@/src/components/home/StatTile";
 import RankedList from "@/src/components/home/RankedList";
 import PlayerSpotlightList from "@/src/components/home/PlayerSpotlightList";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
+import PressableScale from "@/src/components/ui/PressableScale";
+import AnimatedEntrance from "@/src/components/ui/AnimatedEntrance";
 import { onTint, radius, shadow, spacing } from "@/src/constants/Theme";
 
 export default function HomeInsights() {
@@ -138,77 +140,78 @@ export default function HomeInsights() {
         </View>
       </PageHeaderCard>
 
-      <Pressable
-        accessibilityRole="search"
-        accessibilityLabel="Search players"
-        accessibilityHint="Opens the search screen"
-        onPress={() => router.push("/search")}
-        style={({ pressed }) => [
-          styles.heroSearch,
-          shadow(isDark).md,
-          {
-            backgroundColor: Colors[colorKey].tint,
-            opacity: pressed ? 0.9 : 1,
-          },
-        ]}
-      >
-        <View style={[styles.heroSearchIcon, { backgroundColor: isDark ? "rgba(10,33,24,0.14)" : "rgba(255,255,255,0.16)" }]}>
-          <Ionicons name="search" size={20} color={onTint(isDark)} />
-        </View>
-        <View style={styles.heroSearchText}>
-          <Text style={[styles.heroSearchTitle, { color: onTint(isDark) }]}>Search any player</Text>
-          <Text style={[styles.heroSearchSub, { color: onTint(isDark), opacity: 0.72 }]} numberOfLines={1}>
-            Find any player by name
-          </Text>
-        </View>
-        <View style={[styles.heroSearchCta, { backgroundColor: isDark ? "rgba(10,33,24,0.16)" : "rgba(255,255,255,0.18)" }]}>
-          <Ionicons name="arrow-forward" size={18} color={onTint(isDark)} />
-        </View>
-      </Pressable>
+      <AnimatedEntrance delay={40}>
+        <PressableScale
+          accessibilityRole="search"
+          accessibilityLabel="Search players"
+          accessibilityHint="Opens the search screen"
+          onPress={() => router.push("/search")}
+          style={[
+            styles.heroSearch,
+            shadow(isDark).md,
+            { backgroundColor: Colors[colorKey].tint },
+          ]}
+        >
+          <View style={[styles.heroSearchIcon, { backgroundColor: isDark ? "rgba(10,33,24,0.14)" : "rgba(255,255,255,0.16)" }]}>
+            <Ionicons name="search" size={20} color={onTint(isDark)} />
+          </View>
+          <View style={styles.heroSearchText}>
+            <Text style={[styles.heroSearchTitle, { color: onTint(isDark) }]}>Search any player</Text>
+            <Text style={[styles.heroSearchSub, { color: onTint(isDark), opacity: 0.72 }]} numberOfLines={1}>
+              Find any player by name
+            </Text>
+          </View>
+          <View style={[styles.heroSearchCta, { backgroundColor: isDark ? "rgba(10,33,24,0.16)" : "rgba(255,255,255,0.18)" }]}>
+            <Ionicons name="arrow-forward" size={18} color={onTint(isDark)} />
+          </View>
+        </PressableScale>
+      </AnimatedEntrance>
 
-      <View style={[styles.statsRow, isCompact ? styles.columnLayout : null]}>
-        <StatTile label="Total Players" value={stats.totalPlayers} />
-        <StatTile label="Average Age" value={stats.averageAge} />
-        <StatTile label="Average ELO" value={stats.averageElo} />
-      </View>
+      <AnimatedEntrance delay={100}>
+        <View style={[styles.statsRow, isCompact ? styles.columnLayout : null]}>
+          <StatTile label="Total Players" value={stats.totalPlayers} />
+          <StatTile label="Average Age" value={stats.averageAge} />
+          <StatTile label="Average ELO" value={stats.averageElo} />
+        </View>
+      </AnimatedEntrance>
 
-      <View style={[styles.doubleCardRow, isCompact ? styles.columnLayout : null]}>
-        <RankedList
-          title="Top Positions"
-          emptyText="No position data available."
-          items={stats.positions.slice(0, 4).map((entry) => ({
-            key: entry.position,
-            label: entry.position,
-            value: entry.count,
-          }))}
-        />
-        <RankedList
-          title="Top Countries"
-          emptyText="No country data available."
-          items={stats.topCountries.map((entry) => ({
-            key: entry.country,
-            label: entry.country,
-            value: entry.count,
-          }))}
-        />
-      </View>
+      <AnimatedEntrance delay={160}>
+        <View style={[styles.doubleCardRow, isCompact ? styles.columnLayout : null]}>
+          <RankedList
+            title="Top Positions"
+            emptyText="No position data available."
+            items={stats.positions.slice(0, 4).map((entry) => ({
+              key: entry.position,
+              label: entry.position,
+              value: entry.count,
+            }))}
+          />
+          <RankedList
+            title="Top Countries"
+            emptyText="No country data available."
+            items={stats.topCountries.map((entry) => ({
+              key: entry.country,
+              label: entry.country,
+              value: entry.count,
+            }))}
+          />
+        </View>
+      </AnimatedEntrance>
 
       <View style={styles.spotlights}>
-        <PlayerSpotlightList
-          title="Top ELO Players"
-          players={highlights.topEloPlayers}
-          emptyText="No player rankings available."
-        />
-        <PlayerSpotlightList
-          title="Young Talents"
-          players={highlights.youngTalents}
-          emptyText="No young talents found."
-        />
-        <PlayerSpotlightList
-          title="Market Leaders"
-          players={highlights.marketLeaders}
-          emptyText="No market value data available."
-        />
+        {[
+          { title: "Top ELO Players", players: highlights.topEloPlayers, emptyText: "No player rankings available." },
+          { title: "Young Talents", players: highlights.youngTalents, emptyText: "No young talents found." },
+          { title: "Market Leaders", players: highlights.marketLeaders, emptyText: "No market value data available." },
+        ].map((section, i) => (
+          <AnimatedEntrance key={section.title} delay={220 + i * 70}>
+            <PlayerSpotlightList
+              title={section.title}
+              players={section.players}
+              emptyText={section.emptyText}
+            />
+          </AnimatedEntrance>
+        ))}
       </View>
     </ScrollView>
   );

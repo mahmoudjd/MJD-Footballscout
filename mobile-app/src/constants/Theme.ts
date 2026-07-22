@@ -41,20 +41,27 @@ export const radius = {
  * Spread these into a Text style, then layer colour on top.
  */
 export const typography = {
-  display: { fontSize: 34, fontWeight: "900", letterSpacing: -1 },
-  title: { fontSize: 26, fontWeight: "900", letterSpacing: -0.6 },
-  heading: { fontSize: 20, fontWeight: "800", letterSpacing: -0.3 },
-  subheading: { fontSize: 16, fontWeight: "800", letterSpacing: -0.2 },
-  body: { fontSize: 14, fontWeight: "500" },
-  bodyStrong: { fontSize: 14, fontWeight: "700" },
-  label: { fontSize: 12, fontWeight: "700" },
+  display: { fontSize: 34, fontWeight: "900", letterSpacing: -1, lineHeight: 38 },
+  title: { fontSize: 26, fontWeight: "900", letterSpacing: -0.6, lineHeight: 30 },
+  heading: { fontSize: 20, fontWeight: "800", letterSpacing: -0.3, lineHeight: 25 },
+  subheading: { fontSize: 16, fontWeight: "800", letterSpacing: -0.2, lineHeight: 21 },
+  body: { fontSize: 14, fontWeight: "500", lineHeight: 21 },
+  bodyStrong: { fontSize: 14, fontWeight: "700", lineHeight: 21 },
+  label: { fontSize: 12, fontWeight: "700", lineHeight: 16 },
   micro: {
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 0.8,
+    lineHeight: 13,
     textTransform: "uppercase",
   },
 } satisfies Record<string, TextStyle>;
+
+/**
+ * Tabular (monospaced) figures so numeric values line up column-to-column and
+ * don't jitter as they change — use on stats, ELO, prices, counters.
+ */
+export const numeric = { fontVariant: ["tabular-nums"] } satisfies TextStyle;
 
 type ShadowLevels = Record<"sm" | "md" | "lg", ViewStyle>;
 
