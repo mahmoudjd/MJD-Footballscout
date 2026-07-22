@@ -190,10 +190,15 @@ export async function registerUser(input: {
   email: string;
   password: string;
 }) {
-  return requestJson<AuthResponse>("/auth/register", {
-    method: "POST",
-    body: JSON.stringify(input),
-  });
+  // Register does NOT log the user in — it creates the account and emails a
+  // verification link. No tokens are returned; the user must verify first.
+  return requestJson<{ message: string; verificationRequired?: boolean; verificationUrl?: string }>(
+    "/auth/register",
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
 }
 
 export async function refreshAccessToken(refreshToken: string) {

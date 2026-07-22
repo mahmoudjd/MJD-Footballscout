@@ -6,6 +6,7 @@ import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
 import { useAuth } from "@/src/context/AuthContext";
 import { getGoogleLoginConfigurationError, isGoogleLoginConfigured, requestGoogleIdToken } from "@/src/utils/googleAuth";
+import { ApiError } from "@/src/apiServices";
 import AuthScreenCard from "@/src/components/auth/AuthScreenCard";
 
 function resolveCallbackUrl(rawValue: unknown) {
@@ -38,6 +39,10 @@ export default function LoginScreen() {
       await login({ email: email.trim(), password: password.trim() });
       router.replace(callback as never);
     } catch (error) {
+      if (error instanceof ApiError && (error.details as { code?: string })?.code === "EMAIL_NOT_VERIFIED") {
+        router.replace({ pathname: "/verify-email", params: { email: email.trim() } } as never);
+        return;
+      }
       setErrorMessage(error instanceof Error ? error.message : "Sign-in failed. Please try again.");
     }
   };
