@@ -194,12 +194,6 @@ export const faqGroups: FaqGroup[] = [
         answer:
           "Yes. Every scouting tool — including Squad Builder and the Recruitment Workspace — is available to all signed-in users at no cost. There is no paid plan or subscription.",
       },
-      {
-        id: "advertising",
-        question: "Who sees advertising?",
-        answer:
-          "Content pages can show clearly labelled advertising, which keeps the app free for everyone. Ads never appear inside authentication, account or planning workflows.",
-      },
     ],
   },
 ]
@@ -226,7 +220,6 @@ export const releaseNotes: ReleaseNote[] = [
       "Save talent searches, monitor changing match counts and surface new-player alerts.",
       "Rank the database with configurable Recruitment Fit Scores combining ELO, age, value and scouting progress.",
       "Use Squad Builder and the Recruitment Workspace free of charge — every scouting tool is included for all signed-in users.",
-      "Keep the app free through clearly labelled, responsive advertising on content pages.",
       "Protect new registrations with email verification, expiring one-time links, transactional security notifications and TOTP multi-factor authentication with recovery codes.",
     ],
     featured: true,
