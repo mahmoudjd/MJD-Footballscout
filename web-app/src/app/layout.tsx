@@ -6,7 +6,6 @@ import { MobileTabBar } from "@/components/layout/header/mobile-tab-bar"
 import { Footer } from "@/components/layout/footer"
 import { Providers } from "./providers"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { FreeTierAdPlacement } from "@/features/advertising/components/FreeTierAdPlacement"
 
 export const metadata: Metadata = {
   title: {
@@ -39,7 +38,6 @@ export default function RootLayout({
           <main id="main-content" className="min-h-[calc(100vh-7.5rem)] pb-28 md:pb-0">
             {children}
           </main>
-          <FreeTierAdPlacement />
           <MobileTabBar />
           <Footer />
         </Providers>
