@@ -17,7 +17,7 @@ export const navLinks: NavLink[] = [
   { href: "/watchlists", label: "Watchlists", icon: "HeartIcon", authRequired: true },
   {
     href: "/shadow-team",
-    label: "Shadow Team",
+    label: "Squad Builder",
     icon: "Squares2X2Icon",
     authRequired: true,
     secondary: true,

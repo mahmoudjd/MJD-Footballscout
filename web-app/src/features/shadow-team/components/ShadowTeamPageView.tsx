@@ -208,7 +208,7 @@ export function ShadowTeamPageView() {
       },
       {
         onSuccess: () => successMessage && toast.success(successMessage),
-        onError: () => toast.error("Shadow team could not be updated"),
+        onError: () => toast.error("Squad could not be updated"),
       },
     )
   }
@@ -228,9 +228,9 @@ export function ShadowTeamPageView() {
         onSuccess: (team) => {
           setSelectedTeamId(team._id)
           setNewName("")
-          toast.success("Shadow team created")
+          toast.success("Squad created")
         },
-        onError: () => toast.error("Shadow team could not be created"),
+        onError: () => toast.error("Squad could not be created"),
       },
     )
   }
@@ -258,13 +258,13 @@ export function ShadowTeamPageView() {
     return (
       <PageContainer className="space-y-4">
         <SectionHeader
-          title="Shadow Team"
+          title="Squad Builder"
           description="Build formations and assess recruitment gaps."
           icon="Squares2X2Icon"
         />
         <LoginRequiredState
           callbackUrl="/shadow-team"
-          description="Sign in to create and save your Shadow Teams."
+          description="Sign in to create and save your squads."
         />
       </PageContainer>
     )
@@ -273,7 +273,7 @@ export function ShadowTeamPageView() {
   return (
     <PageContainer size="wide" className="space-y-6">
       <SectionHeader
-        title="Shadow Team"
+        title="Squad Builder"
         description="Build your future squad, compare candidates and turn positional gaps into a recruitment plan."
         icon="Squares2X2Icon"
         badge={`${teams.length} ${teams.length === 1 ? "team" : "teams"}`}
@@ -321,7 +321,7 @@ export function ShadowTeamPageView() {
                 fullWidth
                 disabled={!newName.trim() || mutations.create.isPending}
               >
-                Create Shadow Team
+                Create squad
               </Button>
             </form>
           </Panel>
@@ -344,7 +344,7 @@ export function ShadowTeamPageView() {
             {!teamsQuery.isLoading && !teams.length ? (
               <StatusState
                 className="mt-4"
-                title="No Shadow Teams yet"
+                title="No squads yet"
                 description="Create your first formation above."
               />
             ) : null}
@@ -377,7 +377,7 @@ export function ShadowTeamPageView() {
           {!selectedTeamId && !teamsQuery.isLoading ? (
             <Panel>
               <StatusState
-                title="Create a Shadow Team to begin"
+                title="Create a squad to begin"
                 description="Choose a name and formation, then add candidates position by position."
               />
             </Panel>
@@ -393,7 +393,7 @@ export function ShadowTeamPageView() {
           ) : null}
           {detailsQuery.isError ? (
             <Panel>
-              <StatusState tone="error" title="Shadow Team could not be loaded" />
+              <StatusState tone="error" title="Squad Builder could not be loaded" />
             </Panel>
           ) : null}
           {detail ? (
@@ -726,7 +726,7 @@ export function ShadowTeamPageView() {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete Shadow Team?"
+        title="Delete squad?"
         description={`“${detail?.name ?? "This team"}” and its position assignments will be permanently removed.`}
         confirmLabel="Delete team"
         confirmTone="danger"
@@ -737,9 +737,9 @@ export function ShadowTeamPageView() {
             onSuccess: () => {
               setDeleteOpen(false)
               setSelectedTeamId("")
-              toast.success("Shadow team deleted")
+              toast.success("Squad deleted")
             },
-            onError: () => toast.error("Shadow team could not be deleted"),
+            onError: () => toast.error("Squad could not be deleted"),
           })
         }
       />
