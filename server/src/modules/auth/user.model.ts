@@ -148,25 +148,6 @@ export const UserSchema = z.object({
   mfaPendingSecretEncrypted: z.string().optional(),
   mfaRecoveryCodeHashes: z.array(z.string()).optional(),
   mfaEnabledAt: z.date().optional(),
-  billingPlan: z.enum(["free", "premium"]).optional(),
-  subscriptionStatus: z
-    .enum([
-      "inactive",
-      "trialing",
-      "active",
-      "past_due",
-      "canceled",
-      "unpaid",
-      "incomplete",
-      "incomplete_expired",
-      "paused",
-    ])
-    .optional(),
-  stripeCustomerId: z.string().optional(),
-  stripeSubscriptionId: z.string().optional(),
-  stripeProductId: z.string().optional(),
-  subscriptionCurrentPeriodEnd: z.date().optional(),
-  subscriptionCancelAtPeriodEnd: z.boolean().optional(),
   createdAt: z.date(),
   updatedAt: z.date().optional(),
 });

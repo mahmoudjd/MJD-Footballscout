@@ -128,11 +128,6 @@ const Header = () => {
                     Open watchlists
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/pricing" prefetch={false}>
-                    Premium & Billing
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   tone="danger"

@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import HeaderProfile from "./profileComponents/HeaderProfile";
 import ProfileInfo from "./profileComponents/ProfileInfo";
@@ -30,10 +31,11 @@ import {
   Title,
   Transfer,
 } from "../data/Types";
-import { useNavigation } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import {
   deletePlayer,
   deleteScoutingReport,
+  getAllPlayers,
   getPlayerHistory,
   getPlayerReports,
   updatePlayer,
@@ -43,6 +45,11 @@ import { useAuth } from "../context/AuthContext";
 import { runAuthorizedRequest } from "@/src/utils/runAuthorizedRequest";
 import AppBackground from "@/src/components/ui/AppBackground";
 import AppSelect from "@/src/components/ui/AppSelect";
+import AppButton from "@/src/components/ui/AppButton";
+import PressableScale from "@/src/components/ui/PressableScale";
+import AnimatedEntrance from "@/src/components/ui/AnimatedEntrance";
+import { accentSoft, accentSoftText, numeric, onTint, radius, shadow, spacing } from "@/src/constants/Theme";
+import { getPlayerDisplayName as displayNameOf } from "@/src/utils/playerDisplay";
 
 type Props = {
   person: PlayerType;
@@ -56,7 +63,7 @@ type ReportFormState = {
   notes: string;
 };
 
-type ProfileTabKey = "overview" | "attributes" | "career" | "scouting" | "history";
+type ProfileTabKey = "overview" | "attributes" | "career" | "scouting" | "history" | "similar";
 
 const PROFILE_TABS: Array<{
   key: ProfileTabKey;
@@ -68,7 +75,17 @@ const PROFILE_TABS: Array<{
   { key: "career", label: "Career", icon: "trail-sign-outline" },
   { key: "scouting", label: "Scouting", icon: "clipboard-outline" },
   { key: "history", label: "History", icon: "pulse-outline" },
+  { key: "similar", label: "Similar", icon: "people-outline" },
 ];
+
+function getPositionGroup(position: string | undefined) {
+  const p = position || "";
+  if (p.includes("Forward")) return "Forward";
+  if (p.includes("Midfielder")) return "Midfielder";
+  if (p.includes("Defender")) return "Defender";
+  if (p.includes("Goalkeeper")) return "Goalkeeper";
+  return "Other";
+}
 
 function safeArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? (value as T[]) : [];
@@ -106,7 +123,7 @@ function formatEloDelta(value: number | null | undefined) {
 function getDecisionColor(decision: string, isDark: boolean) {
   if (decision === "sign") return isDark ? "#22c55e" : "#15803d";
   if (decision === "reject") return isDark ? "#f87171" : "#dc2626";
-  return isDark ? "#22d3ee" : "#0e7490";
+  return isDark ? "#c9e265" : "#0e7490";
 }
 
 function SectionSkeleton({ rows = 4, isDark }: { rows?: number; isDark: boolean }) {
@@ -142,8 +159,9 @@ const PlayerProfile = ({ person }: Props) => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [player, setPlayer] = useState<PlayerType>(normalizePlayer(person));
   const [activeTab, setActiveTab] = useState<ProfileTabKey>("overview");
-  const [showAllDetails, setShowAllDetails] = useState(false);
 
+  const [allPlayers, setAllPlayers] = useState<PlayerType[]>([]);
+  const [isLoadingSimilar, setIsLoadingSimilar] = useState(false);
   const [reportsData, setReportsData] = useState<PlayerReportsResponse | null>(null);
   const [historyData, setHistoryData] = useState<PlayerHistoryResponse | null>(null);
   const [isLoadingReports, setIsLoadingReports] = useState(false);
@@ -224,6 +242,38 @@ const PlayerProfile = ({ person }: Props) => {
     loadScoutingData();
   }, [loadScoutingData]);
 
+  const loadSimilarPool = useCallback(async () => {
+    try {
+      setIsLoadingSimilar(true);
+      const data = await getAllPlayers();
+      setAllPlayers(data);
+    } catch (error) {
+      console.error(error);
+      setAllPlayers([]);
+    } finally {
+      setIsLoadingSimilar(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSimilarPool();
+  }, [loadSimilarPool]);
+
+  // Similar players: same position group, ranked by closest ELO, then value.
+  const similarPlayers = useMemo(() => {
+    const group = getPositionGroup(player.position);
+    const baseElo = typeof player.elo === "number" ? player.elo : 0;
+    return allPlayers
+      .filter((entry) => entry._id !== player._id && getPositionGroup(entry.position) === group)
+      .map((entry) => ({
+        entry,
+        diff: Math.abs((typeof entry.elo === "number" ? entry.elo : 0) - baseElo),
+      }))
+      .sort((a, b) => a.diff - b.diff)
+      .slice(0, 6)
+      .map((item) => item.entry);
+  }, [allPlayers, player._id, player.position, player.elo]);
+
   useEffect(() => {
     if (!ownReport) {
       setReportForm(defaultReportForm);
@@ -243,13 +293,13 @@ const PlayerProfile = ({ person }: Props) => {
       headerRight: () => (
         <View style={styles.headerActions}>
           {isAdmin ? (
-            <Pressable onPress={confirmDelete} disabled={isLoading}>
-              <Ionicons name="trash" size={23} color={isDark ? "#fff" : "#000"} />
+            <Pressable onPress={confirmDelete} disabled={isLoading} hitSlop={8} accessibilityRole="button" accessibilityLabel="Delete player">
+              <Ionicons name="trash" size={22} color={palette.text} />
             </Pressable>
           ) : null}
           {isAuthenticated ? (
-            <Pressable onPress={handleUpdate} disabled={isLoading}>
-              <Ionicons name="refresh" size={23} color={isDark ? "#fff" : "#000"} />
+            <Pressable onPress={handleUpdate} disabled={isLoading} hitSlop={8} accessibilityRole="button" accessibilityLabel="Refresh player data">
+              <Ionicons name="refresh" size={22} color={palette.text} />
             </Pressable>
           ) : null}
         </View>
@@ -373,35 +423,13 @@ const PlayerProfile = ({ person }: Props) => {
   };
 
   const renderOverviewTab = () => (
-    <>
-      <View style={[styles.sectionCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
-        <View style={styles.sectionHeadingRow}>
-          <Ionicons name="information-circle-outline" size={17} color={palette.tint} />
-          <Text style={[styles.heading, { color: palette.text }]}>Details</Text>
-        </View>
-        <ProfileInfo player={player} maxItems={showAllDetails ? undefined : 8} />
-        <Pressable
-          onPress={() => setShowAllDetails((current) => !current)}
-          style={[styles.inlineLink, { borderColor: palette.border, backgroundColor: palette.background }]}
-        >
-          <Ionicons
-            name={showAllDetails ? "chevron-up-outline" : "chevron-down-outline"}
-            size={14}
-            color={palette.tint}
-          />
-          <Text style={[styles.inlineLinkText, { color: palette.tint }]}>
-            {showAllDetails ? "Show fewer details" : "Show all details"}
-          </Text>
-        </Pressable>
+    <View style={[styles.sectionCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
+      <View style={styles.sectionHeadingRow}>
+        <Ionicons name="information-circle-outline" size={17} color={palette.tint} />
+        <Text style={[styles.heading, { color: palette.text }]}>Details</Text>
       </View>
-
-      <View style={[styles.overviewHintCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
-        <Text style={[styles.overviewHintTitle, { color: palette.text }]}>Player Analysis</Text>
-        <Text style={[styles.overviewHintText, { color: palette.notification }]}>
-          Use tabs to review attributes, transfer timeline, scouting reports, and full change history.
-        </Text>
-      </View>
-    </>
+      <ProfileInfo player={player} />
+    </View>
   );
 
   const renderScoutingTab = () => (
@@ -418,30 +446,22 @@ const PlayerProfile = ({ person }: Props) => {
       ) : (
         <>
           <View style={styles.summaryGrid}>
-            <View style={[styles.summaryItem, { borderColor: palette.border, backgroundColor: palette.background }]}>
-              <Text style={[styles.summaryLabel, { color: palette.notification }]}>Reports</Text>
-              <Text style={[styles.summaryValue, { color: palette.text }]}>
-                {reportsData.summary.totalReports || 0}
-              </Text>
-            </View>
-            <View style={[styles.summaryItem, { borderColor: palette.border, backgroundColor: palette.background }]}>
-              <Text style={[styles.summaryLabel, { color: palette.notification }]}>Avg rating</Text>
-              <Text style={[styles.summaryValue, { color: palette.text }]}>
-                {reportsData.summary.averageRating ?? "-"}
-              </Text>
-            </View>
-            <View style={[styles.summaryItem, { borderColor: palette.border, backgroundColor: palette.background }]}>
-              <Text style={[styles.summaryLabel, { color: palette.notification }]}>Sign</Text>
-              <Text style={[styles.summaryValue, { color: palette.text }]}>
-                {reportsData.summary.decisions.sign || 0}
-              </Text>
-            </View>
-            <View style={[styles.summaryItem, { borderColor: palette.border, backgroundColor: palette.background }]}>
-              <Text style={[styles.summaryLabel, { color: palette.notification }]}>Reject</Text>
-              <Text style={[styles.summaryValue, { color: palette.text }]}>
-                {reportsData.summary.decisions.reject || 0}
-              </Text>
-            </View>
+            {[
+              { icon: "documents-outline" as const, label: "Reports", value: reportsData.summary.totalReports || 0, fg: "#0ea5e9", soft: "rgba(14,165,233,0.14)" },
+              { icon: "star" as const, label: "Avg rating", value: reportsData.summary.averageRating ?? "-", fg: "#f59e0b", soft: "rgba(245,158,11,0.16)" },
+              { icon: "checkmark-circle" as const, label: "Sign", value: reportsData.summary.decisions.sign || 0, fg: "#10b981", soft: "rgba(16,185,129,0.14)" },
+              { icon: "close-circle" as const, label: "Reject", value: reportsData.summary.decisions.reject || 0, fg: "#f43f5e", soft: "rgba(244,63,94,0.14)" },
+            ].map((card) => (
+              <View key={card.label} style={[styles.summaryItem, { borderColor: palette.border, backgroundColor: palette.background }]}>
+                <View style={styles.summaryTop}>
+                  <View style={[styles.summaryIcon, { backgroundColor: card.soft }]}>
+                    <Ionicons name={card.icon} size={14} color={card.fg} />
+                  </View>
+                  <Text style={[styles.summaryLabel, { color: palette.notification }]}>{card.label}</Text>
+                </View>
+                <Text style={[styles.summaryValue, numeric, { color: palette.text }]}>{card.value}</Text>
+              </View>
+            ))}
           </View>
 
           <View style={[styles.formBox, { borderColor: palette.border, backgroundColor: palette.background }]}>
@@ -526,23 +546,27 @@ const PlayerProfile = ({ person }: Props) => {
               placeholderTextColor={palette.notification}
             />
             <View style={styles.actionRow}>
-              <Pressable
+              <AppButton
+                label="Save report"
+                icon="save-outline"
+                size="md"
+                fullWidth={false}
+                style={styles.actionPrimary}
+                loading={isSubmittingReport}
                 disabled={isSubmittingReport}
                 onPress={handleSaveReport}
-                style={[styles.primaryAction, isSubmittingReport ? styles.disabled : undefined]}
-              >
-                <Text style={styles.primaryActionText}>
-                  {isSubmittingReport ? "Saving..." : "Save report"}
-                </Text>
-              </Pressable>
+              />
               {ownReport ? (
-                <Pressable
+                <AppButton
+                  label="Delete my report"
+                  icon="trash-outline"
+                  variant="danger"
+                  size="md"
+                  fullWidth={false}
+                  loading={isDeletingReport}
                   disabled={isDeletingReport}
                   onPress={handleDeleteOwnReport}
-                  style={[styles.secondaryDangerAction, isDeletingReport ? styles.disabled : undefined]}
-                >
-                  <Text style={styles.secondaryDangerActionText}>Delete my report</Text>
-                </Pressable>
+                />
               ) : null}
             </View>
           </View>
@@ -671,6 +695,65 @@ const PlayerProfile = ({ person }: Props) => {
     </View>
   );
 
+  const renderSimilarTab = () => (
+    <View style={[styles.sectionCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
+      <View style={styles.sectionHeadingRow}>
+        <Ionicons name="people-outline" size={17} color={palette.tint} />
+        <Text style={[styles.heading, { color: palette.text }]}>Similar Players</Text>
+      </View>
+      <Text style={[styles.similarSubtitle, { color: palette.notification }]}>
+        Same position ({getPositionGroup(player.position)}), ranked by closest ELO rating.
+      </Text>
+
+      {isLoadingSimilar ? (
+        <SectionSkeleton rows={5} isDark={isDark} />
+      ) : similarPlayers.length === 0 ? (
+        <Text style={{ color: palette.notification }}>No similar players found.</Text>
+      ) : (
+        <View style={styles.similarList}>
+          {similarPlayers.map((sp, index) => (
+            <AnimatedEntrance key={sp._id} delay={index * 70}>
+            <Link href={`/${sp._id}`} asChild>
+              {/* Flattened style: <Link asChild>'s Slot rejects array styles. */}
+              <PressableScale
+                scaleTo={0.98}
+                style={StyleSheet.flatten([
+                  styles.similarRow,
+                  { borderColor: palette.border, backgroundColor: palette.background },
+                ])}
+              >
+                <View style={styles.similarRowInner}>
+                  <Image
+                    source={sp.image || undefined}
+                    style={[styles.similarAvatar, { backgroundColor: palette.surfaceSoft }]}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={160}
+                  />
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text style={[styles.similarName, { color: palette.text }]} numberOfLines={1}>
+                      {displayNameOf(sp)}
+                    </Text>
+                    <Text style={[styles.similarMeta, { color: palette.notification }]} numberOfLines={1}>
+                      {sp.currentClub || sp.country || "Unknown"} · {sp.position}
+                    </Text>
+                  </View>
+                  <View style={[styles.similarElo, { backgroundColor: palette.tint }]}>
+                    <Text style={[styles.similarEloText, numeric, { color: onTint(isDark) }]}>
+                      {typeof sp.elo === "number" ? sp.elo : "–"}
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color={palette.notification} />
+                </View>
+              </PressableScale>
+            </Link>
+            </AnimatedEntrance>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+
   const renderContentByTab = () => {
     if (activeTab === "overview") return renderOverviewTab();
     if (activeTab === "attributes") {
@@ -700,7 +783,8 @@ const PlayerProfile = ({ person }: Props) => {
       );
     }
     if (activeTab === "scouting") return renderScoutingTab();
-    return renderHistoryTab();
+    if (activeTab === "history") return renderHistoryTab();
+    return renderSimilarTab();
   };
 
   useEffect(() => {
@@ -720,7 +804,12 @@ const PlayerProfile = ({ person }: Props) => {
   return (
     <SafeAreaView edges={["left", "right", "bottom"]} style={{ flex: 1, backgroundColor: palette.background }}>
       <AppBackground />
-      <ScrollView style={[styles.profilePage, { backgroundColor: palette.background }]}>
+
+      <ScrollView
+        style={[styles.profilePage, { backgroundColor: palette.background }]}
+        contentContainerStyle={styles.profileContent}
+        showsVerticalScrollIndicator={false}
+      >
         <HeaderProfile player={player} />
 
         {isLoading ? (
@@ -736,58 +825,68 @@ const PlayerProfile = ({ person }: Props) => {
               key={stat.label}
               style={[styles.quickStatCard, { borderColor: palette.border, backgroundColor: palette.card }]}
             >
-              <Ionicons name={stat.icon} size={15} color={palette.tint} />
-              <Text style={[styles.quickStatValue, { color: palette.text }]} numberOfLines={1}>
+              <View style={styles.quickStatTop}>
+                <View style={[styles.quickStatIcon, { backgroundColor: accentSoft(isDark) }]}>
+                  <Ionicons name={stat.icon} size={13} color={accentSoftText(isDark)} />
+                </View>
+                <Text style={[styles.quickStatLabel, { color: palette.notification }]} numberOfLines={1}>
+                  {stat.label}
+                </Text>
+              </View>
+              <Text style={[styles.quickStatValue, numeric, { color: palette.text }]} numberOfLines={1}>
                 {stat.value}
               </Text>
-              <Text style={[styles.quickStatLabel, { color: palette.notification }]}>{stat.label}</Text>
             </View>
           ))}
         </View>
 
-        <View style={[styles.metaCard, { borderColor: palette.border, backgroundColor: palette.card }]}>
-          <View style={styles.metaLabelRow}>
-            <Ionicons name="time-outline" size={14} color={palette.tint} />
-            <Text style={[styles.metaLabel, { color: palette.notification }]}>Last updated</Text>
-          </View>
-          <Text style={[styles.metaValue, { color: palette.text }]}>{formatTimestamp(player.timestamp)}</Text>
+        <View style={styles.metaRow}>
+          <Ionicons name="time-outline" size={13} color={palette.notification} />
+          <Text style={[styles.metaLabel, { color: palette.notification }]}>Last updated</Text>
+          <Text style={[styles.metaValue, { color: palette.text }]} numberOfLines={1}>
+            {formatTimestamp(player.timestamp)}
+          </Text>
         </View>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.tabsContainer}
-          style={styles.tabsScroll}
-        >
-          {PROFILE_TABS.map((tab) => {
-            const selected = activeTab === tab.key;
-            return (
-              <Pressable
-                key={tab.key}
-                onPress={() => setActiveTab(tab.key)}
-                style={[
-                  styles.tabPill,
-                  {
-                    borderColor: selected ? palette.tint : palette.border,
-                    backgroundColor: selected ? (isDark ? "rgba(34,211,238,0.16)" : "rgba(14,165,165,0.12)") : palette.card,
-                  },
-                ]}
-              >
-                <Ionicons
-                  name={tab.icon}
-                  size={14}
-                  color={selected ? palette.tint : palette.notification}
-                />
-                <Text style={[styles.tabText, { color: selected ? palette.tint : palette.notification }]}>
-                  {tab.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+        {/* Segmented section control — sits inline in the middle of the page. */}
+        <View style={[styles.segmentBar, { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,33,24,0.045)", borderColor: palette.border }]}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.segmentContent}
+          >
+            {PROFILE_TABS.map((tab) => {
+              const selected = activeTab === tab.key;
+              return (
+                <PressableScale
+                  key={tab.key}
+                  scaleTo={0.94}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected }}
+                  onPress={() => setActiveTab(tab.key)}
+                  style={[
+                    styles.segment,
+                    selected ? { backgroundColor: palette.accent } : null,
+                    selected ? shadow(isDark).sm : null,
+                  ]}
+                >
+                  <Ionicons
+                    name={tab.icon}
+                    size={15}
+                    color={selected ? palette.accentText : palette.notification}
+                  />
+                  <Text
+                    style={[styles.segmentText, { color: selected ? palette.accentText : palette.notification }]}
+                  >
+                    {tab.label}
+                  </Text>
+                </PressableScale>
+              );
+            })}
+          </ScrollView>
+        </View>
 
         {renderContentByTab()}
-        <View style={{ height: 8 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -797,8 +896,10 @@ const styles = StyleSheet.create({
   profilePage: {
     flex: 1,
     width: "100%",
+  },
+  profileContent: {
     paddingTop: 16,
-    paddingBottom: 16,
+    paddingBottom: 20,
     paddingHorizontal: 15,
   },
   headerActions: {
@@ -826,61 +927,72 @@ const styles = StyleSheet.create({
   quickStatCard: {
     width: "48.5%",
     borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    gap: 2,
+    borderRadius: radius.md,
+    paddingHorizontal: 13,
+    paddingVertical: 12,
+  },
+  quickStatTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    marginBottom: 8,
+  },
+  quickStatIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 7,
+    alignItems: "center",
+    justifyContent: "center",
   },
   quickStatValue: {
-    fontSize: 15,
-    fontWeight: "800",
+    fontSize: 22,
+    fontWeight: "900",
+    letterSpacing: -0.5,
   },
   quickStatLabel: {
-    fontSize: 11,
-    fontWeight: "700",
+    flex: 1,
+    fontSize: 10,
+    fontWeight: "800",
     textTransform: "uppercase",
-    letterSpacing: 0.3,
+    letterSpacing: 0.6,
   },
-  metaCard: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 12,
-  },
-  metaLabelRow: {
+  metaRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
+    paddingHorizontal: 4,
+    marginBottom: 14,
   },
   metaLabel: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   metaValue: {
-    marginTop: 4,
-    fontSize: 13,
-    fontWeight: "700",
+    flex: 1,
+    textAlign: "right",
+    fontSize: 12.5,
+    fontWeight: "800",
   },
-  tabsScroll: {
+  segmentBar: {
+    borderWidth: 1,
+    borderRadius: radius.md,
+    padding: 4,
     marginBottom: 12,
   },
-  tabsContainer: {
-    gap: 8,
-    paddingRight: 6,
+  segmentContent: {
+    gap: 4,
   },
-  tabPill: {
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 11,
-    paddingVertical: 7,
+  segment: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
+    borderRadius: radius.sm,
+    paddingHorizontal: 13,
+    paddingVertical: 9,
   },
-  tabText: {
-    fontSize: 12,
-    fontWeight: "700",
+  segmentText: {
+    fontSize: 13,
+    fontWeight: "800",
   },
   sectionCard: {
     borderWidth: 1,
@@ -898,37 +1010,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "800",
   },
-  inlineLink: {
-    marginTop: 6,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-  inlineLinkText: {
-    fontWeight: "700",
-    fontSize: 12,
-  },
-  overviewHintCard: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 12,
-  },
-  overviewHintTitle: {
-    fontSize: 14,
-    fontWeight: "800",
-  },
-  overviewHintText: {
-    marginTop: 4,
-    fontSize: 13,
-    lineHeight: 18,
-  },
   summaryGrid: {
     marginTop: 2,
     flexDirection: "row",
@@ -936,19 +1017,37 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   summaryItem: {
-    minWidth: "47%",
-    borderRadius: 8,
+    flexGrow: 1,
+    flexBasis: "47%",
+    borderRadius: radius.md,
     borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingHorizontal: 11,
+    paddingVertical: 10,
+  },
+  summaryTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    marginBottom: 8,
+  },
+  summaryIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 7,
+    alignItems: "center",
+    justifyContent: "center",
   },
   summaryLabel: {
-    fontSize: 11,
+    flex: 1,
+    fontSize: 10,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   summaryValue: {
-    marginTop: 2,
-    fontSize: 17,
-    fontWeight: "700",
+    fontSize: 22,
+    fontWeight: "900",
+    letterSpacing: -0.4,
   },
   formBox: {
     marginTop: 10,
@@ -980,32 +1079,10 @@ const styles = StyleSheet.create({
     marginTop: 2,
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: spacing.sm,
   },
-  primaryAction: {
-    backgroundColor: "#008fb3",
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  primaryActionText: {
-    color: "#fff",
-    fontWeight: "700",
-  },
-  secondaryDangerAction: {
-    borderWidth: 1,
-    borderColor: "#ef4444",
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: "#fff",
-  },
-  secondaryDangerActionText: {
-    color: "#ef4444",
-    fontWeight: "700",
-  },
-  disabled: {
-    opacity: 0.6,
+  actionPrimary: {
+    flexGrow: 1,
   },
   reportsList: {
     marginTop: 10,
@@ -1029,6 +1106,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     marginTop: 8,
+  },
+  similarSubtitle: {
+    fontSize: 12.5,
+    lineHeight: 17,
+    marginTop: -4,
+    marginBottom: 10,
+  },
+  similarList: {
+    gap: 8,
+  },
+  similarRow: {
+    borderWidth: 1,
+    borderRadius: radius.md,
+    padding: 8,
+  },
+  similarRowInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  similarAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.sm,
+  },
+  similarName: {
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  similarMeta: {
+    fontSize: 11.5,
+    marginTop: 2,
+    fontWeight: "500",
+  },
+  similarElo: {
+    borderRadius: radius.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    minWidth: 40,
+    alignItems: "center",
+  },
+  similarEloText: {
+    fontSize: 12,
+    fontWeight: "900",
   },
   skeletonWrap: {
     gap: 8,

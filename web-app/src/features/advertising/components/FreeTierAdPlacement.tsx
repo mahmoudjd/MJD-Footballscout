@@ -8,12 +8,10 @@ import { useSession } from "next-auth/react"
 import { OutlineIcons } from "@/components/icons/outline-icons"
 import { appShellWidthClassName } from "@/components/ui/page-container"
 import { Text } from "@/components/ui/text"
-import { useBillingStatus } from "@/features/billing/hooks/useBilling"
 import { env } from "@/env"
 import { cn } from "@/lib/cn"
 
 const adFreeRoutes = [
-  "/pricing",
   "/login",
   "/signup",
   "/forgot-password",
@@ -44,17 +42,17 @@ function HouseAd() {
           MJD Scout promotion
         </Text>
         <Text as="p" variant="body" weight="bold" tone="inherit" className="mt-1">
-          Plan recruitment without advertising.
+          Plan your next transfer window like a pro.
         </Text>
         <Text as="p" variant="caption" tone="inherit" className="mt-1 text-emerald-100/80">
-          Premium unlocks Shadow Team and Recruitment Workspace and keeps the app ad-free.
+          Shadow Team and the Recruitment Workspace are free for every scout.
         </Text>
       </div>
       <Link
-        href="/pricing"
+        href="/recruitment"
         className="inline-flex min-h-10 items-center justify-center rounded-xl bg-lime-300 px-4 py-2 text-sm font-bold text-emerald-950 transition-colors hover:bg-lime-200 focus-visible:ring-2 focus-visible:ring-lime-200 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900 focus-visible:outline-none"
       >
-        View Premium
+        Explore the tools
       </Link>
     </div>
   )
@@ -91,12 +89,7 @@ function AdSenseUnit({ clientId, slotId }: { clientId: string; slotId: string })
 export function FreeTierAdPlacement() {
   const pathname = usePathname()
   const { status: sessionStatus } = useSession()
-  const authenticated = sessionStatus === "authenticated"
-  const billingQuery = useBillingStatus(authenticated)
-  const billingResolved = !authenticated || billingQuery.isSuccess
-  const isPremium = billingQuery.data?.isPremium === true
-  const shouldShow =
-    !isAdFreeRoute(pathname) && sessionStatus !== "loading" && billingResolved && !isPremium
+  const shouldShow = !isAdFreeRoute(pathname) && sessionStatus !== "loading"
 
   if (!shouldShow) return null
 

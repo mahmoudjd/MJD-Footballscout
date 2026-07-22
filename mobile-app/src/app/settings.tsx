@@ -1,6 +1,6 @@
 import React from "react";
 import { router } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
@@ -8,44 +8,59 @@ import { useAuth } from "@/src/context/AuthContext";
 import LoadingState from "@/src/components/ui/LoadingState";
 import ScreenContainer from "@/src/components/ui/ScreenContainer";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
+import CardSurface from "@/src/components/ui/CardSurface";
+import AppButton from "@/src/components/ui/AppButton";
+import PressableScale from "@/src/components/ui/PressableScale";
+import { accentSoft, accentSoftText } from "@/src/constants/Theme";
+
+type QuickLinkGroup = "Analysis" | "Scouting tools" | "Support";
 
 type QuickLink = {
   title: string;
   subtitle: string;
   icon: keyof typeof Ionicons.glyphMap;
+  group: QuickLinkGroup;
   href:
-    | "/(tabs)/playerList"
-    | "/(tabs)/search"
-    | "/(tabs)/compare"
-    | "/watchlists-screen";
+    | "/compare"
+    | "/recruitment"
+    | "/watchlists-screen"
+    | "/help";
 };
 
+// Home, Search, Players and Watchlists already live in the tab bar, so the
+// More hub only lists the destinations that are NOT one tap away there.
 const quickLinks: QuickLink[] = [
   {
-    title: "Players",
-    subtitle: "Browse players with filters and paging",
-    icon: "people-outline",
-    href: "/(tabs)/playerList",
-  },
-  {
-    title: "Search",
-    subtitle: "Find and add external players",
-    icon: "search-outline",
-    href: "/(tabs)/search",
-  },
-  {
     title: "Compare",
-    subtitle: "Run player comparison and ranking",
+    subtitle: "Rank candidates side by side across key metrics",
     icon: "git-compare-outline",
-    href: "/(tabs)/compare",
+    group: "Analysis",
+    href: "/compare",
   },
   {
     title: "Watchlists",
-    subtitle: "Track selected players in your own lists",
+    subtitle: "Track and organise your target players",
     icon: "heart-outline",
+    group: "Scouting tools",
     href: "/watchlists-screen",
   },
+  {
+    title: "Recruitment",
+    subtitle: "Manage targets through your scouting pipeline",
+    icon: "briefcase-outline",
+    group: "Scouting tools",
+    href: "/recruitment",
+  },
+  {
+    title: "Help center",
+    subtitle: "Workflow guidance and answers to common questions",
+    icon: "help-buoy-outline",
+    group: "Support",
+    href: "/help",
+  },
 ];
+
+const quickLinkGroups: QuickLinkGroup[] = ["Analysis", "Scouting tools", "Support"];
 
 function resolveInitial(name: string, email: string) {
   const source = name.trim() || email.trim() || "S";
@@ -67,35 +82,32 @@ export default function SettingsScreen() {
   const initial = resolveInitial(displayName, displayEmail);
 
   return (
-    <ScreenContainer withTopInset style={styles.screen}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScreenContainer edgeToEdge style={styles.screen}>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <PageHeaderCard
           icon="ellipsis-horizontal-circle-outline"
           title="Account & Settings"
           subtitle="Manage login, theme, and navigation from one place."
         >
           {!isAuthenticated ? (
-            <Pressable
-              style={[styles.loginQuickAction, { backgroundColor: colors.tint }]}
+            <AppButton
+              label="Open Login"
+              icon="log-in-outline"
+              size="sm"
+              fullWidth={false}
               onPress={() =>
                 router.push({ pathname: "/login", params: { callbackUrl: "/(tabs)/account" } } as never)
               }
-            >
-              <Ionicons name="log-in-outline" size={16} color="#fff" />
-              <Text style={styles.loginQuickActionText}>Open Login</Text>
-            </Pressable>
+            />
           ) : null}
         </PageHeaderCard>
 
-        <View
-          style={[
-            styles.sectionCard,
-            {
-              backgroundColor: colors.card,
-              borderColor: colors.border,
-            },
-          ]}
-        >
+        <CardSurface style={styles.sectionCard} padding={14} radius={20}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <Ionicons name="person-outline" size={16} color={colors.tint} />
@@ -106,8 +118,8 @@ export default function SettingsScreen() {
                 style={[
                   styles.roleBadge,
                   {
-                    backgroundColor: session?.role === "admin" ? "rgba(239,68,68,0.14)" : "rgba(14,165,165,0.14)",
-                    borderColor: session?.role === "admin" ? "rgba(239,68,68,0.35)" : "rgba(14,165,165,0.35)",
+                    backgroundColor: session?.role === "admin" ? "rgba(239,68,68,0.14)" : "rgba(215,255,69,0.30)",
+                    borderColor: session?.role === "admin" ? "rgba(239,68,68,0.35)" : "rgba(18,60,44,0.30)",
                   },
                 ]}
               >
@@ -123,63 +135,51 @@ export default function SettingsScreen() {
             ) : null}
           </View>
 
-          <View style={styles.profileRow}>
-            <View
-              style={[
-                styles.avatar,
-                {
-                  backgroundColor: isDark ? "rgba(34,211,238,0.15)" : "rgba(14,165,165,0.14)",
-                },
-              ]}
-            >
-              <Text style={[styles.avatarText, { color: colors.tint }]}>{initial}</Text>
+          <PressableScale
+            accessibilityRole={isAuthenticated ? "button" : undefined}
+            accessibilityLabel={isAuthenticated ? "Manage your account" : undefined}
+            disabled={!isAuthenticated}
+            onPress={() => router.push("/profile" as never)}
+            style={styles.profileRow}
+          >
+            <View style={[styles.avatar, { backgroundColor: accentSoft(isDark) }]}>
+              <Text style={[styles.avatarText, { color: accentSoftText(isDark) }]}>{initial}</Text>
             </View>
             <View style={styles.profileTextWrap}>
               <Text style={[styles.name, { color: colors.text }]}>
                 {isAuthenticated ? displayName : "Not signed in"}
               </Text>
               <Text style={[styles.muted, { color: colors.notification }]}>
-                {isAuthenticated ? displayEmail : "Login to unlock compare, profile and watchlists."}
+                {isAuthenticated
+                  ? "Manage profile, security & MFA"
+                  : "Login to unlock compare, profile and watchlists."}
               </Text>
             </View>
-          </View>
+            {isAuthenticated ? (
+              <Ionicons name="chevron-forward-outline" size={18} color={colors.notification} />
+            ) : null}
+          </PressableScale>
 
           {isAuthenticated ? (
-            <Pressable
-              style={[
-                styles.logoutButton,
-                {
-                  backgroundColor: colors.tint,
-                },
-              ]}
+            <AppButton
+              label="Logout"
+              icon="log-out-outline"
+              size="md"
               onPress={logout}
-            >
-              <Ionicons name="log-out-outline" size={17} color="#fff" />
-              <Text style={styles.logoutButtonText}>Logout</Text>
-            </Pressable>
+            />
           ) : (
-            <View style={styles.authButtonWrap}>
-              <Pressable
-                style={[styles.authPrimaryButton, { backgroundColor: colors.tint }]}
-                onPress={() =>
-                  router.push({ pathname: "/login", params: { callbackUrl: "/(tabs)/account" } } as never)
-                }
-              >
-                <Text style={styles.authPrimaryButtonText}>Login</Text>
-              </Pressable>
-            </View>
+            <AppButton
+              label="Login"
+              icon="log-in-outline"
+              size="md"
+              onPress={() =>
+                router.push({ pathname: "/login", params: { callbackUrl: "/(tabs)/account" } } as never)
+              }
+            />
           )}
-        </View>
+        </CardSurface>
 
-        <View
-          style={[
-            styles.sectionCard,
-            {
-              backgroundColor: colors.card,
-              borderColor: colors.border,
-            },
-          ]}
-        >
+        <CardSurface style={styles.sectionCard} padding={14} radius={20}>
           <View style={styles.sectionTitleRow}>
             <Ionicons name="color-palette-outline" size={16} color={colors.tint} />
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Appearance</Text>
@@ -207,68 +207,68 @@ export default function SettingsScreen() {
               thumbColor="#f8fafc"
             />
           </View>
-        </View>
+        </CardSurface>
 
-        <View
-          style={[
-            styles.sectionCard,
-            {
-              backgroundColor: colors.card,
-              borderColor: colors.border,
-            },
-          ]}
-        >
+        <CardSurface style={styles.sectionCard} padding={14} radius={20}>
           <View style={styles.sectionTitleRow}>
-            <Ionicons name="grid-outline" size={16} color={colors.tint} />
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Links</Text>
+            <Ionicons name="compass-outline" size={16} color={colors.tint} />
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Tools & more</Text>
           </View>
 
-          <View style={styles.linksWrap}>
-            {quickLinks.map((item) => (
-              <Pressable
-                key={item.href}
-                style={[
-                  styles.linkItem,
-                  {
-                    borderColor: colors.border,
-                    backgroundColor: colors.background,
-                  },
-                ]}
-                onPress={() => router.push(item.href as never)}
-              >
-                <View style={styles.linkMain}>
-                  <View
-                    style={[
-                      styles.linkIconWrap,
-                      { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.14)" },
-                    ]}
-                  >
-                    <Ionicons name={item.icon} size={17} color={colors.tint} />
-                  </View>
-                  <View style={styles.linkTextWrap}>
-                    <Text style={[styles.linkTitle, { color: colors.text }]}>{item.title}</Text>
-                    <Text style={[styles.linkSubtitle, { color: colors.notification }]}>{item.subtitle}</Text>
-                  </View>
-                </View>
-                <Ionicons name="chevron-forward-outline" size={18} color={colors.notification} />
-              </Pressable>
-            ))}
-          </View>
-        </View>
+          {quickLinkGroups.map((group) => (
+            <View key={group} style={styles.linkGroup}>
+              <Text style={[styles.linkGroupLabel, { color: colors.notification }]}>{group.toUpperCase()}</Text>
+              <View style={styles.linksWrap}>
+                {quickLinks
+                  .filter((item) => item.group === group)
+                  .map((item) => (
+                    <PressableScale
+                      key={item.href}
+                      scaleTo={0.98}
+                      accessibilityRole="button"
+                      accessibilityLabel={item.title}
+                      accessibilityHint={item.subtitle}
+                      style={[
+                        styles.linkItem,
+                        {
+                          borderColor: colors.border,
+                          backgroundColor: colors.background,
+                        },
+                      ]}
+                      onPress={() => router.push(item.href as never)}
+                    >
+                      <View style={styles.linkMain}>
+                        <View style={[styles.linkIconWrap, { backgroundColor: accentSoft(isDark) }]}>
+                          <Ionicons name={item.icon} size={18} color={accentSoftText(isDark)} />
+                        </View>
+                        <View style={styles.linkTextWrap}>
+                          <Text style={[styles.linkTitle, { color: colors.text }]}>{item.title}</Text>
+                          <Text style={[styles.linkSubtitle, { color: colors.notification }]}>{item.subtitle}</Text>
+                        </View>
+                      </View>
+                      <Ionicons name="chevron-forward-outline" size={18} color={colors.notification} />
+                    </PressableScale>
+                  ))}
+              </View>
+            </View>
+          ))}
+        </CardSurface>
       </ScrollView>
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    alignItems: "center",
-  },
+  screen: {},
+  // Full-width scroll (like Home) so contentInsetAdjustmentBehavior="automatic"
+  // applies the top inset — an inset/centered scroll silently loses it, which
+  // pushed the hero under the Dynamic Island. Side margin lives in the content.
   scroll: {
-    width: "92%",
     flex: 1,
+    width: "100%",
   },
   content: {
+    paddingHorizontal: 16,
     paddingTop: 0,
     paddingBottom: 20,
     gap: 12,
@@ -289,9 +289,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   sectionCard: {
-    borderWidth: 1,
-    borderRadius: 14,
-    padding: 12,
     gap: 10,
   },
   sectionHeader: {
@@ -393,6 +390,15 @@ const styles = StyleSheet.create({
   },
   settingSubtitle: {
     fontSize: 12,
+    marginTop: 2,
+  },
+  linkGroup: {
+    gap: 8,
+  },
+  linkGroupLabel: {
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 0.8,
     marginTop: 2,
   },
   linksWrap: {

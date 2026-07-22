@@ -259,3 +259,108 @@ export interface PlayerHistoryResponse {
   history: PlayerHistoryEntry[];
   alerts: PlayerHistoryAlert[];
 }
+
+export type RecruitmentStage =
+  | "discovered"
+  | "video_review"
+  | "live_scouting"
+  | "shortlist"
+  | "approval"
+  | "negotiation"
+  | "rejected";
+export type RecruitmentPriority = "low" | "medium" | "high" | "critical";
+
+export interface RecruitmentCandidateInput {
+  playerId: string;
+  stage: RecruitmentStage;
+  priority: RecruitmentPriority;
+  assignee: string;
+  deadline: string | null;
+  notes: string;
+}
+
+export interface RecruitmentCandidate extends RecruitmentCandidateInput {
+  _id: string;
+  userId: string;
+  player: PlayerType | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ShadowTeamFormation = "4-3-3" | "4-2-3-1" | "4-4-2" | "3-5-2";
+
+export interface ShadowTeamAssignment {
+  slotId: string;
+  playerIds: string[];
+}
+
+export interface ShadowTeamSlot {
+  id: string;
+  label: string;
+  shortLabel: string;
+  positionGroup: string;
+  x: number;
+  y: number;
+}
+
+export interface ShadowTeamSummary {
+  _id: string;
+  userId: string;
+  name: string;
+  formation: ShadowTeamFormation;
+  assignments: ShadowTeamAssignment[];
+  filledSlots?: number;
+  candidateCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ShadowTeamPositionRef {
+  slotId: string;
+  label: string;
+  shortLabel: string;
+}
+
+export interface ShadowTeamAnalytics {
+  filledSlots: number;
+  totalSlots: number;
+  missingPositions: ShadowTeamPositionRef[];
+  overstaffedPositions: Array<ShadowTeamPositionRef & { count: number }>;
+  duplicatePlayers: Array<{ playerId: string; slotIds: string[] }>;
+  primaryPlayerCount: number;
+  averageAge: number | null;
+  averageElo: number | null;
+  totalMarketValue: number;
+}
+
+export interface ShadowTeamAlternative {
+  slotId: string;
+  players: Array<{ player: PlayerType; score: number; reasons: string[] }>;
+}
+
+export interface ShadowTeamDetail extends ShadowTeamSummary {
+  slots: ShadowTeamSlot[];
+  players: PlayerType[];
+  analytics?: ShadowTeamAnalytics;
+  alternatives?: ShadowTeamAlternative[];
+}
+
+export interface AccountProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin" | "user";
+  authProvider: "credentials" | "google";
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  emailVerified: boolean;
+  securityEmailsEnabled: boolean;
+  onboardingEmailsEnabled: boolean;
+  mfaEnabled: boolean;
+}
+
+export interface MfaSetupResponse {
+  secret: string;
+  otpAuthUrl: string;
+}

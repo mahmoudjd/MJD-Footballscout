@@ -5,6 +5,7 @@ import { Award } from "../../data/Types";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
 import { safeDecodeURIComponent } from "@/src/utils/playerDisplay";
+import AnimatedEntrance from "@/src/components/ui/AnimatedEntrance";
 
 type Props = {
   awards: Award[];
@@ -19,7 +20,7 @@ const Awards = ({ awards }: Props) => {
   return (
     <View style={[styles.sectionCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
       <View style={styles.titleRow}>
-        <View style={[styles.titleIconWrap, { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.12)" }]}>
+        <View style={[styles.titleIconWrap, { backgroundColor: isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.27)" }]}>
           <Ionicons name="star-outline" size={16} color={palette.tint} />
         </View>
         <Text style={[styles.sectionTitle, { color: palette.text }]}>Awards</Text>
@@ -27,17 +28,23 @@ const Awards = ({ awards }: Props) => {
 
       <View style={styles.grid}>
         {awards.map((award, index) => (
-          <View key={`${award.name}-${award.number}-${index}`} style={[styles.gridItem, twoColumns ? styles.gridItemHalf : null]}>
+          <AnimatedEntrance
+            key={`${award.name}-${award.number}-${index}`}
+            delay={index * 60}
+            style={[styles.gridItem, twoColumns ? styles.gridItemHalf : null]}
+          >
             <View style={[styles.itemCard, { borderColor: palette.border, backgroundColor: palette.background }]}>
-              <Ionicons name="star" size={19} color="#f59e0b" />
+              <View style={styles.iconChip}>
+                <Ionicons name="star" size={17} color="#f59e0b" />
+              </View>
               <Text style={[styles.itemName, { color: palette.text }]} numberOfLines={1}>
                 {safeDecodeURIComponent(award.name) || "-"}
               </Text>
-              <View style={[styles.countBadge, { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.12)" }]}>
+              <View style={[styles.countBadge, { backgroundColor: isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.27)" }]}>
                 <Text style={[styles.countText, { color: palette.tint }]}>{award.number || "-"}</Text>
               </View>
             </View>
-          </View>
+          </AnimatedEntrance>
         ))}
       </View>
     </View>
@@ -92,6 +99,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 9,
+  },
+  iconChip: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(245,158,11,0.16)",
   },
   itemName: {
     flex: 1,

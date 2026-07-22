@@ -1,1 +1,1 @@
-export { default } from "./(tabs)/watchlists";
+export { default } from "@/src/screens/WatchlistsScreen";

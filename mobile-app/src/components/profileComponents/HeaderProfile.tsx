@@ -1,5 +1,6 @@
 import * as React from "react";
-import { StyleSheet, View, Image, Text } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { PlayerType } from "../../data/Types";
@@ -70,7 +71,13 @@ const HeaderProfile = ({ player }: Props) => {
 
       <View style={styles.identityRow}>
         <View style={styles.avatarWrap}>
-          <Image source={{ uri: player.image }} style={styles.image} />
+          <Image
+            source={player.image || undefined}
+            style={styles.image}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={180}
+          />
         </View>
 
         <View style={styles.identityTextWrap}>
@@ -102,9 +109,9 @@ export default HeaderProfile;
 
 const styles = StyleSheet.create({
   hero: {
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    borderRadius: 22,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
     marginBottom: 10,
   },
   topMetaRow: {
@@ -137,10 +144,11 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   name: {
-    fontSize: 20,
+    fontSize: 23,
     fontWeight: "900",
     color: "#fff",
-    lineHeight: 24,
+    letterSpacing: -0.5,
+    lineHeight: 27,
   },
   subtitle: {
     marginTop: 3,

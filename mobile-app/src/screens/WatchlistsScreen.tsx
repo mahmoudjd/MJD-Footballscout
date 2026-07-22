@@ -1,17 +1,15 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
   Alert,
-  Image,
-  Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
@@ -35,12 +33,26 @@ import AppSelect from "@/src/components/ui/AppSelect";
 import { getPlayerDisplayName } from "@/src/utils/playerDisplay";
 import FeatureGuide, { GuideSection } from "@/src/components/ui/FeatureGuide";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
+import AppButton from "@/src/components/ui/AppButton";
+import PressableScale from "@/src/components/ui/PressableScale";
+import AnimatedEntrance from "@/src/components/ui/AnimatedEntrance";
+import { numeric, onTint, radius, shadow, spacing } from "@/src/constants/Theme";
 
 function formatBoardDate(value?: string) {
   if (!value) return "n/a";
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return "n/a";
   return parsed.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+// Position-colour ring for player avatars — matches the PlayerItem tones.
+function positionColor(position?: string) {
+  const p = position || "";
+  if (p.includes("Forward")) return "#f43f5e";
+  if (p.includes("Midfielder")) return "#10b981";
+  if (p.includes("Defender")) return "#0ea5e9";
+  if (p.includes("Goalkeeper")) return "#f59e0b";
+  return "#94a3b8";
 }
 
 const watchlistGuideSections: GuideSection[] = [
@@ -80,7 +92,6 @@ export default function WatchlistsScreen() {
   const { isDark } = useContext(AppContext);
   const { session, isAuthenticated, isAuthReady, refreshSession } = useAuth();
   const colorKey = isDark ? "dark" : "light";
-  const withTopInset = Platform.OS === "ios";
 
   const [watchlists, setWatchlists] = useState<WatchlistSummary[]>([]);
   const [selectedWatchlistId, setSelectedWatchlistId] = useState("");
@@ -346,21 +357,21 @@ export default function WatchlistsScreen() {
   );
 
   if (!isAuthReady) {
-    return <LoadingState withTopInset={withTopInset} />;
+    return <LoadingState />;
   }
 
   if (!isAuthenticated) {
     return (
       <AuthRequiredState
-        withTopInset={withTopInset}
         message="Watchlists are available only for logged-in users."
       />
     );
   }
 
   return (
-    <ScreenContainer withTopInset={withTopInset} style={styles.container}>
+    <ScreenContainer edgeToEdge style={styles.container}>
       <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
         style={styles.pageScroll}
         contentContainerStyle={styles.pageContent}
         showsVerticalScrollIndicator={false}
@@ -417,17 +428,14 @@ export default function WatchlistsScreen() {
               },
             ]}
           />
-          <Pressable
-            style={[
-              styles.primaryButton,
-              { backgroundColor: Colors[colorKey].tint },
-              isMutating ? styles.disabled : undefined,
-            ]}
+          <AppButton
+            label="Create watchlist"
+            icon="add"
+            size="md"
+            loading={isMutating}
             disabled={isMutating}
             onPress={handleCreateWatchlist}
-          >
-            <Text style={styles.primaryButtonText}>Create watchlist</Text>
-          </Pressable>
+          />
         </View>
 
         <View style={styles.boardsSection}>
@@ -445,7 +453,7 @@ export default function WatchlistsScreen() {
                 },
               ]}
             >
-              <Text style={[styles.boardsCountText, { color: Colors[colorKey].text }]}>{watchlists.length}</Text>
+              <Text style={[styles.boardsCountText, numeric, { color: Colors[colorKey].text }]}>{watchlists.length}</Text>
             </View>
           </View>
 
@@ -474,18 +482,22 @@ export default function WatchlistsScreen() {
               showsVerticalScrollIndicator
               nestedScrollEnabled
             >
-              {watchlists.map((item) => {
+              {watchlists.map((item, boardIndex) => {
                 const selected = item._id === selectedWatchlistId;
                 return (
-                  <Pressable
-                    key={item._id}
+                  <AnimatedEntrance key={item._id} delay={boardIndex * 55}>
+                  <PressableScale
+                    scaleTo={0.98}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={item.name}
                     onPress={() => setSelectedWatchlistId(item._id)}
                     style={[
                       styles.boardListItem,
                       {
                         borderColor: selected ? Colors[colorKey].tint : Colors[colorKey].border,
                         backgroundColor: selected
-                          ? (isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.08)")
+                          ? (isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.20)")
                           : Colors[colorKey].card,
                       },
                     ]}
@@ -517,7 +529,7 @@ export default function WatchlistsScreen() {
                           ]}
                         >
                           <Ionicons name="people-outline" size={11} color={Colors[colorKey].notification} />
-                          <Text style={[styles.boardListCountText, { color: Colors[colorKey].text }]}>
+                          <Text style={[styles.boardListCountText, numeric, { color: Colors[colorKey].text }]}>
                             {item.playerCount || 0}
                           </Text>
                         </View>
@@ -533,12 +545,13 @@ export default function WatchlistsScreen() {
                           <Ionicons
                             name={selected ? "checkmark" : "ellipse-outline"}
                             size={12}
-                            color={selected ? "#fff" : Colors[colorKey].notification}
+                            color={selected ? onTint(isDark) : Colors[colorKey].notification}
                           />
                         </View>
                       </View>
                     </View>
-                  </Pressable>
+                  </PressableScale>
+                  </AnimatedEntrance>
                 );
               })}
             </ScrollView>
@@ -586,7 +599,10 @@ export default function WatchlistsScreen() {
                     </View>
                   </View>
                 </View>
-                <Pressable
+                <PressableScale
+                  scaleTo={0.92}
+                  accessibilityRole="button"
+                  accessibilityLabel="Delete watchlist"
                   onPress={handleDeleteWatchlist}
                   style={[
                     styles.deleteButton,
@@ -598,7 +614,7 @@ export default function WatchlistsScreen() {
                   disabled={isMutating}
                 >
                   <Ionicons name="trash-outline" size={16} color="#ef4444" />
-                </Pressable>
+                </PressableScale>
               </View>
 
               <View style={styles.sectionTitleRow}>
@@ -633,22 +649,17 @@ export default function WatchlistsScreen() {
                   No available players to add.
                 </Text>
               ) : null}
-              <Pressable
-                style={[
-                  styles.primaryButton,
-                  styles.addPlayerButton,
-                  { backgroundColor: Colors[colorKey].tint },
-                  !selectedPlayerId || isMutating || isLoadingPlayers || availablePlayers.length === 0
-                    ? styles.disabled
-                    : undefined,
-                ]}
+              <AppButton
+                label="Add to watchlist"
+                icon="person-add"
+                size="md"
+                style={styles.addPlayerButton}
+                loading={isMutating}
                 disabled={
                   !selectedPlayerId || isMutating || isLoadingPlayers || availablePlayers.length === 0
                 }
                 onPress={handleAddPlayer}
-              >
-                <Text style={styles.primaryButtonText}>Add to watchlist</Text>
-              </Pressable>
+              />
 
               <View style={[styles.detailsDivider, { backgroundColor: Colors[colorKey].border }]} />
 
@@ -670,8 +681,8 @@ export default function WatchlistsScreen() {
                   nestedScrollEnabled
                 >
                   {selectedWatchlist.players.map((item, index) => (
+                    <AnimatedEntrance key={item._id} delay={index * 55}>
                     <View
-                      key={item._id}
                       style={[
                         styles.playerRow,
                         {
@@ -681,7 +692,13 @@ export default function WatchlistsScreen() {
                       ]}
                     >
                       <View style={styles.playerIdentity}>
-                        <Image source={{ uri: item.image }} style={styles.playerAvatar} />
+                        <Image
+                          source={item.image || undefined}
+                          style={[styles.playerAvatar, { borderColor: positionColor(item.position) }]}
+                          contentFit="cover"
+                          cachePolicy="memory-disk"
+                          transition={160}
+                        />
                         <View style={{ flex: 1 }}>
                           <Text style={{ color: Colors[colorKey].text, fontWeight: "700" }} numberOfLines={1}>
                             {getPlayerDisplayName(item)}
@@ -691,7 +708,10 @@ export default function WatchlistsScreen() {
                           </Text>
                         </View>
                       </View>
-                      <Pressable
+                      <PressableScale
+                        scaleTo={0.9}
+                        accessibilityRole="button"
+                        accessibilityLabel="Remove player"
                         onPress={() => handleRemovePlayer(item._id)}
                         disabled={isMutating}
                         style={[
@@ -703,9 +723,12 @@ export default function WatchlistsScreen() {
                         ]}
                       >
                         <Ionicons name="trash-outline" size={14} color="#ef4444" />
-                      </Pressable>
+                      </PressableScale>
                       <View style={styles.reorderActions}>
-                        <Pressable
+                        <PressableScale
+                          scaleTo={0.9}
+                          accessibilityRole="button"
+                          accessibilityLabel="Move up"
                           disabled={isMutating || index === 0}
                           onPress={() => handleMovePlayer(index, -1)}
                           style={[
@@ -715,8 +738,11 @@ export default function WatchlistsScreen() {
                           ]}
                         >
                           <Ionicons name="arrow-up" size={14} color={Colors[colorKey].notification} />
-                        </Pressable>
-                        <Pressable
+                        </PressableScale>
+                        <PressableScale
+                          scaleTo={0.9}
+                          accessibilityRole="button"
+                          accessibilityLabel="Move down"
                           disabled={isMutating || index === selectedWatchlist.players.length - 1}
                           onPress={() => handleMovePlayer(index, 1)}
                           style={[
@@ -728,9 +754,10 @@ export default function WatchlistsScreen() {
                           ]}
                         >
                           <Ionicons name="arrow-down" size={14} color={Colors[colorKey].notification} />
-                        </Pressable>
+                        </PressableScale>
                       </View>
                     </View>
+                    </AnimatedEntrance>
                   ))}
                 </ScrollView>
               )}
@@ -778,16 +805,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
     fontSize: 14,
-  },
-  primaryButton: {
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 10,
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontWeight: "700",
   },
   sectionTitle: {
     fontSize: 15,
@@ -976,6 +993,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
+    borderWidth: 2,
     backgroundColor: "#dbe4ec",
   },
   removeButton: {

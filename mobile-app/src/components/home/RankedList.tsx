@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
+import { radius, shadow, spacing, typography } from "@/src/constants/Theme";
 
 type RankedItem = {
   key: string;
@@ -18,35 +19,36 @@ type Props = {
 export default function RankedList({ title, emptyText, items }: Props) {
   const { isDark } = useContext(AppContext);
   const colorKey = isDark ? "dark" : "light";
+  const colors = Colors[colorKey];
 
   return (
     <View
       style={[
         styles.container,
+        shadow(isDark).sm,
         {
-          backgroundColor: Colors[colorKey].card,
-          borderColor: Colors[colorKey].border,
-          shadowColor: isDark ? "#000" : "#0f172a",
+          backgroundColor: colors.card,
+          borderColor: colors.border,
         },
       ]}
     >
-      <Text style={[styles.title, { color: Colors[colorKey].text }]}>{title}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
 
       {items.length === 0 ? (
-        <Text style={[styles.emptyText, { color: Colors[colorKey].notification }]}>
+        <Text style={[styles.emptyText, { color: colors.notification }]}>
           {emptyText}
         </Text>
       ) : (
-        items.map((item, index) => (
+        items.map((item) => (
           <View key={item.key} style={styles.row}>
             <Text
-              style={[styles.label, { color: Colors[colorKey].text }]}
+              style={[styles.label, { color: colors.text }]}
               numberOfLines={1}
             >
-              {index + 1}. {item.label}
+              {item.label}
             </Text>
-            <View style={styles.valueBadge}>
-              <Text style={styles.valueText}>{item.value}</Text>
+            <View style={[styles.valueBadge, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}>
+              <Text style={[styles.valueText, { color: colors.notification }]}>{item.value}</Text>
             </View>
           </View>
         ))
@@ -58,18 +60,13 @@ export default function RankedList({ title, emptyText, items }: Props) {
 const styles = StyleSheet.create({
   container: {
     borderWidth: 1,
-    borderRadius: 14,
-    padding: 12,
+    borderRadius: radius.lg,
+    padding: spacing.md,
     flex: 1,
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 1,
   },
   title: {
-    fontSize: 16,
-    fontWeight: "800",
-    marginBottom: 10,
+    ...typography.subheading,
+    marginBottom: spacing.md,
   },
   emptyText: {
     fontSize: 13,
@@ -79,7 +76,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 10,
-    gap: 8,
+    gap: spacing.sm,
   },
   label: {
     flex: 1,
@@ -87,17 +84,16 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   valueBadge: {
-    borderRadius: 999,
-    backgroundColor: "#0ea5a5",
+    borderWidth: 1,
+    borderRadius: radius.pill,
     minWidth: 30,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 3,
   },
   valueText: {
-    color: "#fff",
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "800",
   },
 });

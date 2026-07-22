@@ -1,10 +1,9 @@
 import React, { useCallback, useContext, useMemo, useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
   Alert,
   FlatList,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -31,6 +30,9 @@ import LoadingState from "@/src/components/ui/LoadingState";
 import { getPlayerDisplayName } from "@/src/utils/playerDisplay";
 import FeatureGuide, { GuideSection } from "@/src/components/ui/FeatureGuide";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
+import AppButton from "@/src/components/ui/AppButton";
+import PressableScale from "@/src/components/ui/PressableScale";
+import { accentSoft, accentSoftText, numeric, onTint, radius, spacing } from "@/src/constants/Theme";
 
 type CompareTab = "selection" | "results";
 type AppliedScope = "selection" | "all";
@@ -90,6 +92,8 @@ export default function CompareScreen() {
   const { isDark } = useContext(AppContext);
   const { session, isAuthenticated, isAuthReady, refreshSession } = useAuth();
   const colorKey = isDark ? "dark" : "light";
+  const colors = Colors[colorKey];
+  const onTintColor = onTint(isDark);
 
   const [players, setPlayers] = useState<PlayerType[]>([]);
   const [search, setSearch] = useState("");
@@ -241,13 +245,12 @@ export default function CompareScreen() {
   }, [session, refreshSession, players]);
 
   if (!isAuthReady) {
-    return <LoadingState withTopInset={Platform.OS === "ios"} />;
+    return <LoadingState />;
   }
 
   if (!isAuthenticated) {
     return (
       <AuthRequiredState
-        withTopInset={Platform.OS === "ios"}
         message="Compare is available only for logged-in users."
       />
     );
@@ -255,14 +258,14 @@ export default function CompareScreen() {
 
   if (isLoadingPlayers) {
     return (
-      <ScreenContainer style={styles.center}>
-        <ActivityIndicator animating size="large" color="#008fb3" />
+      <ScreenContainer edgeToEdge style={styles.center}>
+        <ActivityIndicator animating size="large" color={colors.tint} />
       </ScreenContainer>
     );
   }
 
   return (
-    <ScreenContainer withTopInset={Platform.OS === "ios"} style={styles.container}>
+    <ScreenContainer edgeToEdge style={styles.container}>
       <PageHeaderCard
         icon="git-compare-outline"
         title="Compare Players"
@@ -281,97 +284,73 @@ export default function CompareScreen() {
       </PageHeaderCard>
 
       <View style={styles.tabRow}>
-        <Pressable
-          style={[
-            styles.tabButton,
-            {
-              backgroundColor: activeTab === "selection" ? Colors[colorKey].tint : Colors[colorKey].card,
-              borderColor: activeTab === "selection" ? Colors[colorKey].tint : Colors[colorKey].border,
-            },
-            activeTab === "selection" ? styles.tabButtonActive : undefined,
-          ]}
-          onPress={() => setActiveTab("selection")}
-        >
-          <Text
-            style={[
-              styles.tabButtonText,
-              { color: activeTab === "selection" ? "#fff" : Colors[colorKey].notification },
-              activeTab === "selection" ? styles.tabButtonTextActive : undefined,
-            ]}
-          >
-            Selection
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.tabButton,
-            {
-              backgroundColor: activeTab === "results" ? Colors[colorKey].tint : Colors[colorKey].card,
-              borderColor: activeTab === "results" ? Colors[colorKey].tint : Colors[colorKey].border,
-            },
-            activeTab === "results" ? styles.tabButtonActive : undefined,
-          ]}
-          onPress={() => setActiveTab("results")}
-        >
-          <Text
-            style={[
-              styles.tabButtonText,
-              { color: activeTab === "results" ? "#fff" : Colors[colorKey].notification },
-              activeTab === "results" ? styles.tabButtonTextActive : undefined,
-            ]}
-          >
-            Results
-          </Text>
-        </Pressable>
+        {(["selection", "results"] as CompareTab[]).map((tab) => {
+          const active = activeTab === tab;
+          const icon = tab === "selection" ? "people-outline" : "podium-outline";
+          return (
+            <PressableScale
+              key={tab}
+              scaleTo={0.96}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: active }}
+              containerStyle={styles.tabButtonWrap}
+              style={[
+                styles.tabButton,
+                {
+                  backgroundColor: active ? colors.accent : colors.card,
+                  borderColor: active ? colors.accent : colors.border,
+                },
+              ]}
+              onPress={() => setActiveTab(tab)}
+            >
+              <Ionicons name={icon} size={16} color={active ? colors.accentText : colors.notification} />
+              <Text
+                style={[
+                  styles.tabButtonText,
+                  { color: active ? colors.accentText : colors.notification },
+                ]}
+              >
+                {tab === "selection" ? "Selection" : "Results"}
+              </Text>
+            </PressableScale>
+          );
+        })}
       </View>
 
       {activeTab === "selection" ? (
         <>
           <View style={styles.actionRow}>
-            <Pressable
-              style={[
-                styles.primaryButton,
-                { backgroundColor: Colors[colorKey].tint },
-                selectedIds.length < 2 || isComparing || !selectionDirty
-                  ? styles.disabledButton
-                  : undefined,
-              ]}
-              onPress={handleCompareSelection}
+            <AppButton
+              label="Compare selected"
+              icon="git-compare"
+              size="md"
+              fullWidth={false}
+              style={styles.actionPrimary}
+              loading={isComparing}
               disabled={selectedIds.length < 2 || isComparing || !selectionDirty}
-            >
-              <Text style={styles.primaryButtonText}>Compare selected players</Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.ghostButton,
-                { backgroundColor: Colors[colorKey].card, borderColor: Colors[colorKey].tint },
-                isComparing ? styles.disabledButton : undefined,
-              ]}
-              onPress={handleCompareAll}
+              onPress={handleCompareSelection}
+            />
+            <AppButton
+              label={`Compare all (${players.length})`}
+              variant="ghost"
+              size="md"
+              fullWidth={false}
               disabled={isComparing}
-            >
-              <Text style={[styles.ghostButtonText, { color: Colors[colorKey].tint }]}>
-                Compare all ({players.length})
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.ghostButton,
-                { backgroundColor: Colors[colorKey].card, borderColor: Colors[colorKey].tint },
-                selectedIds.length === 0 && appliedIds.length === 0 && !comparison
-                  ? styles.disabledButton
-                  : undefined,
-              ]}
+              onPress={handleCompareAll}
+            />
+            <AppButton
+              label="Clear"
+              variant="ghost"
+              size="md"
+              fullWidth={false}
+              disabled={selectedIds.length === 0 && appliedIds.length === 0 && !comparison}
               onPress={() => {
                 setSelectedIds([]);
                 setAppliedIds([]);
                 setAppliedScope("selection");
                 setComparison(null);
               }}
-              disabled={selectedIds.length === 0 && appliedIds.length === 0 && !comparison}
-            >
-              <Text style={[styles.ghostButtonText, { color: Colors[colorKey].tint }]}>Clear</Text>
-            </Pressable>
+            />
           </View>
 
           <TextInput
@@ -409,19 +388,16 @@ export default function CompareScreen() {
                 {selectedPlayersPreview.map((player) => (
                   <View
                     key={player._id}
-                    style={[
-                      styles.selectedChip,
-                      { backgroundColor: isDark ? "rgba(34,211,238,0.2)" : "rgba(14,165,165,0.14)" },
-                    ]}
+                    style={[styles.selectedChip, { backgroundColor: accentSoft(isDark) }]}
                   >
-                    <Text style={[styles.selectedChipText, { color: isDark ? "#67e8f9" : "#0e7490" }]}>
+                    <Text style={[styles.selectedChipText, { color: accentSoftText(isDark) }]}>
                       {getPlayerDisplayName(player)}
                     </Text>
                   </View>
                 ))}
                 {selectedOverflow > 0 ? (
-                  <View style={[styles.selectedChip, { backgroundColor: "#e2e8f0" }]}>
-                    <Text style={[styles.selectedChipText, { color: "#334155" }]}>
+                  <View style={[styles.selectedChip, { backgroundColor: colors.surfaceSoft }]}>
+                    <Text style={[styles.selectedChipText, { color: colors.notification }]}>
                       +{selectedOverflow} more
                     </Text>
                   </View>
@@ -435,13 +411,18 @@ export default function CompareScreen() {
           </View>
 
           <FlatList
+            contentInsetAdjustmentBehavior="automatic"
             data={visibleCandidates}
             keyExtractor={(item) => item._id}
             contentContainerStyle={{ paddingBottom: 24 }}
             renderItem={({ item }) => {
               const selected = selectedIds.includes(item._id);
               return (
-                <Pressable
+                <PressableScale
+                  scaleTo={0.98}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                  accessibilityLabel={getPlayerDisplayName(item)}
                   onPress={() => toggleSelection(item._id)}
                   style={[
                     styles.playerRow,
@@ -449,24 +430,34 @@ export default function CompareScreen() {
                         borderColor: selected ? Colors[colorKey].tint : Colors[colorKey].border,
                         backgroundColor: selected
                           ? isDark
-                            ? "rgba(34,211,238,0.14)"
-                            : "rgba(14,165,165,0.1)"
+                            ? "rgba(215,255,69,0.10)"
+                            : "rgba(215,255,69,0.24)"
                           : Colors[colorKey].card,
                       },
                   ]}
                 >
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: Colors[colorKey].text, fontWeight: "700", fontSize: 15 }}>
+                    <Text style={{ color: colors.text, fontWeight: "800", fontSize: 15 }}>
                       {getPlayerDisplayName(item)}
                     </Text>
-                    <Text style={{ color: Colors[colorKey].notification, fontSize: 12 }}>
+                    <Text style={{ color: colors.notification, fontSize: 12 }}>
                       {item.currentClub || item.country} • {item.position}
                     </Text>
                   </View>
-                  <Text style={{ color: Colors[colorKey].tint, fontWeight: "700" }}>
-                    {selected ? "Selected" : "Add"}
-                  </Text>
-                </Pressable>
+                  <View
+                    style={[
+                      styles.selectPill,
+                      selected
+                        ? { backgroundColor: colors.tint, borderColor: colors.tint }
+                        : { backgroundColor: "transparent", borderColor: colors.tint },
+                    ]}
+                  >
+                    {selected ? <Ionicons name="checkmark" size={13} color={onTintColor} /> : null}
+                    <Text style={{ color: selected ? onTintColor : colors.tint, fontWeight: "800", fontSize: 12 }}>
+                      {selected ? "Added" : "Add"}
+                    </Text>
+                  </View>
+                </PressableScale>
               );
             }}
             ListFooterComponent={
@@ -494,7 +485,12 @@ export default function CompareScreen() {
               </Text>
             </View>
           ) : (
-            <>
+            <ScrollView
+              style={styles.resultsScroll}
+              contentContainerStyle={styles.resultsScrollContent}
+              showsVerticalScrollIndicator={false}
+              contentInsetAdjustmentBehavior="automatic"
+            >
               <View
                 style={[
                   styles.statusCard,
@@ -530,18 +526,24 @@ export default function CompareScreen() {
                 ]}
               >
                 <Text style={[styles.cardTitle, { color: Colors[colorKey].text }]}>Leaders</Text>
-                <Text style={[styles.metricText, { color: Colors[colorKey].notification }]}>
-                  Highest ELO: {formatWinners(comparison.metrics.highestElo)}
-                </Text>
-                <Text style={[styles.metricText, { color: Colors[colorKey].notification }]}>
-                  Highest value: {formatWinners(comparison.metrics.highestMarketValue)}
-                </Text>
-                <Text style={[styles.metricText, { color: Colors[colorKey].notification }]}>
-                  Youngest: {formatWinners(comparison.metrics.youngest)}
-                </Text>
-                <Text style={[styles.metricText, { color: Colors[colorKey].notification }]}>
-                  Recently updated: {formatWinners(comparison.metrics.recentlyUpdated)}
-                </Text>
+                {[
+                  { icon: "stats-chart" as const, label: "Highest ELO", ids: comparison.metrics.highestElo, fg: "#10b981", soft: "rgba(16,185,129,0.14)" },
+                  { icon: "cash" as const, label: "Highest value", ids: comparison.metrics.highestMarketValue, fg: "#f59e0b", soft: "rgba(245,158,11,0.16)" },
+                  { icon: "hourglass" as const, label: "Youngest", ids: comparison.metrics.youngest, fg: "#8b5cf6", soft: "rgba(139,92,246,0.14)" },
+                  { icon: "time" as const, label: "Recently updated", ids: comparison.metrics.recentlyUpdated, fg: "#0ea5e9", soft: "rgba(14,165,233,0.14)" },
+                ].map((leader) => (
+                  <View key={leader.label} style={styles.leaderRow}>
+                    <View style={[styles.leaderIcon, { backgroundColor: leader.soft }]}>
+                      <Ionicons name={leader.icon} size={15} color={leader.fg} />
+                    </View>
+                    <View style={styles.grow}>
+                      <Text style={[styles.leaderLabel, { color: Colors[colorKey].notification }]}>{leader.label}</Text>
+                      <Text style={[styles.leaderValue, { color: Colors[colorKey].text }]} numberOfLines={2}>
+                        {formatWinners(leader.ids)}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
               </View>
 
               <View
@@ -583,16 +585,11 @@ export default function CompareScreen() {
                             styles.compareTableRow,
                             {
                               borderBottomColor: Colors[colorKey].border,
-                              backgroundColor:
-                                index % 2 === 0
-                                  ? Colors[colorKey].card
-                                  : isDark
-                                    ? "#1a2432"
-                                    : "#f8fbfd",
+                              backgroundColor: index % 2 === 0 ? colors.card : colors.surfaceSoft,
                             },
                           ]}
                         >
-                          <Text style={[styles.compareTableCell, styles.colRank, { color: Colors[colorKey].tint }]}>
+                          <Text style={[styles.compareTableCell, styles.colRank, numeric, { color: Colors[colorKey].tint, fontWeight: "800" }]}>
                             {index + 1}
                           </Text>
                           <Text style={[styles.compareTableCell, styles.colPlayer, { color: Colors[colorKey].text }]}>
@@ -616,16 +613,16 @@ export default function CompareScreen() {
                           >
                             {player?.position || "-"}
                           </Text>
-                          <Text style={[styles.compareTableCell, styles.colAge, { color: Colors[colorKey].text }]}>
+                          <Text style={[styles.compareTableCell, styles.colAge, numeric, { color: Colors[colorKey].text }]}>
                             {typeof player?.age === "number" ? player.age : "-"}
                           </Text>
-                          <Text style={[styles.compareTableCell, styles.colElo, { color: Colors[colorKey].text }]}>
+                          <Text style={[styles.compareTableCell, styles.colElo, numeric, { color: Colors[colorKey].text }]}>
                             {typeof player?.elo === "number" ? player.elo : "-"}
                           </Text>
-                          <Text style={[styles.compareTableCell, styles.colValue, { color: Colors[colorKey].text }]}>
+                          <Text style={[styles.compareTableCell, styles.colValue, numeric, { color: Colors[colorKey].text }]}>
                             {formatMarketValue(player)}
                           </Text>
-                          <Text style={[styles.compareTableCell, styles.colScore, { color: Colors[colorKey].text }]}>
+                          <Text style={[styles.compareTableCell, styles.colScore, numeric, { color: Colors[colorKey].text, fontWeight: "800" }]}>
                             {Number.isFinite(item.score) ? item.score.toFixed(2) : "-"}
                           </Text>
                         </View>
@@ -642,7 +639,7 @@ export default function CompareScreen() {
                   </Pressable>
                 ) : null}
               </View>
-            </>
+            </ScrollView>
           )}
         </View>
       )}
@@ -665,48 +662,39 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 8,
   },
-  tabButton: {
+  tabButtonWrap: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 10,
-    alignItems: "center",
   },
-  tabButtonActive: {
-    backgroundColor: "#008fb3",
+  tabButton: {
+    borderWidth: 1.5,
+    borderRadius: radius.md,
+    paddingVertical: 11,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
   },
   tabButtonText: {
-    fontWeight: "700",
-  },
-  tabButtonTextActive: {
-    color: "#fff",
+    fontWeight: "800",
+    letterSpacing: -0.2,
   },
   actionRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: spacing.sm,
     marginBottom: 10,
   },
-  primaryButton: {
-    borderRadius: 8,
+  actionPrimary: {
+    flexGrow: 1,
+  },
+  selectPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    borderWidth: 1.5,
+    borderRadius: radius.pill,
     paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontWeight: "700",
-  },
-  ghostButton: {
-    borderWidth: 1,
-    borderRadius: 9,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  ghostButtonText: {
-    fontWeight: "700",
-  },
-  disabledButton: {
-    opacity: 0.55,
+    paddingVertical: 6,
   },
   searchInput: {
     borderWidth: 1,
@@ -749,6 +737,12 @@ const styles = StyleSheet.create({
   resultsContainer: {
     flex: 1,
   },
+  resultsScroll: {
+    flex: 1,
+  },
+  resultsScrollContent: {
+    paddingBottom: 24,
+  },
   metricsCard: {
     borderWidth: 1,
     borderRadius: 10,
@@ -775,6 +769,34 @@ const styles = StyleSheet.create({
   metricText: {
     fontSize: 13,
     marginBottom: 4,
+  },
+  grow: {
+    flex: 1,
+    minWidth: 0,
+  },
+  leaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 6,
+  },
+  leaderIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  leaderLabel: {
+    fontSize: 10,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  leaderValue: {
+    fontSize: 13.5,
+    fontWeight: "700",
+    marginTop: 1,
   },
   rankRow: {
     borderWidth: 1,
