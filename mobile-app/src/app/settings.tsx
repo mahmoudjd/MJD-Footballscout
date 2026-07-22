@@ -12,6 +12,15 @@ import CardSurface from "@/src/components/ui/CardSurface";
 import AppButton from "@/src/components/ui/AppButton";
 import PressableScale from "@/src/components/ui/PressableScale";
 import { accentSoft, accentSoftText } from "@/src/constants/Theme";
+import * as WebBrowser from "expo-web-browser";
+import { LEGAL_URLS } from "@/src/constants/legal";
+
+const legalLinks: { title: string; icon: keyof typeof Ionicons.glyphMap; url: string }[] = [
+  { title: "Privacy Policy", icon: "shield-checkmark-outline", url: LEGAL_URLS.privacy },
+  { title: "Terms of Service", icon: "document-text-outline", url: LEGAL_URLS.terms },
+  { title: "Cookie Policy", icon: "information-circle-outline", url: LEGAL_URLS.cookies },
+  { title: "Impressum", icon: "business-outline", url: LEGAL_URLS.impressum },
+];
 
 type QuickLinkGroup = "Analysis" | "Scouting tools" | "Support";
 
@@ -252,6 +261,36 @@ export default function SettingsScreen() {
               </View>
             </View>
           ))}
+        </CardSurface>
+
+        <CardSurface style={styles.sectionCard} padding={14} radius={20}>
+          <View style={styles.sectionTitleRow}>
+            <Ionicons name="shield-outline" size={16} color={colors.tint} />
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Legal</Text>
+          </View>
+          <View style={styles.linksWrap}>
+            {legalLinks.map((item) => (
+              <PressableScale
+                key={item.url}
+                scaleTo={0.98}
+                accessibilityRole="button"
+                accessibilityLabel={item.title}
+                accessibilityHint={`Opens ${item.title} in your browser`}
+                style={[styles.linkItem, { borderColor: colors.border, backgroundColor: colors.background }]}
+                onPress={() => WebBrowser.openBrowserAsync(item.url)}
+              >
+                <View style={styles.linkMain}>
+                  <View style={[styles.linkIconWrap, { backgroundColor: accentSoft(isDark) }]}>
+                    <Ionicons name={item.icon} size={18} color={accentSoftText(isDark)} />
+                  </View>
+                  <View style={styles.linkTextWrap}>
+                    <Text style={[styles.linkTitle, { color: colors.text }]}>{item.title}</Text>
+                  </View>
+                </View>
+                <Ionicons name="open-outline" size={16} color={colors.notification} />
+              </PressableScale>
+            ))}
+          </View>
         </CardSurface>
       </ScrollView>
     </ScreenContainer>
