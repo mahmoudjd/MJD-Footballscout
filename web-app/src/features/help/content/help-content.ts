@@ -54,10 +54,10 @@ export const helpSteps: HelpStep[] = [
     action: "Open Watchlists",
   },
   {
-    title: "Plan a Shadow Team",
+    title: "Plan a Squad",
     description: "Place primary targets and alternatives into a formation and reveal squad gaps.",
     href: "/shadow-team",
-    action: "Build Shadow Team",
+    action: "Open Squad Builder",
   },
   {
     title: "Manage Recruitment",
@@ -126,7 +126,7 @@ export const faqGroups: FaqGroup[] = [
       },
       {
         id: "shadow-team",
-        question: "How does a Shadow Team work?",
+        question: "How does Squad Builder work?",
         answer:
           "Choose a formation and add candidates to each position. The first player is the primary choice; additional players form the positional shortlist. The dashboard then calculates coverage, age, ELO, estimated market value and recommended alternatives.",
         tips: [
@@ -190,9 +190,9 @@ export const faqGroups: FaqGroup[] = [
       },
       {
         id: "free-tools",
-        question: "Are Shadow Team and the Recruitment Workspace free?",
+        question: "Are Squad Builder and the Recruitment Workspace free?",
         answer:
-          "Yes. Every scouting tool — including Shadow Team and the Recruitment Workspace — is available to all signed-in users at no cost. There is no paid plan or subscription.",
+          "Yes. Every scouting tool — including Squad Builder and the Recruitment Workspace — is available to all signed-in users at no cost. There is no paid plan or subscription.",
       },
       {
         id: "advertising",
@@ -212,7 +212,7 @@ export const releaseNotes: ReleaseNote[] = [
     summary:
       "A major update combining recruitment planning, player intelligence, account security and a unified scouting experience.",
     highlights: [
-      "Build persistent Shadow Teams in four tactical formations with primary candidates and positional shortlists.",
+      "Build persistent squads in four tactical formations with primary candidates and positional shortlists.",
       "Analyze squad coverage, missing positions, duplicate assignments, average age, estimated value and average ELO.",
       "Discover explainable similar-player recommendations based on position, age, ELO, market value, preferred foot and nationality.",
       "Create structured scouting reports and review player history for ELO, market value and club changes.",
@@ -225,7 +225,7 @@ export const releaseNotes: ReleaseNote[] = [
       "Plan squad replacements with automatically suggested successors for vulnerable positions.",
       "Save talent searches, monitor changing match counts and surface new-player alerts.",
       "Rank the database with configurable Recruitment Fit Scores combining ELO, age, value and scouting progress.",
-      "Use Shadow Team and the Recruitment Workspace free of charge — every scouting tool is included for all signed-in users.",
+      "Use Squad Builder and the Recruitment Workspace free of charge — every scouting tool is included for all signed-in users.",
       "Keep the app free through clearly labelled, responsive advertising on content pages.",
       "Protect new registrations with email verification, expiring one-time links, transactional security notifications and TOTP multi-factor authentication with recovery codes.",
     ],

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s | MJD Football Scout",
   },
   description:
-    "Discover, compare, and shortlist football talent with player intelligence, Shadow Teams, and structured recruitment workflows.",
+    "Discover, compare, and shortlist football talent with player intelligence, Squad Builder, and structured recruitment workflows.",
   icons: {
     icon: "/favicon.ico",
   },

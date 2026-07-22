@@ -45,7 +45,7 @@ function HouseAd() {
           Plan your next transfer window like a pro.
         </Text>
         <Text as="p" variant="caption" tone="inherit" className="mt-1 text-emerald-100/80">
-          Shadow Team and the Recruitment Workspace are free for every scout.
+          Squad Builder and the Recruitment Workspace are free for every scout.
         </Text>
       </div>
       <Link
