@@ -38,13 +38,13 @@ export function PlayerSpotlightList({
     },
     glass: {
       container: "border-white/30 bg-white/12 text-white backdrop-blur-md",
-      title: "text-slate-100",
+      title: "text-stone-100",
       row: "border-white/25 bg-white/12",
       name: "text-white",
-      meta: "text-slate-200",
+      meta: "text-stone-200",
       badge: "border-amber-200/45 bg-amber-200/20 text-amber-50",
       link: "border-white/45 text-white hover:bg-white/15",
-      empty: "text-slate-200/90",
+      empty: "text-stone-200/90",
     },
   }[tone]
 
@@ -80,7 +80,7 @@ export function PlayerSpotlightList({
                   alt={player.name}
                   width={40}
                   height={40}
-                  className="h-10 w-10 rounded-full border border-white/35 bg-slate-200 object-cover"
+                  className="h-10 w-10 rounded-full border border-white/35 bg-stone-200 object-cover"
                   sizes="40px"
                 />
                 <div className="min-w-0">

@@ -22,7 +22,7 @@ const triggerToneClasses: Record<NonNullable<TabsTriggerProps["tone"]>, string> 
   default:
     "text-stone-600 hover:bg-white/70 hover:text-emerald-950 data-[state=active]:bg-emerald-950 data-[state=active]:text-white data-[state=active]:shadow-sm",
   glass:
-    "text-slate-200 hover:text-white data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-none",
+    "text-stone-200 hover:text-white data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-none",
 }
 
 export function Tabs({ className, ...props }: TabsProps) {

@@ -291,7 +291,7 @@ export default function ScoutingReports({ playerId }: ScoutingReportsProps) {
                           as="span"
                           variant="caption"
                           weight="semibold"
-                          className="text-slate-700"
+                          className="text-stone-700"
                         >
                           Strengths:
                         </Text>{" "}
@@ -302,7 +302,7 @@ export default function ScoutingReports({ playerId }: ScoutingReportsProps) {
                           as="span"
                           variant="caption"
                           weight="semibold"
-                          className="text-slate-700"
+                          className="text-stone-700"
                         >
                           Weaknesses:
                         </Text>{" "}

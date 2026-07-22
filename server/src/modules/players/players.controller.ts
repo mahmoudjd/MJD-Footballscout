@@ -4,7 +4,7 @@ import {ObjectId} from "mongodb";
 import {extractPlayerData} from "../../scraper/scrapingData";
 import {convert, isPlayerMatch, normalizeDate, normalizeName} from "../../scraper/utils";
 import logger from "../../logger/logger";
-import {ApiError} from "./scouting.controller";
+import {ApiError} from "../../middleware/customErrors";
 import {normalizePosition} from "../../scraper/position";
 
 function normalizePositionForStats(position: string | undefined) {

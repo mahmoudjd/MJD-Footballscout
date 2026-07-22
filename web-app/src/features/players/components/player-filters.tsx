@@ -48,7 +48,7 @@ function FilterLabel({ label, hint, htmlFor }: { label: string; hint: string; ht
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="h-6 w-6 rounded text-stone-400 hover:bg-transparent hover:text-stone-700"
+            className="h-6 w-6 rounded text-stone-500 hover:bg-transparent hover:text-stone-700"
             aria-label={`${label} help`}
           >
             <OutlineIcons.InformationCircleIcon className="h-4 w-4" aria-hidden="true" />

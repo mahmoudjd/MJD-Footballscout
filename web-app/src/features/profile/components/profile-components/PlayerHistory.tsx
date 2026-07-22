@@ -39,7 +39,7 @@ export default function PlayerHistory({ playerId }: PlayerHistoryProps) {
       ) : (
         <>
           <Panel>
-            <Text as="h4" weight="semibold" className="mb-3 text-slate-900">
+            <Text as="h4" weight="semibold" className="mb-3 text-stone-900">
               Recent alerts
             </Text>
             {historyQuery.data?.alerts.length ? (
@@ -90,7 +90,7 @@ export default function PlayerHistory({ playerId }: PlayerHistoryProps) {
               <tbody className="divide-y divide-stone-100">
                 {(historyQuery.data?.history || []).map((entry) => (
                   <tr key={entry._id}>
-                    <td className="px-4 py-3 text-slate-700">
+                    <td className="px-4 py-3 text-stone-700">
                       {historyDateFormatter.format(new Date(entry.timestamp))}
                     </td>
                     <td
@@ -99,17 +99,17 @@ export default function PlayerHistory({ playerId }: PlayerHistoryProps) {
                           ? "text-emerald-700"
                           : (entry.eloDelta || 0) < 0
                             ? "text-red-700"
-                            : "text-slate-700"
+                            : "text-stone-700"
                       }`}
                     >
                       {formatEloDelta(entry.eloDelta)}
                     </td>
-                    <td className="px-4 py-3 text-slate-700">
+                    <td className="px-4 py-3 text-stone-700">
                       {entry.valueChanged
                         ? `${entry.oldValue || "-"} → ${entry.newValue || "-"}`
                         : "-"}
                     </td>
-                    <td className="px-4 py-3 text-slate-700">
+                    <td className="px-4 py-3 text-stone-700">
                       {entry.clubChanged
                         ? `${entry.oldClub || "-"} → ${entry.newClub || "-"}`
                         : "-"}

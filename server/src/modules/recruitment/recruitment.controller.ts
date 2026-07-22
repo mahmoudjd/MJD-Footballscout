@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import { AppContext } from "../../context/types";
-import { ApiError } from "../players/scouting.controller";
+import { ApiError } from "../../middleware/customErrors";
 import { RecruitmentCandidateInputSchema } from "./recruitment-candidate.model";
 import { RecruitmentWorkspaceInputSchema } from "./recruitment-workspace.model";
 
