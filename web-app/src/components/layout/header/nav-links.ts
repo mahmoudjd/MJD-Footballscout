@@ -13,15 +13,16 @@ export const navLinks: NavLink[] = [
   { href: "/", label: "Home", icon: "GlobeAltIcon" },
   { href: "/players", label: "Players", icon: "UserGroupIcon" },
   { href: "/search", label: "Search", icon: "SparklesIcon" },
-  { href: "/compare", label: "Compare", icon: "ArrowsRightLeftIcon", authRequired: true },
-  { href: "/watchlists", label: "Watchlists", icon: "HeartIcon", authRequired: true },
+  // Squad Builder is a primary destination and sits before Compare & Watchlists,
+  // mirroring the mobile app's tab order.
   {
     href: "/shadow-team",
     label: "Squad Builder",
     icon: "Squares2X2Icon",
     authRequired: true,
-    secondary: true,
   },
+  { href: "/compare", label: "Compare", icon: "ArrowsRightLeftIcon", authRequired: true },
+  { href: "/watchlists", label: "Watchlists", icon: "HeartIcon", authRequired: true },
   {
     href: "/recruitment",
     label: "Recruitment",
