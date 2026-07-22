@@ -398,7 +398,7 @@ export function RecruitmentWorkspacePageView() {
               href="/shadow-team"
               className={buttonVariants({ variant: "primary", size: "sm" })}
             >
-              Open Shadow Team
+              Open Squad Builder
             </Link>
           </>
         }
