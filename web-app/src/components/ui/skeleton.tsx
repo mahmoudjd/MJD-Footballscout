@@ -9,7 +9,7 @@ interface SkeletonProps {
 const toneClasses: Record<NonNullable<SkeletonProps["tone"]>, string> = {
   default: "bg-stone-200",
   light: "bg-white/20",
-  dark: "bg-slate-700/35",
+  dark: "bg-stone-700/35",
 }
 
 export function Skeleton({ className, tone = "default" }: SkeletonProps) {

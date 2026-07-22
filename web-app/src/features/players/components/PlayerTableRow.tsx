@@ -21,26 +21,37 @@ import {
   toText,
 } from "@/features/players/components/player-utils"
 
-const positionStyles: Record<KnownPosition, { badge: string; dot: string }> = {
+/**
+ * `dot` is decorative — it sits beside the position label, so it only needs to
+ * be distinguishable, not readable. `numberBadge` carries white text, so it uses
+ * the darker 700 shade: the 500 shades all fail WCAG AA against white
+ * (amber-500 is 2.15:1, emerald-500 2.54:1, sky-500 2.77:1, rose-500 3.67:1).
+ */
+const positionStyles: Record<KnownPosition, { badge: string; dot: string; numberBadge: string }> = {
   Forward: {
     badge: "border-rose-200/80 bg-rose-50 text-rose-700",
     dot: "bg-rose-500",
+    numberBadge: "bg-rose-700",
   },
   Midfielder: {
     badge: "border-emerald-200/80 bg-emerald-50 text-emerald-700",
     dot: "bg-emerald-500",
+    numberBadge: "bg-emerald-700",
   },
   Defender: {
     badge: "border-sky-200/80 bg-sky-50 text-sky-700",
     dot: "bg-sky-500",
+    numberBadge: "bg-sky-700",
   },
   Goalkeeper: {
     badge: "border-amber-200/80 bg-amber-50 text-amber-700",
     dot: "bg-amber-500",
+    numberBadge: "bg-amber-700",
   },
   Manager: {
     badge: "border-stone-200 bg-stone-100 text-stone-700",
-    dot: "bg-stone-400",
+    dot: "bg-stone-500",
+    numberBadge: "bg-stone-700",
   },
 }
 
@@ -82,10 +93,10 @@ const PlayerTableRow = memo(
                 sizes="52px"
               />
               <span
-                className={`absolute -right-1 -bottom-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white px-1 text-[9px] font-bold text-white ${styles.dot}`}
-                aria-label={`Squad number ${toText(player.number, "unknown")}`}
+                className={`absolute -right-1 -bottom-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white px-1 text-[10px] font-bold text-white tabular-nums ${styles.numberBadge}`}
               >
-                {toText(player.number, "–")}
+                <span className="sr-only">{`Squad number ${toText(player.number, "unknown")}`}</span>
+                <span aria-hidden="true">{toText(player.number, "–")}</span>
               </span>
             </div>
             <div className="min-w-0">

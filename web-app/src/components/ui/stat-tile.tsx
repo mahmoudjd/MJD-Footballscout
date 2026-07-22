@@ -17,7 +17,7 @@ export function StatTile({ label, value, className, tone = "default" }: StatTile
     },
     glass: {
       container: "border-white/30 bg-white/12 text-white backdrop-blur-md",
-      label: "text-slate-200",
+      label: "text-stone-200",
       value: "text-lime-100",
     },
   }[tone]

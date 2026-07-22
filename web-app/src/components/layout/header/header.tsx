@@ -4,9 +4,11 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { OutlineIcons } from "@/components/icons/outline-icons"
 import {
+  isNavPathActive,
+  navLinkShortLabel,
   primaryNavLinks,
+  resolveNavHref,
   secondaryNavLinks,
-  type NavLink,
 } from "@/components/layout/header/nav-links"
 import { useSession, signOut } from "next-auth/react"
 import {
@@ -30,13 +32,7 @@ const Header = () => {
   const userInitial = userName.charAt(0).toUpperCase() || "A"
   const userRole = session?.user?.role === "admin" ? "Admin" : "User"
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`)
-
-  const resolveHref = (link: NavLink) =>
-    link.authRequired && !isAuthed
-      ? `/login?callbackUrl=${encodeURIComponent(link.href)}`
-      : link.href
+  const isActive = (href: string) => isNavPathActive(pathname, href)
 
   const moreActive = secondaryNavLinks.some((link) => isActive(link.href))
 
@@ -82,13 +78,13 @@ const Header = () => {
             return (
               <Link
                 key={link.href}
-                href={resolveHref(link)}
+                href={resolveNavHref(link, isAuthed)}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "inline-flex min-h-10 touch-manipulation items-center gap-1.5 rounded-lg px-3 py-2 transition-colors focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none",
                   active
                     ? "bg-emerald-950 text-white"
-                    : "text-emerald-950/60 hover:bg-emerald-950/5 hover:text-emerald-950",
+                    : "text-emerald-950/75 hover:bg-emerald-950/5 hover:text-emerald-950",
                 )}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
@@ -109,7 +105,7 @@ const Header = () => {
                   "inline-flex min-h-10 touch-manipulation items-center gap-1.5 rounded-lg px-3 py-2 transition-colors focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none",
                   moreActive
                     ? "bg-emerald-950 text-white"
-                    : "text-emerald-950/60 hover:bg-emerald-950/5 hover:text-emerald-950",
+                    : "text-emerald-950/75 hover:bg-emerald-950/5 hover:text-emerald-950",
                 )}
               >
                 <Text as="span" tone="inherit">
@@ -123,9 +119,13 @@ const Header = () => {
                 const Icon = OutlineIcons[link.icon]
                 return (
                   <DropdownMenuItem key={link.href} asChild>
-                    <Link href={resolveHref(link)} prefetch={false} className="gap-2">
+                    <Link
+                      href={resolveNavHref(link, isAuthed)}
+                      prefetch={false}
+                      className="gap-2"
+                    >
                       <Icon className="h-4 w-4" aria-hidden="true" />
-                      {link.label}
+                      {navLinkShortLabel(link)}
                     </Link>
                   </DropdownMenuItem>
                 )

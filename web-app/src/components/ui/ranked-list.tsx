@@ -32,10 +32,10 @@ export function RankedList({
     },
     glass: {
       container: "border-white/30 bg-white/12 text-white backdrop-blur-md",
-      title: "text-slate-100",
-      label: "text-slate-100",
+      title: "text-stone-100",
+      label: "text-stone-100",
       value: "border-amber-200/40 bg-amber-200/20 text-amber-50",
-      empty: "text-slate-200/90",
+      empty: "text-stone-200/90",
     },
   }[tone]
 

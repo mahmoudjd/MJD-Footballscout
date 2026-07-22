@@ -29,7 +29,7 @@ export function ScrollToTopButton() {
       aria-label="Scroll to top"
       variant="primary"
       size="icon"
-      className="fixed right-4 bottom-24 z-40 rounded-full shadow-lg md:right-6 md:bottom-6 md:z-50"
+      className="fixed right-4 bottom-[calc(6.25rem+env(safe-area-inset-bottom))] z-40 rounded-full shadow-lg md:right-6 md:bottom-6 md:z-50"
     >
       <OutlineIcons.ArrowUpIcon className="h-6 w-6" aria-hidden="true" />
     </Button>

@@ -58,7 +58,7 @@ function MetricLeaders({
 }) {
   return (
     <Panel className="space-y-3">
-      <Text as="h3" variant="body-lg" weight="semibold" className="text-slate-900">
+      <Text as="h3" variant="body-lg" weight="semibold" className="text-stone-900">
         Leaders
       </Text>
       <div className="grid grid-cols-1 gap-2">
@@ -66,7 +66,7 @@ function MetricLeaders({
           <Text as="p" variant="overline" weight="semibold" tone="subtle">
             Highest ELO
           </Text>
-          <Text as="p" className="mt-1 text-slate-800">
+          <Text as="p" className="mt-1 text-stone-800">
             {metricWinners(metrics?.highestElo, playersById)}
           </Text>
         </div>
@@ -74,7 +74,7 @@ function MetricLeaders({
           <Text as="p" variant="overline" weight="semibold" tone="subtle">
             Highest Market Value
           </Text>
-          <Text as="p" className="mt-1 text-slate-800">
+          <Text as="p" className="mt-1 text-stone-800">
             {metricWinners(metrics?.highestMarketValue, playersById)}
           </Text>
         </div>
@@ -82,7 +82,7 @@ function MetricLeaders({
           <Text as="p" variant="overline" weight="semibold" tone="subtle">
             Youngest
           </Text>
-          <Text as="p" className="mt-1 text-slate-800">
+          <Text as="p" className="mt-1 text-stone-800">
             {metricWinners(metrics?.youngest, playersById)}
           </Text>
         </div>
@@ -90,7 +90,7 @@ function MetricLeaders({
           <Text as="p" variant="overline" weight="semibold" tone="subtle">
             Recently Updated
           </Text>
-          <Text as="p" className="mt-1 text-slate-800">
+          <Text as="p" className="mt-1 text-stone-800">
             {metricWinners(metrics?.recentlyUpdated, playersById)}
           </Text>
         </div>
@@ -116,7 +116,7 @@ function ScoreboardCards({
         <article key={player._id} className="rounded-lg border border-stone-200 p-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <Text as="p" weight="semibold" className="truncate text-slate-900">
+              <Text as="p" weight="semibold" className="truncate text-stone-900">
                 {rankOrderById.get(player._id) || "-"} . {player.name}
               </Text>
               <Text as="p" variant="caption" tone="muted" className="truncate">
@@ -247,7 +247,7 @@ function Scoreboard({
 }) {
   return (
     <Panel className="space-y-3">
-      <Text as="h3" variant="body-lg" weight="semibold" className="text-slate-900">
+      <Text as="h3" variant="body-lg" weight="semibold" className="text-stone-900">
         Scoreboard
       </Text>
       <ScoreboardCards
@@ -298,10 +298,10 @@ export function CompareResultsPanel({
   return (
     <>
       <Panel className="space-y-2">
-        <Text as="h3" variant="body-lg" weight="semibold" className="text-slate-900">
+        <Text as="h3" variant="body-lg" weight="semibold" className="text-stone-900">
           Comparison status
         </Text>
-        <Text as="p" className="text-slate-700">
+        <Text as="p" className="text-stone-700">
           Applied players:{" "}
           <Text as="span" weight="semibold">
             {appliedScope === "all" ? allPlayersCount : appliedIdsCount}

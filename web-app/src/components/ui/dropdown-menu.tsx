@@ -26,7 +26,7 @@ export function DropdownMenuTrigger(props: DropdownMenuTriggerProps) {
 
 const contentToneClasses: Record<NonNullable<DropdownMenuContentProps["tone"]>, string> = {
   default: "border-emerald-950/10 bg-white",
-  glass: "border-white/30 bg-slate-900/80 text-white backdrop-blur-md",
+  glass: "border-white/30 bg-stone-900/80 text-white backdrop-blur-md",
 }
 
 export function DropdownMenuContent({
