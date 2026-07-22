@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useMemo, useState } from "react";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { router, useFocusEffect, useNavigation } from "expo-router";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Pressable,
   FlatList,
+  RefreshControl,
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,6 +23,7 @@ import PlayerItem from "@/src/components/PlayerItem";
 import AppSelect from "@/src/components/ui/AppSelect";
 import FeatureGuide, { GuideSection } from "@/src/components/ui/FeatureGuide";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
+import { PlayerListEmptyState, PlayerListSkeleton } from "@/src/components/PlayerListStates";
 
 type SortByOption = AdvancedSortBy | "";
 type SortOrderOption = AdvancedSortOrder | "";
@@ -107,6 +109,7 @@ export default function PlayerList() {
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [elemsPerPage, setElemsPerPage] = useState(10);
   const [totalPlayers, setTotalPlayers] = useState(0);
@@ -290,7 +293,7 @@ export default function PlayerList() {
     }
 
     if (!session?.accessToken) {
-      Alert.alert("Login required", "Bitte zuerst einloggen.");
+      Alert.alert("Login required", "Please sign in first.");
       return;
     }
 
@@ -301,7 +304,7 @@ export default function PlayerList() {
         refreshSession,
         request: (token) => updateAllPlayers(token),
       });
-      Alert.alert("Success", response.message || "Alle Spieler wurden aktualisiert.");
+      Alert.alert("Success", response.message || "All players were updated.");
       playersPageCacheRef.current.clear();
       await fetchNationalities();
       await fetchFilteredData({ force: true });
@@ -321,8 +324,8 @@ export default function PlayerList() {
     }
 
     Alert.alert(
-      "Alle Spieler aktualisieren",
-      "Möchtest du wirklich alle Spieler neu laden?",
+      "Update all players",
+      "Do you really want to reload all players?",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -348,10 +351,22 @@ export default function PlayerList() {
     setCurrentPage(1);
   }, []);
 
-  const renderPlayerOfPage = (page: number) => {
+  const refreshPlayers = useCallback(async () => {
+    setIsRefreshing(true);
+    playersPageCacheRef.current.clear();
+    try {
+      await Promise.all([fetchNationalities(), fetchFilteredData({ force: true })]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [fetchFilteredData, fetchNationalities]);
+
+  const renderPlayerOfPage = useCallback((page: number) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
-  };
+  }, [totalPages]);
+
+  const renderPlayer = useCallback(({ item }: { item: PlayerType }) => <PlayerItem player={item} />, []);
 
   const pageSizeOptions = useMemo(
     () => [
@@ -369,15 +384,23 @@ export default function PlayerList() {
       headerRight: () => (
         <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginRight: 8 }}>
           {isAdmin ? (
-            <Pressable disabled={isUpdatingAll} onPress={confirmUpdateAll}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Update all players"
+              accessibilityState={{ disabled: isUpdatingAll }}
+              disabled={isUpdatingAll}
+              hitSlop={10}
+              onPress={confirmUpdateAll}
+            >
               <Ionicons name="cloud-download-outline" size={24} color={headerIconColor} />
             </Pressable>
           ) : null}
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Refresh players"
+            hitSlop={10}
             onPress={async () => {
-              playersPageCacheRef.current.clear();
-              await fetchNationalities();
-              await fetchFilteredData({ force: true });
+              await refreshPlayers();
             }}
           >
             <Text>
@@ -387,16 +410,33 @@ export default function PlayerList() {
         </View>
       ),
     });
-  }, [navigation, fetchFilteredData, fetchNationalities, confirmUpdateAll, isAdmin, isUpdatingAll, isDark]);
+  }, [navigation, confirmUpdateAll, isAdmin, isUpdatingAll, isDark, refreshPlayers]);
 
   return (
-    <View
-      style={[
-        { backgroundColor: Colors[isDark ? "dark" : "light"].background },
-        styles.container,
-      ]}
-    >
-      <PageHeaderCard
+    <FlatList
+      data={loading && !hasLoadedOnce ? [] : players}
+      renderItem={renderPlayer}
+      keyExtractor={(player) => player._id}
+      contentInsetAdjustmentBehavior="automatic"
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      initialNumToRender={8}
+      maxToRenderPerBatch={8}
+      windowSize={7}
+      removeClippedSubviews
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={refreshPlayers}
+          tintColor={Colors[isDark ? "dark" : "light"].tint}
+          colors={[Colors[isDark ? "dark" : "light"].tint]}
+        />
+      }
+      ListHeaderComponent={(
+        <>
+          <PageHeaderCard
         icon="people-outline"
         title="Player Directory"
         subtitle={`${
@@ -410,7 +450,7 @@ export default function PlayerList() {
               styles.countBadge,
               {
                 borderColor: Colors[isDark ? "dark" : "light"].border,
-                backgroundColor: isDark ? "rgba(34,211,238,0.15)" : "rgba(14,165,165,0.1)",
+                backgroundColor: isDark ? "rgba(201,226,101,0.11)" : "rgba(215,255,69,0.24)",
               },
             ]}
           >
@@ -427,9 +467,36 @@ export default function PlayerList() {
           sections={playerFiltersGuideSections}
           triggerLabel="Filter help"
         />
-      </PageHeaderCard>
+          </PageHeaderCard>
 
-      <Filter
+          <Pressable
+            accessibilityRole="search"
+            accessibilityLabel="Search players or add new ones"
+            onPress={() => router.push("/search")}
+            style={({ pressed }) => [
+              styles.searchEntry,
+              {
+                borderColor: Colors[isDark ? "dark" : "light"].border,
+                backgroundColor: Colors[isDark ? "dark" : "light"].card,
+                opacity: pressed ? 0.75 : 1,
+              },
+            ]}
+          >
+            <Ionicons name="search" size={18} color={Colors[isDark ? "dark" : "light"].notification} />
+            <Text style={[styles.searchEntryText, { color: Colors[isDark ? "dark" : "light"].notification }]}>
+              Search players or add new…
+            </Text>
+            <View
+              style={[
+                styles.searchEntryBadge,
+                { backgroundColor: isDark ? "rgba(201,226,101,0.14)" : "rgba(215,255,69,0.30)" },
+              ]}
+            >
+              <Ionicons name="add" size={15} color={Colors[isDark ? "dark" : "light"].tint} />
+            </View>
+          </Pressable>
+
+          <Filter
         nationalities={nationalities}
         selectedPosition={selectedPosition}
         selectedAgeGroup={selectedAgeGroup}
@@ -482,9 +549,9 @@ export default function PlayerList() {
           setCurrentPage(1);
         }}
         onReset={resetFilters}
-      />
+          />
 
-      <View
+          <View
         style={[
           styles.pageSizeRow,
           {
@@ -512,73 +579,81 @@ export default function PlayerList() {
             }
           }}
         />
-      </View>
+          </View>
 
-      {loading && !hasLoadedOnce ? (
-        <View style={styles.center}>
-          <ActivityIndicator animating={true} size="large" color="#008fb3" />
-        </View>
-      ) : errorMessage ? (
-        <View style={styles.errorBox}>
-          <Text style={styles.errorText}>{errorMessage}</Text>
-        </View>
-      ) : players.length === 0 ? (
-        <View style={styles.errorBox}>
-          <Text style={{ color: Colors[isDark ? "dark" : "light"].notification }}>
-            No players found for current filters.
-          </Text>
-        </View>
-      ) : (
-        <>
           {showPageLoadingIndicator ? (
             <View style={styles.pageLoadingRow}>
-              <ActivityIndicator size="small" color="#008fb3" />
+              <ActivityIndicator size="small" color={Colors[isDark ? "dark" : "light"].tint} />
               <Text style={{ color: Colors[isDark ? "dark" : "light"].notification }}>
                 Updating page...
               </Text>
             </View>
           ) : null}
 
-          <Pagination
+          {!loading && !errorMessage && players.length > 0 ? <View style={styles.playerTable}>
+            <View style={styles.tableHeading}>
+              <Text style={[styles.tableTitle, { color: Colors[isDark ? "dark" : "light"].text }]}>Players</Text>
+              <Text style={[styles.tableCount, { color: Colors[isDark ? "dark" : "light"].notification }]}>Page {currentPage} · {players.length} rows</Text>
+            </View>
+          </View> : null}
+        </>
+      )}
+      ListEmptyComponent={
+        loading && !hasLoadedOnce ? (
+          <PlayerListSkeleton />
+        ) : (
+          <PlayerListEmptyState
+            error={errorMessage || undefined}
+            onAction={errorMessage ? refreshPlayers : resetFilters}
+          />
+        )
+      }
+      ListFooterComponent={players.length > 0 && !errorMessage ? (
+        <Pagination
             renderPlayerOfPage={renderPlayerOfPage}
             totalPages={totalPages}
             currentPage={currentPage}
             isLoading={isPageLoading}
           />
-
-          <FlatList
-            data={players}
-            renderItem={({ item }) => <PlayerItem player={item} />}
-            numColumns={1}
-            keyExtractor={(item) => item._id}
-            contentContainerStyle={{ gap: 0, padding: 5, paddingBottom: 20 }}
-          />
-        </>
-      )}
-    </View>
+      ) : null}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  errorBox: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  errorText: {
-    fontSize: 16,
-    color: "red",
-    textAlign: "center",
-  },
   container: {
     width: "100%",
     flex: 1,
-    marginBottom: 5,
-    paddingHorizontal: 15,
+  },
+  content: {
+    paddingHorizontal: 8,
+    paddingBottom: 28,
   },
   pageHeader: {
     marginBottom: 8,
+  },
+  searchEntry: {
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingLeft: 12,
+    paddingRight: 8,
+    minHeight: 46,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 8,
+  },
+  searchEntryText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  searchEntryBadge: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerActionsRow: {
     flexDirection: "row",
@@ -598,11 +673,6 @@ const styles = StyleSheet.create({
   countBadgeText: {
     fontSize: 11,
     fontWeight: "700",
-  },
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
   pageSizeRow: {
     marginTop: 7,
@@ -626,5 +696,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+  },
+  playerTable: {
+    width: "100%",
+    marginTop: 5,
+  },
+  tableHeading: {
+    minHeight: 42,
+    paddingHorizontal: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  tableTitle: {
+    fontSize: 18,
+    fontWeight: "900",
+  },
+  tableCount: {
+    fontSize: 11,
+    fontWeight: "700",
   },
 });

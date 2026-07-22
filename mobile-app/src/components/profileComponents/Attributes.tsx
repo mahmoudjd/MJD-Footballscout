@@ -5,6 +5,9 @@ import { Attribute } from "../../data/Types";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
 import { safeDecodeURIComponent } from "@/src/utils/playerDisplay";
+import AnimatedBar from "@/src/components/ui/AnimatedBar";
+import AnimatedEntrance from "@/src/components/ui/AnimatedEntrance";
+import { numeric } from "@/src/constants/Theme";
 
 type Props = {
   attributes: Attribute[];
@@ -26,10 +29,10 @@ function toAttributeScore(value: string) {
   return Math.max(0, Math.min(100, parsed));
 }
 
-function getScoreColor(score: number) {
-  if (score >= 80) return "#16a34a";
-  if (score >= 60) return "#f59e0b";
-  return "#ef4444";
+function getScoreTone(score: number) {
+  if (score >= 80) return { fg: "#16a34a", soft: "rgba(22,163,74,0.14)" };
+  if (score >= 60) return { fg: "#f59e0b", soft: "rgba(245,158,11,0.16)" };
+  return { fg: "#ef4444", soft: "rgba(239,68,68,0.14)" };
 }
 
 const Attributes = ({ attributes }: Props) => {
@@ -42,7 +45,7 @@ const Attributes = ({ attributes }: Props) => {
         <View
           style={[
             styles.titleIconWrap,
-            { backgroundColor: isDark ? "rgba(34,211,238,0.14)" : "rgba(14,165,165,0.12)" },
+            { backgroundColor: isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.27)" },
           ]}
         >
           <Ionicons name="speedometer-outline" size={16} color={palette.tint} />
@@ -54,44 +57,42 @@ const Attributes = ({ attributes }: Props) => {
         {attributes.map((attr, index) => {
           const decodedName = safeDecodeURIComponent(attr.name) || "Attribute";
           const score = toAttributeScore(attr.value || "");
-          const barColor = getScoreColor(score);
+          const tone = getScoreTone(score);
           const icon = attributeIcons[decodedName.toLowerCase()] || "sparkles-outline";
 
           return (
-            <View
-              key={`${attr.name}-${attr.value}-${index}`}
-              style={[
-                styles.row,
-                {
-                  borderColor: palette.border,
-                  backgroundColor: palette.background,
-                },
-              ]}
-            >
-              <View style={styles.rowTop}>
-                <View style={styles.labelWrap}>
-                  <Ionicons name={icon} size={15} color={palette.tint} />
-                  <Text style={[styles.label, { color: palette.text }]} numberOfLines={1}>
-                    {decodedName}
-                  </Text>
+            <AnimatedEntrance key={`${attr.name}-${attr.value}-${index}`} delay={index * 70}>
+              <View
+                style={[
+                  styles.row,
+                  {
+                    borderColor: palette.border,
+                    backgroundColor: palette.background,
+                  },
+                ]}
+              >
+                <View style={styles.rowTop}>
+                  <View style={styles.labelWrap}>
+                    <View style={[styles.iconChip, { backgroundColor: tone.soft }]}>
+                      <Ionicons name={icon} size={14} color={tone.fg} />
+                    </View>
+                    <Text style={[styles.label, { color: palette.text }]} numberOfLines={1}>
+                      {decodedName}
+                    </Text>
+                  </View>
+                  <View style={[styles.valueBadge, { backgroundColor: tone.fg }]}>
+                    <Text style={[styles.valueText, numeric]}>{score || "-"}</Text>
+                  </View>
                 </View>
-                <View style={[styles.valueBadge, { backgroundColor: barColor }]}>
-                  <Text style={styles.valueText}>{score || "-"}</Text>
-                </View>
-              </View>
 
-              <View style={[styles.track, { backgroundColor: isDark ? "#233246" : "#dce7ee" }]}>
-                <View
-                  style={[
-                    styles.fill,
-                    {
-                      width: `${score}%`,
-                      backgroundColor: barColor,
-                    },
-                  ]}
+                <AnimatedBar
+                  progress={score}
+                  color={tone.fg}
+                  trackColor={isDark ? "#233246" : "#dce7ee"}
+                  delay={index * 70}
                 />
               </View>
-            </View>
+            </AnimatedEntrance>
           );
         })}
       </View>
@@ -146,9 +147,16 @@ const styles = StyleSheet.create({
   labelWrap: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
     flex: 1,
     minWidth: 0,
+  },
+  iconChip: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
   label: {
     fontSize: 13,
@@ -166,15 +174,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "800",
     fontSize: 12,
-  },
-  track: {
-    width: "100%",
-    height: 8,
-    borderRadius: 999,
-    overflow: "hidden",
-  },
-  fill: {
-    height: "100%",
-    borderRadius: 999,
   },
 });

@@ -54,7 +54,6 @@ export function MobileTabBar() {
       "/forgot-password",
       "/reset-password",
       "/help",
-      "/pricing",
     ].some((route) => isPathActive(pathname, route))
   }, [pathname])
 
@@ -122,16 +121,6 @@ export function MobileTabBar() {
           </DialogHeader>
 
           <div className="mt-4 grid gap-2">
-            <Link
-              href="/pricing"
-              prefetch={false}
-              onClick={() => setIsMoreOpen(false)}
-              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-2xl border border-lime-300/70 bg-lime-50 px-3 py-2.5 text-sm font-semibold text-emerald-950 transition-[background-color,border-color,color] hover:border-lime-400 hover:bg-lime-100 focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none"
-            >
-              <OutlineIcons.CurrencyEuroIcon className="h-5 w-5" aria-hidden="true" />
-              Premium & Billing
-            </Link>
-
             <Link
               href={
                 status === "authenticated"

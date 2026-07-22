@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from "re
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
+import { onTint } from "@/src/constants/Theme";
 import { AppContext } from "@/src/context/AppContext";
 import { hasSeenHelpGuide, markHelpGuideAsSeen } from "@/src/utils/helpGuideStorage";
 
@@ -169,7 +170,7 @@ export default function FeatureGuide({
                   }}
                   style={[styles.primaryButton, { backgroundColor: Colors[colorKey].tint }]}
                 >
-                  <Text style={styles.primaryButtonText}>Got it</Text>
+                  <Text style={[styles.primaryButtonText, { color: onTint(isDark) }]}>Got it</Text>
                 </Pressable>
               </View>
             </View>
@@ -197,7 +198,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(2,6,23,0.38)",
+    backgroundColor: "rgba(6,28,19,0.48)",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 16,
@@ -207,8 +208,8 @@ const styles = StyleSheet.create({
     maxWidth: 520,
     maxHeight: "86%",
     borderWidth: 1,
-    borderRadius: 16,
-    padding: 14,
+    borderRadius: 24,
+    padding: 18,
   },
   headerRow: {
     flexDirection: "row",
@@ -299,7 +300,6 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
   },
   primaryButtonText: {
-    color: "#fff",
     fontWeight: "700",
   },
 });

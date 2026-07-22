@@ -1,12 +1,13 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState, useMemo } from "react";
 import { AppContext } from "../context/AppContext";
 import { AuthProvider } from "../context/AuthContext";
 import Colors from "../constants/Colors";
 import { StatusBar } from "expo-status-bar";
+import * as SystemUI from "expo-system-ui";
 import { useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
@@ -56,6 +57,12 @@ function RootLayoutNav() {
   );
 
   const appContext = useMemo(() => ({ isDark, setIsDark }), [isDark]);
+
+  // Paint the native root window so the home-indicator / behind-nav area never
+  // falls back to the default black window (showed as a black bar at the bottom).
+  useEffect(() => {
+    void SystemUI.setBackgroundColorAsync(Colors[isDark ? "dark" : "light"].background);
+  }, [isDark]);
   const paperTheme = useMemo(() => {
     const colorKey = isDark ? "dark" : "light";
     const baseTheme = isDark ? MD3DarkTheme : MD3LightTheme;
@@ -65,7 +72,7 @@ function RootLayoutNav() {
       colors: {
         ...baseTheme.colors,
         primary: Colors[colorKey].tint,
-        secondary: "#0f766e",
+        secondary: "#65a30d",
         background: Colors[colorKey].background,
         surface: Colors[colorKey].card,
         surfaceVariant: isDark ? "#263445" : "#e7eef2",
@@ -75,12 +82,38 @@ function RootLayoutNav() {
     };
   }, [isDark]);
 
+  const navigationTheme = useMemo(() => {
+    const baseTheme = isDark ? DarkTheme : DefaultTheme;
+    const colorKey = isDark ? "dark" : "light";
+
+    return {
+      ...baseTheme,
+      colors: {
+        ...baseTheme.colors,
+        primary: Colors[colorKey].tint,
+        background: Colors[colorKey].background,
+        card: Colors[colorKey].card,
+        text: Colors[colorKey].text,
+        border: Colors[colorKey].border,
+        notification: Colors[colorKey].accent,
+      },
+    };
+  }, [isDark]);
+
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: Colors[isDark ? "dark" : "light"].background }}>
       <PaperProvider theme={paperTheme}>
         <AuthProvider>
           <AppContext.Provider value={appContext}>
-            <Stack>
+            <ThemeProvider value={navigationTheme}>
+              <Stack
+                screenOptions={{
+                  contentStyle: { backgroundColor: Colors[isDark ? "dark" : "light"].background },
+                  headerShadowVisible: false,
+                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
+                  headerStyle: { backgroundColor: Colors[isDark ? "dark" : "light"].card },
+                }}
+              >
               <Stack.Screen
                 name="(tabs)"
                 options={{ title: "Back", headerShown: false }}
@@ -97,28 +130,14 @@ function RootLayoutNav() {
                   presentation: "modal",
                 }}
               />
-              <Stack.Screen
-                name="login"
-                options={{
-                  headerShown: true,
-                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
-                  headerStyle: {
-                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
-                  },
-                  title: "Login",
-                }}
-              />
-              <Stack.Screen
-                name="signup"
-                options={{
-                  headerShown: true,
-                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
-                  headerStyle: {
-                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
-                  },
-                  title: "Sign up",
-                }}
-              />
+              {/* Auth screens render their own branded card with an in-card
+                  back button, so the native header would be a redundant second
+                  bar and is intentionally hidden. */}
+              <Stack.Screen name="login" options={{ headerShown: false }} />
+              <Stack.Screen name="signup" options={{ headerShown: false }} />
+              <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
+              <Stack.Screen name="reset-password" options={{ headerShown: false }} />
+              <Stack.Screen name="verify-email" options={{ headerShown: false }} />
               <Stack.Screen
                 name="[_id]"
                 options={{
@@ -128,6 +147,51 @@ function RootLayoutNav() {
                     backgroundColor: isDark ? Colors.dark.primary : "#fff",
                   },
                   title: "Profile",
+                }}
+              />
+              <Stack.Screen
+                name="profile"
+                options={{
+                  headerShown: true,
+                  headerTitleAlign: "center",
+                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
+                  headerStyle: {
+                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
+                  },
+                  title: "My Account",
+                }}
+              />
+              <Stack.Screen
+                name="compare"
+                options={{
+                  headerShown: true,
+                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
+                  headerStyle: {
+                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
+                  },
+                  title: "Compare",
+                }}
+              />
+              <Stack.Screen
+                name="recruitment"
+                options={{
+                  headerShown: true,
+                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
+                  headerStyle: {
+                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
+                  },
+                  title: "Recruitment",
+                }}
+              />
+              <Stack.Screen
+                name="help"
+                options={{
+                  headerShown: true,
+                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
+                  headerStyle: {
+                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
+                  },
+                  title: "Help center",
                 }}
               />
               <Stack.Screen
@@ -141,7 +205,8 @@ function RootLayoutNav() {
                   title: "Watchlists",
                 }}
               />
-            </Stack>
+              </Stack>
+            </ThemeProvider>
             <StatusBar style={isDark ? "light" : "dark"} />
           </AppContext.Provider>
         </AuthProvider>

@@ -4,7 +4,6 @@ import {AppContext} from "../../context/types";
 import {authMiddleware} from "../../middleware/auth-middleware";
 import {createFeatureRequestLogger, logFeatureError} from "../../middleware/feature-request-logger";
 import {disablePrivateApiCaching} from "../../middleware/private-api-cache";
-import {createPremiumAccessMiddleware} from "../../middleware/premium-middleware";
 import {AuthenticatedRequest} from "../../shared/auth";
 import {ApiError} from "../players/scouting.controller";
 import {
@@ -41,7 +40,6 @@ export default function createShadowTeamsRouter(context: AppContext) {
     router.use(disablePrivateApiCaching);
     router.use(createFeatureRequestLogger("shadow-team"));
     router.use(authMiddleware);
-    router.use(createPremiumAccessMiddleware(context, "shadow-team"));
 
     router.get("/", async (req: Request, res: Response) => {
         const userId = getUserId(req);

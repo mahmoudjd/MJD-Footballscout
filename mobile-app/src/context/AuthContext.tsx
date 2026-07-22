@@ -25,7 +25,7 @@ type AuthContextType = {
   isAuthLoading: boolean;
   login: (input: LoginInput) => Promise<AuthSession>;
   loginWithGoogleIdToken: (idToken: string) => Promise<AuthSession>;
-  register: (input: RegisterInput) => Promise<AuthSession>;
+  register: (input: RegisterInput) => Promise<{ verificationRequired: boolean }>;
   logout: () => void;
   refreshSession: () => Promise<AuthSession | null>;
   updateSession: (session: AuthSession | null) => void;
@@ -116,13 +116,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (input: RegisterInput) => {
+    // No session is created: the backend requires email verification before
+    // the account can sign in. The caller routes the user to verify-email.
     setIsAuthLoading(true);
     try {
       const response = await registerUser(input);
-      const nextSession = toSession(response);
-      setSession(nextSession);
-      await saveAuthSession(nextSession);
-      return nextSession;
+      return { verificationRequired: response.verificationRequired !== false };
     } finally {
       setIsAuthLoading(false);
     }
