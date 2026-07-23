@@ -17,16 +17,76 @@ const cheerioConfig = {
     _useHtmlParser: false,
 };
 
+const PLAYMAKER_BASE_URL = "https://www.playmakerstats.com";
+const PLAYMAKER_TIMEOUT_MS = 15_000;
+
+export const playmakerSearchUrl = (name: string): string =>
+    `${PLAYMAKER_BASE_URL}/pesquisa?search_txt=${encodeURIComponent(name)}`;
+
+/**
+ * Cloudflare answers its managed challenge with HTTP 403, a `cf-mitigated`
+ * header and a JS challenge page. That page is not solvable by an HTTP client:
+ * it requires executing JavaScript and persisting a `cf_clearance` cookie.
+ * Detected explicitly so the log says "we are blocked" instead of the parser
+ * silently finding no selectors and reporting "no player found".
+ */
+export function isCloudflareChallenge(
+    status: number,
+    headers: Record<string, unknown>,
+    html: string,
+): boolean {
+    if (status !== 403 && status !== 503) return false;
+    return Boolean(headers?.["cf-mitigated"]) || html.includes("_cf_chl_opt");
+}
+
+/**
+ * Single entry point for every Playmakerstats request: one timeout, one
+ * encoding, one place where a block is recognised. Returns null when the
+ * source is unusable, so callers degrade to BeSoccer instead of throwing.
+ */
+async function fetchPlaymakerHtml(url: string): Promise<string | null> {
+    try {
+        const response = await axios.get(url, {
+            responseType: "arraybuffer",
+            timeout: PLAYMAKER_TIMEOUT_MS,
+            // Inspect 4xx bodies instead of throwing, so a challenge page is
+            // recognisable rather than an opaque "Request failed with 403".
+            validateStatus: (status) => status < 500,
+        });
+
+        const html = iconv.decode(response.data, "windows-1252");
+
+        if (isCloudflareChallenge(response.status, response.headers as Record<string, unknown>, html)) {
+            logger.error(
+                `Playmakerstats is behind a Cloudflare challenge (HTTP ${response.status}) for ${url}. ` +
+                `This cannot be solved by axios — the source is unavailable to the server ` +
+                `until access is arranged with the site operator. Falling back to BeSoccer only.`,
+            );
+            return null;
+        }
+
+        if (response.status >= 400) {
+            logger.error(`Playmakerstats returned HTTP ${response.status} for ${url}`);
+            return null;
+        }
+
+        return html;
+    } catch (error: any) {
+        const reason = error?.code === "ECONNABORTED"
+            ? `timeout after ${PLAYMAKER_TIMEOUT_MS}ms`
+            : error?.message || String(error);
+        logger.error(`Playmakerstats request failed for ${url}: ${reason}`);
+        return null;
+    }
+}
+
 export const getLinkPlaymakerstats = async (name: string): Promise<string> => {
     try {
         logger.debug(`Suche nach Spieler-Link für '${name}'`);
 
-        const response = await axios.get(
-            `https://www.playmakerstats.com/pesquisa?search_txt=${encodeURIComponent(name)}`,
-            {responseType: "arraybuffer"}
-        );
+        const html = await fetchPlaymakerHtml(playmakerSearchUrl(name));
+        if (!html) return "";
 
-        const html = iconv.decode(response.data, "windows-1252");
         const $ = cheerio.load(html, cheerioConfig);
 
         const href = $(".zz-search-main > .zz-search-results > .player > div")
@@ -39,7 +99,7 @@ export const getLinkPlaymakerstats = async (name: string): Promise<string> => {
             return "";
         }
 
-        return `https://www.playmakerstats.com${href}`;
+        return `${PLAYMAKER_BASE_URL}${href}`;
     } catch (error: any) {
         logger.error(`Fehler beim Abrufen des Links für '${name}': ${error.stack || error.message}`);
         return "";
@@ -48,12 +108,9 @@ export const getLinkPlaymakerstats = async (name: string): Promise<string> => {
 
 export async function extractPlayersFromPlayMakerStats(name: string): Promise<PlayerTypeSchema[]> {
     try {
-        const response = await axios.get(
-            `https://www.playmakerstats.com/pesquisa?search_txt=${encodeURIComponent(name)}`,
-            {responseType: "arraybuffer"}
-        );
+        const html = await fetchPlaymakerHtml(playmakerSearchUrl(name));
+        if (!html) return [];
 
-        const html = iconv.decode(response.data, "windows-1252");
         const $ = cheerio.load(html, cheerioConfig);
 
         const playerLinks: string[] = [];
@@ -63,7 +120,7 @@ export async function extractPlayersFromPlayMakerStats(name: string): Promise<Pl
             .each((_, el) => {
                 const href = $(el).find('a[href^="/player/"]').attr("href");
                 if (href) {
-                    playerLinks.push(`https://www.playmakerstats.com${href}`);
+                    playerLinks.push(`${PLAYMAKER_BASE_URL}${href}`);
                 }
             });
 
@@ -92,8 +149,9 @@ export const extractDataPlaymakerstats = async (url: string): Promise<PlayerType
 
         logger.debug(`Extrahiere Spieldaten von URL: ${url}`);
 
-        const response = await axios.get(url, {responseType: "arraybuffer"});
-        const html = iconv.decode(response.data, "windows-1252");
+        const html = await fetchPlaymakerHtml(url);
+        if (!html) return undefined;
+
         const $ = cheerio.load(html, cheerioConfig);
 
         const header = $("#page_header_container .zz-enthdr-top");
@@ -106,7 +164,7 @@ export const extractDataPlaymakerstats = async (url: string): Promise<PlayerType
         if (/\d/.test(name)) name = name.split(".")[1].trim();
 
         const imagePath = $(".profile_picture .logo a img").attr("src");
-        const image = imagePath ? `https://www.playmakerstats.com${imagePath}` : "";
+        const image = imagePath ? `${PLAYMAKER_BASE_URL}${imagePath}` : "";
 
         const fullName = extractBioValue($, "Name");
         const currentClub = $('#page_rightbar .rbbox h3:contains("CURRENT CLUB")')
