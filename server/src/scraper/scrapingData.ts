@@ -9,6 +9,11 @@ import {
     getLinkPlaymakerstats,
     extractPlayersFromPlayMakerStats
 } from "./extractPlaymaker";
+import {
+    extractPlayerFromApiFootball,
+    extractPlayersFromApiFootball,
+    isApiFootballConfigured,
+} from "./extractApiFootball";
 import type {PlayerTypeSchemaWithoutID, Title} from "../modules/players/player.model";
 import {z} from "zod";
 import {convert, normalizeName} from "./utils";
@@ -35,8 +40,14 @@ export async function extractPlayerData(name: string, one = false): Promise<Play
         if (urlsBesoccer.length === 0) {
             logger.warn("No links found on Besoccer. Attempting alternative extraction.");
 
-            const players = await extractPlayersFromPlayMakerStats(convertedName)
-            return players ? players : [];
+            const players = await extractPlayersFromPlayMakerStats(convertedName);
+            if (players.length > 0) return players;
+
+            // Playmakerstats is regularly unreachable behind its bot protection,
+            // so the licensed API is the last leg of the chain rather than
+            // returning nothing at all.
+            logger.warn("Playmakerstats yielded nothing. Falling back to API-Football.");
+            return await extractPlayersFromApiFootball(convertedName);
         }
 
         const urlsToAnalyse = Array.from(new Set(urlsBesoccer)).slice(0, 3);
@@ -87,7 +98,24 @@ export async function extractWithName(name: string): Promise<PlayerTypeSchema | 
             return await checkAndUpdate(playerBesoccer, playerPlaymaker);
         }
 
-        return playerBesoccer ?? playerPlaymaker;
+        const primary = playerBesoccer ?? playerPlaymaker;
+
+        // Neither scraper answered — the licensed API is the remaining source.
+        if (!primary) {
+            return await extractPlayerFromApiFootball(normalizedName);
+        }
+
+        // Only one scraper answered, so there was no cross-check and no gap
+        // filling. API-Football can act as the second opinion instead.
+        if ((!playerBesoccer || !playerPlaymaker) && isApiFootballConfigured()) {
+            const apiPlayer = await extractPlayerFromApiFootball(primary.fullName || primary.name);
+            if (apiPlayer && isEquals(primary, apiPlayer)) {
+                logger.info("API-Football profile matches, merging as secondary source.");
+                return await checkAndUpdate(primary, apiPlayer);
+            }
+        }
+
+        return primary;
     } catch (error: any) {
         logger.error(`extractWithName error: ${error.message || error}`);
     }
