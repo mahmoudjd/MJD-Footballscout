@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode } from "react"
+import { ReactNode, useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Toaster } from "react-hot-toast"
 import { SessionProvider } from "next-auth/react"
@@ -22,21 +22,27 @@ function shouldRetryQuery(failureCount: number, error: unknown) {
   return failureCount < 2
 }
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60_000,
-      gcTime: 10 * 60_000,
-      refetchOnWindowFocus: false,
-      retry: shouldRetryQuery,
+function createQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60_000,
+        gcTime: 10 * 60_000,
+        refetchOnWindowFocus: false,
+        retry: shouldRetryQuery,
+      },
+      mutations: {
+        retry: false,
+      },
     },
-    mutations: {
-      retry: false,
-    },
-  },
-})
+  })
+}
 
 export function Providers({ children }: { children: ReactNode }) {
+  // Per-instance, not module scope: on the server the module is shared by every
+  // concurrent request, so a module-level client leaks cache between users.
+  const [queryClient] = useState(createQueryClient)
+
   return (
     <SessionProvider>
       <QueryClientProvider client={queryClient}>
