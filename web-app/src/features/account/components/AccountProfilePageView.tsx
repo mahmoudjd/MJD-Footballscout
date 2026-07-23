@@ -433,7 +433,7 @@ export function AccountProfilePageView() {
         </div>
       </section>
 
-      <Tabs value={activeTab} onValueChange={changeTab}>
+      <Tabs defaultValue={activeTab} onValueChange={changeTab}>
         <div className="sticky top-17 z-30 rounded-2xl border border-emerald-950/8 bg-[#f5f7f4]/92 p-1.5 shadow-[0_18px_36px_-30px_rgba(15,50,36,0.55)] backdrop-blur-lg sm:top-20">
           <TabsList className="grid w-full grid-cols-3 gap-1.5 border-0 bg-transparent p-0">
             <TabsTrigger value="overview" className="gap-2 rounded-xl">
