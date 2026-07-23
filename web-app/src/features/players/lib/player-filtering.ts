@@ -159,7 +159,34 @@ function matchesAgeGroup(age: number, selectedAgeGroup: string) {
   }
 }
 
-export function filterAndSortPlayers(players: PlayerType[], filters: PlayerFiltersState) {
+export interface NormalizedPlayer {
+  player: PlayerType
+  positionLower: string
+  countryLower: string
+  clubLower: string
+  marketValue: number
+  timestampMs: number
+}
+
+/**
+ * Depends only on `players`, so callers can memoize it once per fetch instead of
+ * re-running the currency parsing for every player on every filter keystroke.
+ */
+export function normalizePlayersForFiltering(players: PlayerType[]): NormalizedPlayer[] {
+  return players.map((player) => ({
+    player,
+    positionLower: (player.position || "").toLowerCase(),
+    countryLower: (player.country || "").toLowerCase(),
+    clubLower: (player.currentClub || "").toLowerCase(),
+    marketValue: parseCompactCurrency(player.value, player.currency),
+    timestampMs: player.timestamp ? new Date(player.timestamp).getTime() : 0,
+  }))
+}
+
+export function filterAndSortPlayers(
+  normalizedPlayers: NormalizedPlayer[],
+  filters: PlayerFiltersState,
+) {
   const normalizedPosition = filters.selectedPosition.trim().toLowerCase()
   const normalizedNationality = filters.selectedNationality.trim().toLowerCase()
   const normalizedClubQuery = filters.clubQuery.trim().toLowerCase()
@@ -169,15 +196,6 @@ export function filterAndSortPlayers(players: PlayerType[], filters: PlayerFilte
   const maxEloValue = parseNumberInput(filters.maxElo)
   const minValueAmount = parseNumberInput(filters.minValue)
   const maxValueAmount = parseNumberInput(filters.maxValue)
-
-  const normalizedPlayers = players.map((player) => ({
-    player,
-    positionLower: (player.position || "").toLowerCase(),
-    countryLower: (player.country || "").toLowerCase(),
-    clubLower: (player.currentClub || "").toLowerCase(),
-    marketValue: parseCompactCurrency(player.value, player.currency),
-    timestampMs: player.timestamp ? new Date(player.timestamp).getTime() : 0,
-  }))
 
   const filtered = normalizedPlayers.filter(
     ({ player, positionLower, countryLower, clubLower, marketValue }) => {
@@ -212,7 +230,7 @@ export function filterAndSortPlayers(players: PlayerType[], filters: PlayerFilte
   }
 
   const direction = filters.sortOrder === "asc" ? 1 : -1
-  return [...filtered]
+  return filtered
     .sort((a, b) => {
       if (filters.sortBy === "name") {
         return direction * a.player.name.localeCompare(b.player.name)

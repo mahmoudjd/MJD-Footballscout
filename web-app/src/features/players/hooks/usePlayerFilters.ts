@@ -1,30 +1,34 @@
 import type { PlayerType } from "@/lib/types/type"
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   countActivePlayerFilters,
   defaultPlayerFilters,
   filterAndSortPlayers,
+  normalizePlayersForFiltering,
   type PlayerFiltersState,
   type SortBy,
   type SortOrder,
 } from "@/features/players/lib/player-filtering"
+import { useDebounce } from "@/lib/hooks/useDebounce"
 
 type SetCurrentPage = (value: number | ((prev: number) => number)) => void
 type FilterKey = keyof PlayerFiltersState
 
-function createFilterSetter<K extends FilterKey>(
-  key: K,
-  setFilters: Dispatch<SetStateAction<PlayerFiltersState>>,
-) {
-  return (value: PlayerFiltersState[K]) => {
-    setFilters((current) => (current[key] === value ? current : { ...current, [key]: value }))
-  }
-}
+const FILTER_DEBOUNCE_MS = 250
 
 export function usePlayerFilters(players: PlayerType[], setCurrentPage: SetCurrentPage) {
   const [filters, setFilters] = useState<PlayerFiltersState>(defaultPlayerFilters)
 
-  const filteredPlayers = useMemo(() => filterAndSortPlayers(players, filters), [players, filters])
+  // The inputs stay bound to `filters` so typing echoes instantly; only the
+  // O(n) filter/sort pass runs on the debounced value.
+  const debouncedFilters = useDebounce(filters, FILTER_DEBOUNCE_MS)
+
+  const normalizedPlayers = useMemo(() => normalizePlayersForFiltering(players), [players])
+
+  const filteredPlayers = useMemo(
+    () => filterAndSortPlayers(normalizedPlayers, debouncedFilters),
+    [normalizedPlayers, debouncedFilters],
+  )
 
   const activeFilterCount = useMemo(() => countActivePlayerFilters(filters), [filters])
   const hasActiveFilters = activeFilterCount > 0
@@ -33,38 +37,58 @@ export function usePlayerFilters(players: PlayerType[], setCurrentPage: SetCurre
     setCurrentPage(1)
   }, [filters, setCurrentPage])
 
-  const resetFilters = () => {
+  const setField = useCallback(<K extends FilterKey>(key: K, value: PlayerFiltersState[K]) => {
+    setFilters((current) => (current[key] === value ? current : { ...current, [key]: value }))
+  }, [])
+
+  // One stable callback per field, allocated once.
+  const [setters] = useState(() => ({
+    selectedPosition: (value: string) => setField("selectedPosition", value),
+    selectedAgeGroup: (value: string) => setField("selectedAgeGroup", value),
+    selectedNationality: (value: string) => setField("selectedNationality", value),
+    clubQuery: (value: string) => setField("clubQuery", value),
+    minAge: (value: string) => setField("minAge", value),
+    maxAge: (value: string) => setField("maxAge", value),
+    minElo: (value: string) => setField("minElo", value),
+    maxElo: (value: string) => setField("maxElo", value),
+    minValue: (value: string) => setField("minValue", value),
+    maxValue: (value: string) => setField("maxValue", value),
+    sortBy: (value: SortBy) => setField("sortBy", value),
+    sortOrder: (value: SortOrder) => setField("sortOrder", value),
+  }))
+
+  const resetFilters = useCallback(() => {
     setFilters(defaultPlayerFilters)
-  }
+  }, [])
 
   return {
     filteredPlayers,
     activeFilterCount,
     hasActiveFilters,
     selectedPosition: filters.selectedPosition,
-    setSelectedPosition: createFilterSetter("selectedPosition", setFilters),
+    setSelectedPosition: setters.selectedPosition,
     selectedAgeGroup: filters.selectedAgeGroup,
-    setSelectedAgeGroup: createFilterSetter("selectedAgeGroup", setFilters),
+    setSelectedAgeGroup: setters.selectedAgeGroup,
     selectedNationality: filters.selectedNationality,
-    setSelectedNationality: createFilterSetter("selectedNationality", setFilters),
+    setSelectedNationality: setters.selectedNationality,
     clubQuery: filters.clubQuery,
-    setClubQuery: createFilterSetter("clubQuery", setFilters),
+    setClubQuery: setters.clubQuery,
     minAge: filters.minAge,
-    setMinAge: createFilterSetter("minAge", setFilters),
+    setMinAge: setters.minAge,
     maxAge: filters.maxAge,
-    setMaxAge: createFilterSetter("maxAge", setFilters),
+    setMaxAge: setters.maxAge,
     minElo: filters.minElo,
-    setMinElo: createFilterSetter("minElo", setFilters),
+    setMinElo: setters.minElo,
     maxElo: filters.maxElo,
-    setMaxElo: createFilterSetter("maxElo", setFilters),
+    setMaxElo: setters.maxElo,
     minValue: filters.minValue,
-    setMinValue: createFilterSetter("minValue", setFilters),
+    setMinValue: setters.minValue,
     maxValue: filters.maxValue,
-    setMaxValue: createFilterSetter("maxValue", setFilters),
+    setMaxValue: setters.maxValue,
     sortBy: filters.sortBy,
-    setSortBy: createFilterSetter("sortBy", setFilters) as (value: SortBy) => void,
+    setSortBy: setters.sortBy,
     sortOrder: filters.sortOrder,
-    setSortOrder: createFilterSetter("sortOrder", setFilters) as (value: SortOrder) => void,
+    setSortOrder: setters.sortOrder,
     resetFilters,
   }
 }
