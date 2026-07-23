@@ -4,11 +4,13 @@
   html {
     scrollbar-gutter: stable;
   }
-
-  html body[data-scroll-locked] {
-    margin-right: 0 !important;
-  }
 }
+
+/* Do NOT cancel the `margin-right` react-remove-scroll puts on a locked body.
+   `overflow-x: hidden` below makes <body> the element that propagates overflow
+   to the viewport, so the `overflow: hidden` of a scroll lock also drops the
+   scrollbar-gutter reservation — that margin is the only thing keeping the
+   sticky header the same width while a dropdown/dialog is open. */
 
 *,
 *::before,
