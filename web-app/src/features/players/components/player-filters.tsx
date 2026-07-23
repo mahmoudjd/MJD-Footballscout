@@ -1,4 +1,4 @@
-import React from "react"
+import React, { memo, useMemo } from "react"
 import { SolidIcons } from "@/components/icons/solid-icons"
 import { OutlineIcons } from "@/components/icons/outline-icons"
 import { Select } from "@/components/ui/select"
@@ -36,6 +36,37 @@ interface Props {
   onReset: () => void
 }
 
+const positionOptions = [
+  { value: "", label: "All" },
+  { value: "Forward", label: "Forward" },
+  { value: "Midfielder", label: "Midfielder" },
+  { value: "Defender", label: "Defender" },
+  { value: "Goalkeeper", label: "Goalkeeper" },
+  { value: "Manager", label: "Manager" },
+]
+
+const ageOptions = [
+  { value: "", label: "All" },
+  { value: "<20", label: "< 20" },
+  { value: "20-30", label: "20 - 30" },
+  { value: "30-40", label: "30 - 40" },
+  { value: ">40", label: "> 40" },
+]
+
+const sortByOptions = [
+  { value: "default", label: "Default" },
+  { value: "elo", label: "ELO" },
+  { value: "age", label: "Age" },
+  { value: "value", label: "Market Value" },
+  { value: "name", label: "Name" },
+  { value: "timestamp", label: "Last Update" },
+]
+
+const sortOrderOptions = [
+  { value: "desc", label: "Descending" },
+  { value: "asc", label: "Ascending" },
+]
+
 function FilterLabel({ label, hint, htmlFor }: { label: string; hint: string; htmlFor: string }) {
   return (
     <div className="flex items-center gap-1">
@@ -60,7 +91,7 @@ function FilterLabel({ label, hint, htmlFor }: { label: string; hint: string; ht
   )
 }
 
-const PlayerFilters = ({
+const PlayerFilters = memo(function PlayerFilters({
   selectedPosition,
   selectedAgeGroup,
   selectedNationality,
@@ -87,42 +118,14 @@ const PlayerFilters = ({
   onSortByChange,
   onSortOrderChange,
   onReset,
-}: Props) => {
-  const positionOptions = [
-    { value: "", label: "All" },
-    { value: "Forward", label: "Forward" },
-    { value: "Midfielder", label: "Midfielder" },
-    { value: "Defender", label: "Defender" },
-    { value: "Goalkeeper", label: "Goalkeeper" },
-    { value: "Manager", label: "Manager" },
-  ]
-
-  const ageOptions = [
-    { value: "", label: "All" },
-    { value: "<20", label: "< 20" },
-    { value: "20-30", label: "20 - 30" },
-    { value: "30-40", label: "30 - 40" },
-    { value: ">40", label: "> 40" },
-  ]
-
-  const nationalityOptions = [
-    { value: "", label: "All" },
-    ...nationalities.map((nation) => ({ value: nation, label: nation })),
-  ]
-
-  const sortByOptions = [
-    { value: "default", label: "Default" },
-    { value: "elo", label: "ELO" },
-    { value: "age", label: "Age" },
-    { value: "value", label: "Market Value" },
-    { value: "name", label: "Name" },
-    { value: "timestamp", label: "Last Update" },
-  ]
-
-  const sortOrderOptions = [
-    { value: "desc", label: "Descending" },
-    { value: "asc", label: "Ascending" },
-  ]
+}: Props) {
+  const nationalityOptions = useMemo(
+    () => [
+      { value: "", label: "All" },
+      ...nationalities.map((nation) => ({ value: nation, label: nation })),
+    ],
+    [nationalities],
+  )
 
   return (
     <TooltipProvider>
@@ -374,6 +377,6 @@ const PlayerFilters = ({
       </div>
     </TooltipProvider>
   )
-}
+})
 
 export default PlayerFilters

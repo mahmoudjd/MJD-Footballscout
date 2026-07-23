@@ -26,9 +26,12 @@ import { Text } from "@/components/ui/text"
 import { playersGuideSections } from "@/features/players/components/players-guide"
 import { Chip } from "@/components/ui/chip"
 import { queryKeys } from "@/lib/react-query/query-keys"
+import type { PlayerType } from "@/lib/types/type"
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25] as const
 const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0]
+/** Stable identity so the filter memos don't invalidate while loading. */
+const NO_PLAYERS: PlayerType[] = []
 
 type PageSize = (typeof PAGE_SIZE_OPTIONS)[number]
 
@@ -78,7 +81,7 @@ export default function PlayersPageView() {
     sortOrder,
     setSortOrder,
     resetFilters,
-  } = usePlayerFilters(players ?? [], setCurrentPage)
+  } = usePlayerFilters(players ?? NO_PLAYERS, setCurrentPage)
 
   const { mutateAsync: deletePlayer, isPending: isDeleting } = useDeletePlayerMutation()
   const { mutateAsync: updateAllPlayersMutation, isPending: isUpdatingAllPlayers } =

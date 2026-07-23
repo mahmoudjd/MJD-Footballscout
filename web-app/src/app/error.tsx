@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { signOut } from "next-auth/react"
 import { Spinner } from "@/components/common/spinner"
 import { Button } from "@/components/ui/button"
@@ -33,7 +33,6 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  const [isResetting, setIsResetting] = useState(false)
   const shouldSignOut = isUnauthorizedError(error)
   const userFacingMessage = resolveUserFacingErrorMessage(error)
 
@@ -44,11 +43,6 @@ export default function GlobalError({
       void signOut({ callbackUrl: "/login" })
     }
   }, [error, shouldSignOut])
-
-  const handleReset = () => {
-    setIsResetting(true)
-    reset()
-  }
 
   if (error.message === "RefreshTokenError") {
     return (
@@ -75,14 +69,8 @@ export default function GlobalError({
             Error Code: {error.digest}
           </Text>
         ) : null}
-        <Button
-          onClick={handleReset}
-          disabled={isResetting}
-          variant="danger"
-          size="md"
-          className={isResetting ? "bg-red-300 hover:bg-red-300" : ""}
-        >
-          {isResetting ? "Retrying…" : "Try Again"}
+        <Button onClick={reset} variant="danger" size="md">
+          Try Again
         </Button>
       </Panel>
     </PageContainer>
