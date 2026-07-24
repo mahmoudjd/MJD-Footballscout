@@ -43,6 +43,10 @@ export const UserLoginInputSchema = z.object({
   mfaCode: OptionalCredentialSchema(z.string().trim().min(6).max(32)),
   mfaChallengeToken: OptionalCredentialSchema(z.string().min(32).max(2048)),
   deviceId: OptionalCredentialSchema(z.string().trim().min(8).max(200)),
+  // Side-effect-free credential/MFA check used by the web client to decide
+  // whether to prompt for a code before the real next-auth sign-in. When true,
+  // no tokens/session/email are issued.
+  probe: z.boolean().optional(),
 });
 
 export const VerifyEmailInputSchema = z.object({
