@@ -72,14 +72,20 @@ export async function loginUser(
   }
 }
 
+/**
+ * Side-effect-free pre-flight: validates credentials and reports whether MFA is
+ * required, without issuing tokens/session/email. The real login happens via
+ * next-auth signIn afterwards — so a non-MFA login only triggers its side
+ * effects (security email, session) once.
+ */
 export async function beginCredentialsLogin(input: {
   email: string
   password: string
   deviceId?: string
-}) {
-  const response = await axios.post<CredentialsLoginResponse>(
+}): Promise<MfaChallengeResponse | { mfaRequired: false }> {
+  const response = await axios.post<MfaChallengeResponse | { mfaRequired: false }>(
     `${env.NEXT_PUBLIC_API_HOST}/auth/login`,
-    input,
+    { ...input, probe: true },
   )
   return response.data
 }
