@@ -22,7 +22,9 @@ export const authMiddleware: RequestHandler = (
   }
 
   try {
-    const decoded = jwt.verify(token, jwtSecret) as AuthTokenPayload;
+    const decoded = jwt.verify(token, jwtSecret, {
+      algorithms: ["HS256"],
+    }) as AuthTokenPayload;
     if (!decoded?.userId || typeof decoded.userId !== "string") {
       res.status(401).json({ error: "Invalid token payload" });
       return;

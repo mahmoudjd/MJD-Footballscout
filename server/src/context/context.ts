@@ -10,6 +10,7 @@ import logger from "../logger/logger";
 import { ShadowTeam } from "../modules/shadow-teams/shadow-team.model";
 import { RecruitmentCandidate } from "../modules/recruitment/recruitment-candidate.model";
 import { RecruitmentWorkspace } from "../modules/recruitment/recruitment-workspace.model";
+import { AuthSession } from "../modules/auth/auth-sessions";
 
 export async function createContext({
   mongoURI,
@@ -34,6 +35,7 @@ export async function createContext({
   const recruitmentWorkspaces = db.collection<RecruitmentWorkspace>(
     "recruitmentWorkspaces",
   );
+  const authSessions = db.collection<AuthSession>("authSessions");
 
   await players.createIndex({ fullName: 1 });
   await players.createIndex({ name: 1 });
@@ -64,6 +66,9 @@ export async function createContext({
   await scoutingReports.createIndex({ playerId: 1, updatedAt: -1 });
   await scoutingReports.createIndex({ userId: 1, updatedAt: -1 });
   await playerHistories.createIndex({ playerId: 1, timestamp: -1 });
+  await authSessions.createIndex({ jtiHash: 1 }, { unique: true });
+  await authSessions.createIndex({ userId: 1 });
+  await authSessions.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
   logger.info("Database indexes ensured");
   const defaultConfig: Config = {
     env: process.env.NODE_ENV ?? "development",
@@ -98,6 +103,8 @@ export async function createContext({
     recruitmentCandidates,
     // @ts-ignore
     recruitmentWorkspaces,
+    // @ts-ignore
+    authSessions,
     config,
     httpClient,
   };

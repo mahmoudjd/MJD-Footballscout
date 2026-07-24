@@ -34,7 +34,13 @@ import {
 import { UserRole } from "../../shared/auth";
 import { AuthenticatedRequest } from "../../shared/auth";
 import { createActiveAuthMiddleware } from "../../middleware/auth-middleware";
+import { createRateLimiter } from "../../middleware/rate-limit";
 import { createOneTimeToken, hashOneTimeToken } from "./auth-tokens";
+import {
+  createAuthSession,
+  rotateAuthSession,
+  revokeAllUserSessions,
+} from "./auth-sessions";
 import {
   createMfaSecret,
   createOtpAuthUrl,
@@ -114,12 +120,15 @@ export default function createAuthRouter(context: AppContext) {
     };
   };
 
-  const generateTokens = (user: {
-    _id: string;
-    email: string;
-    role: UserRole;
-    authVersion?: number;
-  }) => {
+  const generateTokens = async (
+    user: {
+      _id: string;
+      email: string;
+      role: UserRole;
+      authVersion?: number;
+    },
+    req: Request,
+  ) => {
     const authVersion = user.authVersion ?? 0;
     const accessToken = jwt.sign(
       {
@@ -132,8 +141,19 @@ export default function createAuthRouter(context: AppContext) {
       JWT_SECRET,
       { expiresIn: "1h" },
     );
+    const { sessionId } = await createAuthSession(
+      context,
+      user._id,
+      req.get("user-agent")?.slice(0, 200),
+    );
     const refreshToken = jwt.sign(
-      { userId: user._id, role: user.role, tokenType: "refresh", authVersion },
+      {
+        userId: user._id,
+        role: user.role,
+        tokenType: "refresh",
+        authVersion,
+        sid: sessionId,
+      },
       JWT_SECRET,
       { expiresIn: "7d" },
     );
@@ -141,6 +161,14 @@ export default function createAuthRouter(context: AppContext) {
   };
 
   const activeAuthMiddleware = createActiveAuthMiddleware(context);
+
+  // Brute-force / abuse protection on unauthenticated auth endpoints.
+  // Credential + TOTP guessing goes through /login; the reset/verification
+  // routes are limited to curb email bombing.
+  const loginRateLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10 });
+  const emailAbuseRateLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
+  const registerRateLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 10 });
+
   const emailService = createEmailService(context.config.env);
   const passwordResetResponse = {
     message:
@@ -230,6 +258,7 @@ export default function createAuthRouter(context: AppContext) {
 
   router.post(
     "/register",
+    registerRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       try {
         const input: UserRegisterInput = UserRegisterInputSchema.parse(
@@ -268,7 +297,7 @@ export default function createAuthRouter(context: AppContext) {
     },
   );
 
-  router.post("/login", async (req: Request, res: Response): Promise<any> => {
+  router.post("/login", loginRateLimiter, async (req: Request, res: Response): Promise<any> => {
     try {
       const input: UserLoginInput = UserLoginInputSchema.parse(req.body);
       const user = await findUserByEmail(context, input.email);
@@ -311,7 +340,9 @@ export default function createAuthRouter(context: AppContext) {
           return res.status(202).json({ mfaRequired: true, mfaChallengeToken });
         }
         try {
-          const challenge = jwt.verify(input.mfaChallengeToken, JWT_SECRET) as {
+          const challenge = jwt.verify(input.mfaChallengeToken, JWT_SECRET, {
+            algorithms: ["HS256"],
+          }) as {
             userId?: string;
             tokenType?: string;
             authVersion?: number;
@@ -341,12 +372,15 @@ export default function createAuthRouter(context: AppContext) {
       }
 
       const userRole = user.role || "user";
-      const tokens = generateTokens({
-        _id: user._id!.toString(),
-        email: user.email,
-        role: userRole,
-        authVersion: user.authVersion,
-      });
+      const tokens = await generateTokens(
+        {
+          _id: user._id!.toString(),
+          email: user.email,
+          role: userRole,
+          authVersion: user.authVersion,
+        },
+        req,
+      );
       await recordLoginContext(user, req);
 
       return res.status(200).json({
@@ -369,6 +403,7 @@ export default function createAuthRouter(context: AppContext) {
 
   router.post(
     "/google-login",
+    loginRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       try {
         if (GOOGLE_CLIENT_IDS.length === 0) {
@@ -446,12 +481,15 @@ export default function createAuthRouter(context: AppContext) {
         }
 
         const userRole = user.role || "user";
-        const tokens = generateTokens({
-          _id: user._id!.toString(),
-          email: user.email,
-          role: userRole,
-          authVersion: user.authVersion,
-        });
+        const tokens = await generateTokens(
+          {
+            _id: user._id!.toString(),
+            email: user.email,
+            role: userRole,
+            authVersion: user.authVersion,
+          },
+          req,
+        );
         await recordLoginContext(user, req);
 
         return res.status(200).json({
@@ -530,6 +568,7 @@ export default function createAuthRouter(context: AppContext) {
 
   router.post(
     "/resend-verification",
+    emailAbuseRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       const genericResponse = {
         message:
@@ -561,6 +600,7 @@ export default function createAuthRouter(context: AppContext) {
 
   router.post(
     "/forgot-password",
+    emailAbuseRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       try {
         const { email } = ForgotPasswordInputSchema.parse(req.body);
@@ -608,6 +648,7 @@ export default function createAuthRouter(context: AppContext) {
 
   router.post(
     "/reset-password",
+    loginRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       try {
         const { token, newPassword } = ResetPasswordInputSchema.parse(req.body);
@@ -636,6 +677,7 @@ export default function createAuthRouter(context: AppContext) {
             $inc: { authVersion: 1 },
           },
         );
+        await revokeAllUserSessions(context, user._id.toString());
         await sendSecurityEmail(
           user,
           "password reset",
@@ -966,6 +1008,7 @@ export default function createAuthRouter(context: AppContext) {
             $inc: { authVersion: 1 },
           },
         );
+        await revokeAllUserSessions(context, user._id.toString());
         await sendSecurityEmail(
           user,
           "password changed",
@@ -1029,6 +1072,7 @@ export default function createAuthRouter(context: AppContext) {
             $inc: { authVersion: 1 },
           },
         );
+        await revokeAllUserSessions(context, user._id.toString());
         return res
           .status(200)
           .json({ message: "Account deactivated successfully" });
@@ -1053,16 +1097,23 @@ export default function createAuthRouter(context: AppContext) {
     }
 
     try {
-      const payload = jwt.verify(refreshToken, JWT_SECRET) as {
+      const payload = jwt.verify(refreshToken, JWT_SECRET, {
+        algorithms: ["HS256"],
+      }) as {
         userId?: string;
         tokenType?: string;
         authVersion?: number;
+        sid?: string;
       };
       if (!payload.userId || payload.tokenType !== "refresh") {
         return res.status(401).json({ error: "Invalid token payload" });
       }
       if (!ObjectId.isValid(payload.userId)) {
         return res.status(401).json({ error: "Invalid token payload" });
+      }
+      if (!payload.sid) {
+        // Pre-rotation token without a server-side session — force re-login.
+        return res.status(401).json({ error: "Session is no longer valid" });
       }
 
       const user = await context.users.findOne({
@@ -1075,6 +1126,17 @@ export default function createAuthRouter(context: AppContext) {
         user.isActive === false ||
         (payload.authVersion ?? 0) !== (user.authVersion ?? 0)
       ) {
+        return res.status(401).json({ error: "Session is no longer valid" });
+      }
+
+      const rotated = await rotateAuthSession(
+        context,
+        payload.userId,
+        payload.sid,
+        req.get("user-agent")?.slice(0, 200),
+      );
+      if (!rotated) {
+        // Session already rotated (token reuse) or revoked.
         return res.status(401).json({ error: "Session is no longer valid" });
       }
 
@@ -1092,10 +1154,21 @@ export default function createAuthRouter(context: AppContext) {
         JWT_SECRET,
         { expiresIn: "1h" },
       );
+      const rotatedRefreshToken = jwt.sign(
+        {
+          userId: user._id.toString(),
+          role: userRole,
+          tokenType: "refresh",
+          authVersion: user.authVersion ?? 0,
+          sid: rotated.sessionId,
+        },
+        JWT_SECRET,
+        { expiresIn: "7d" },
+      );
 
       return res.status(200).json({
         accessToken,
-        refreshToken,
+        refreshToken: rotatedRefreshToken,
         role: userRole,
       });
     } catch (err) {
