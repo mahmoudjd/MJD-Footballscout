@@ -19,7 +19,6 @@ export const emailTemplates = {
   newDeviceLogin: (details: {
     device: string;
     location: string;
-    ip?: string;
     occurredAt: Date;
     securityUrl: string;
   }): EmailTemplate => ({
@@ -29,7 +28,6 @@ export const emailTemplates = {
     paragraphs: [
       `Device: ${details.device}`,
       `Location: ${details.location}`,
-      `IP address: ${details.ip || "Unavailable"}`,
       `Time: ${details.occurredAt.toISOString()}`,
     ],
     action: { label: "Review account security", url: details.securityUrl },

@@ -6,8 +6,47 @@ import type { User } from "./user.model";
 const firstHeader = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value?.split(",")[0]?.trim();
 
+const decodeHeader = (value: string | undefined) => {
+  if (!value) return undefined;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+};
+
+/**
+ * Turns a raw user-agent into a human-readable "Browser on OS" label for the
+ * security email (e.g. "Chrome on macOS"). Falls back to a trimmed UA string.
+ */
+export function describeDevice(userAgent: string | undefined) {
+  if (!userAgent || userAgent === "axios") return "Unknown device";
+
+  const browser =
+    /Edg\//.test(userAgent) ? "Edge"
+    : /OPR\/|Opera/.test(userAgent) ? "Opera"
+    : /SamsungBrowser/.test(userAgent) ? "Samsung Internet"
+    : /Firefox\//.test(userAgent) ? "Firefox"
+    : /Chrome\//.test(userAgent) ? "Chrome"
+    : /Safari\//.test(userAgent) ? "Safari"
+    : undefined;
+
+  const os =
+    /Windows NT/.test(userAgent) ? "Windows"
+    : /iPhone|iPad|iPod/.test(userAgent) ? "iOS"
+    : /Mac OS X/.test(userAgent) ? "macOS"
+    : /Android/.test(userAgent) ? "Android"
+    : /Linux/.test(userAgent) ? "Linux"
+    : undefined;
+
+  if (browser && os) return `${browser} on ${os}`;
+  if (browser) return browser;
+  if (os) return os;
+  return userAgent.length > 60 ? `${userAgent.slice(0, 57)}...` : userAgent;
+}
+
 export function describeLoginContext(req: Request) {
-  const userAgent = req.get("user-agent") || "Unknown device";
+  const userAgent = req.get("user-agent") || undefined;
   const bodyDeviceId = typeof req.body?.deviceId === "string" ? req.body.deviceId : undefined;
   const clientDeviceId = (req.get("x-client-device-id") || bodyDeviceId)?.trim().slice(0, 200);
   const ip =
@@ -19,10 +58,12 @@ export function describeLoginContext(req: Request) {
     firstHeader(req.headers["cf-ipcountry"] as string | string[] | undefined) ||
     firstHeader(req.headers["x-vercel-ip-country"] as string | string[] | undefined) ||
     firstHeader(req.headers["x-country-code"] as string | string[] | undefined);
-  const city = firstHeader(req.headers["x-vercel-ip-city"] as string | string[] | undefined);
+  const city = decodeHeader(
+    firstHeader(req.headers["x-vercel-ip-city"] as string | string[] | undefined),
+  );
   const location = [city, country].filter(Boolean).join(", ") || "Unknown location";
-  const device = userAgent.length > 180 ? `${userAgent.slice(0, 177)}...` : userAgent;
-  const identity = clientDeviceId ? `client:${clientDeviceId}` : `agent:${userAgent}`;
+  const device = describeDevice(userAgent);
+  const identity = clientDeviceId ? `client:${clientDeviceId}` : `agent:${device}`;
   const fingerprint = createHash("sha256").update(identity).digest("hex");
 
   return { fingerprint, device, location, ip };
@@ -32,7 +73,7 @@ export async function registerSuccessfulLogin(
   context: AppContext,
   user: User,
   req: Request,
-  notify: (details: { device: string; location: string; ip?: string; occurredAt: Date }) => Promise<boolean>,
+  notify: (details: { device: string; location: string; occurredAt: Date }) => Promise<boolean>,
 ) {
   const details = describeLoginContext(req);
   const now = new Date();
@@ -61,7 +102,7 @@ export async function registerSuccessfulLogin(
       },
     );
     if (locationChanged && user.securityEmailsEnabled !== false) {
-      await notify({ device: details.device, location: details.location, ip: details.ip, occurredAt: now });
+      await notify({ device: details.device, location: details.location, occurredAt: now });
       return true;
     }
     return false;
@@ -83,6 +124,6 @@ export async function registerSuccessfulLogin(
   if ((user.trustedLoginContexts || []).length === 0 || user.securityEmailsEnabled === false) {
     return false;
   }
-  await notify({ device: details.device, location: details.location, ip: details.ip, occurredAt: now });
+  await notify({ device: details.device, location: details.location, occurredAt: now });
   return true;
 }
