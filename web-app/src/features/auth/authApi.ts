@@ -28,17 +28,42 @@ export class AuthApiError extends Error {
   }
 }
 
-export async function loginUser(input: {
-  email: string
-  password: string
-  mfaCode?: string
-  mfaChallengeToken?: string
-  deviceId?: string
-}) {
+/**
+ * Real browser context forwarded from the Next.js server to the backend so the
+ * security email shows the actual device/location instead of "axios".
+ */
+export interface ClientContext {
+  userAgent?: string
+  forwardedFor?: string
+  country?: string
+  city?: string
+}
+
+function clientContextHeaders(context?: ClientContext) {
+  if (!context) return undefined
+  const headers: Record<string, string> = {}
+  if (context.userAgent) headers["User-Agent"] = context.userAgent
+  if (context.forwardedFor) headers["x-forwarded-for"] = context.forwardedFor
+  if (context.country) headers["x-country-code"] = context.country
+  if (context.city) headers["x-vercel-ip-city"] = context.city
+  return headers
+}
+
+export async function loginUser(
+  input: {
+    email: string
+    password: string
+    mfaCode?: string
+    mfaChallengeToken?: string
+    deviceId?: string
+  },
+  clientContext?: ClientContext,
+) {
   try {
     const response = await axios.post<CredentialsLoginResponse>(
       `${env.NEXT_PUBLIC_API_HOST}/auth/login`,
       input,
+      { headers: clientContextHeaders(clientContext) },
     )
     return response.data
   } catch (error) {
