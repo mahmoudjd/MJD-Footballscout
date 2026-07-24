@@ -371,6 +371,15 @@ export default function createAuthRouter(context: AppContext) {
         }
       }
 
+      // Probe = the web client's pre-flight MFA check. Credentials (and MFA, if
+      // supplied) are validated above; return here without issuing tokens, a
+      // session, a login-context record or a security email. The real sign-in
+      // that follows is the single source of those side effects, so a non-MFA
+      // login no longer fires them twice.
+      if (input.probe === true) {
+        return res.status(200).json({ mfaRequired: false });
+      }
+
       const userRole = user.role || "user";
       const tokens = await generateTokens(
         {

@@ -75,7 +75,7 @@ export function LoginPageView() {
       const deviceId = getDeviceId()
       if (!mfaChallengeToken) {
         const loginCheck = await beginCredentialsLogin({ ...form, deviceId })
-        if ("mfaRequired" in loginCheck) {
+        if (loginCheck.mfaRequired === true) {
           setMfaChallengeToken(loginCheck.mfaChallengeToken)
           return
         }
