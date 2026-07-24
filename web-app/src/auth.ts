@@ -20,7 +20,9 @@ declare module "next-auth" {
   }
 
   export interface Session {
-    user: User
+    // refreshToken is deliberately omitted: it stays in the encrypted JWT cookie
+    // and is never exposed to client-side JS via useSession()/api/auth/session.
+    user: Omit<User, "refreshToken">
     error?: AuthSessionError
   }
 }
@@ -192,7 +194,6 @@ const authOptions: NextAuthOptions = {
         name: token.name || "",
         email: token.email || "",
         accessToken: token.accessToken || "",
-        refreshToken: token.refreshToken || "",
         expiresAt: token.expiresAt || Date.now(),
         role: token.role || "user",
       }

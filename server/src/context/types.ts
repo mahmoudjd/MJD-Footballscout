@@ -8,10 +8,12 @@ import { Watchlist } from "../modules/watchlists/watchlist.model";
 import { ShadowTeam } from "../modules/shadow-teams/shadow-team.model";
 import { RecruitmentCandidate } from "../modules/recruitment/recruitment-candidate.model";
 import { RecruitmentWorkspace } from "../modules/recruitment/recruitment-workspace.model";
+import { AuthSession } from "../modules/auth/auth-sessions";
 
 export interface AppContext {
   players: Collection<PlayerType>;
   users: Collection<User>;
+  authSessions: Collection<AuthSession>;
   scoutingReports: Collection<ScoutingReport>;
   playerHistories: Collection<PlayerHistory>;
   watchlists: Collection<Watchlist>;
