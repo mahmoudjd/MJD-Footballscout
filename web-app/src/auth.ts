@@ -89,15 +89,30 @@ const authOptions: NextAuthOptions = {
         mfaChallengeToken: { label: "MFA challenge", type: "text" },
         deviceId: { label: "Device ID", type: "text" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         try {
-          const loginData = await loginUser({
-            email: credentials?.email || "",
-            password: credentials?.password || "",
-            mfaCode: optionalCredential(credentials?.mfaCode),
-            mfaChallengeToken: optionalCredential(credentials?.mfaChallengeToken),
-            deviceId: optionalCredential(credentials?.deviceId),
-          })
+          const headers = (req?.headers ?? {}) as Record<string, string | string[] | undefined>
+          const header = (name: string) => {
+            const value = headers[name]
+            return Array.isArray(value) ? value[0] : value
+          }
+          const loginData = await loginUser(
+            {
+              email: credentials?.email || "",
+              password: credentials?.password || "",
+              mfaCode: optionalCredential(credentials?.mfaCode),
+              mfaChallengeToken: optionalCredential(credentials?.mfaChallengeToken),
+              deviceId: optionalCredential(credentials?.deviceId),
+            },
+            {
+              userAgent: header("user-agent"),
+              forwardedFor:
+                header("x-forwarded-for")?.split(",")[0]?.trim() ||
+                header("x-real-ip"),
+              country: header("x-vercel-ip-country") || header("cf-ipcountry"),
+              city: header("x-vercel-ip-city"),
+            },
+          )
 
           if (loginData && !("mfaRequired" in loginData)) {
             return {
