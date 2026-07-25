@@ -10,37 +10,24 @@ type Props = {
   player: PlayerType;
 };
 
-type HeroTone = {
-  gradient: [string, string];
-  badge: string;
-};
+// Brand hero gradient — mirrors the web profile header (emerald-950 → 900 → 700)
+// so the profile reads the same on both platforms, independent of position.
+const HERO_GRADIENT = ["#022c22", "#064e3b", "#047857"] as const;
+const LIME = "#d9f99d"; // lime-200 accent, matches the web overline/hairline
+const PILL_BG = "rgba(255,255,255,0.12)";
+const PILL_BORDER = "rgba(255,255,255,0.16)";
 
-function getHeroTone(position: string): HeroTone {
-  if (position.includes("Forward")) {
-    return { gradient: ["#be123c", "#7f1d1d"], badge: "rgba(255,255,255,0.2)" };
-  }
-  if (position.includes("Midfielder")) {
-    return { gradient: ["#0f766e", "#134e4a"], badge: "rgba(255,255,255,0.2)" };
-  }
-  if (position.includes("Defender")) {
-    return { gradient: ["#1d4ed8", "#1e3a8a"], badge: "rgba(255,255,255,0.2)" };
-  }
-  return { gradient: ["#ca8a04", "#854d0e"], badge: "rgba(255,255,255,0.22)" };
-}
-
-function InfoBadge({
+function Pill({
   icon,
   label,
-  background,
 }: {
   icon: React.ComponentProps<typeof Ionicons>["name"];
   label: string;
-  background: string;
 }) {
   return (
-    <View style={[styles.badge, { backgroundColor: background }]}>
+    <View style={styles.pill}>
       <Ionicons name={icon} size={12} color="#fff" />
-      <Text style={styles.badgeText} numberOfLines={1}>
+      <Text style={styles.pillText} numberOfLines={1}>
         {label}
       </Text>
     </View>
@@ -49,35 +36,38 @@ function InfoBadge({
 
 const HeaderProfile = ({ player }: Props) => {
   const displayName = getPlayerDisplayName(player);
-  const tone = getHeroTone(player.position || "");
+  const subtitle = player.title ? safeDecodeURIComponent(player.title) : "";
 
   return (
     <LinearGradient
-      colors={tone.gradient}
+      colors={HERO_GRADIENT}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.hero}
     >
-      <View style={styles.topMetaRow}>
+      <View style={styles.topRow}>
+        <Text style={styles.overline}>PLAYER PROFILE</Text>
         {player.number ? (
-          <InfoBadge icon="shirt-outline" label={`#${player.number}`} background={tone.badge} />
-        ) : (
-          <View />
-        )}
-        {player.age ? (
-          <InfoBadge icon="hourglass-outline" label={`${player.age}y`} background={tone.badge} />
+          <View style={styles.numberBadge}>
+            <Text style={styles.numberLabel}>NUMBER</Text>
+            <Text style={styles.numberValue}>{player.number}</Text>
+          </View>
         ) : null}
       </View>
 
       <View style={styles.identityRow}>
         <View style={styles.avatarWrap}>
-          <Image
-            source={player.image || undefined}
-            style={styles.image}
-            contentFit="cover"
-            cachePolicy="memory-disk"
-            transition={180}
-          />
+          {player.image ? (
+            <Image
+              source={player.image}
+              style={styles.image}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              transition={180}
+            />
+          ) : (
+            <Text style={styles.avatarFallback}>?</Text>
+          )}
         </View>
 
         <View style={styles.identityTextWrap}>
@@ -85,22 +75,26 @@ const HeaderProfile = ({ player }: Props) => {
             {displayName}
           </Text>
 
-          {player.title ? (
+          {subtitle && subtitle !== displayName ? (
             <Text style={styles.subtitle} numberOfLines={2}>
-              {safeDecodeURIComponent(player.title)}
+              {subtitle}
             </Text>
           ) : null}
 
-          <View style={styles.badgeRow}>
+          <View style={styles.pillRow}>
             {player.position ? (
-              <InfoBadge icon="navigate-outline" label={player.position} background={tone.badge} />
+              <Pill icon="shield-checkmark-outline" label={player.position} />
             ) : null}
-            {player.currentClub ? (
-              <InfoBadge icon="shield-outline" label={player.currentClub} background={tone.badge} />
+            {player.currentClub ? <Pill icon="trophy-outline" label={player.currentClub} /> : null}
+            {typeof player.age === "number" ? (
+              <Text style={styles.ageText}>{player.age} years old</Text>
             ) : null}
           </View>
         </View>
       </View>
+
+      {/* Lime accent hairline, mirroring the web header's bottom edge. */}
+      <View style={styles.hairline} />
     </LinearGradient>
   );
 };
@@ -109,72 +103,131 @@ export default HeaderProfile;
 
 const styles = StyleSheet.create({
   hero: {
-    borderRadius: 22,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    marginBottom: 10,
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    paddingVertical: 18,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+    overflow: "hidden",
   },
-  topMetaRow: {
-    minHeight: 26,
+  topRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginBottom: 14,
+  },
+  overline: {
+    color: LIME,
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1.4,
+    marginTop: 2,
+  },
+  numberBadge: {
+    minWidth: 60,
+    alignItems: "center",
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "rgba(190,242,100,0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(217,249,157,0.28)",
+  },
+  numberLabel: {
+    color: LIME,
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 1.4,
+    textTransform: "uppercase",
+  },
+  numberValue: {
+    color: "#f7fee7",
+    fontSize: 26,
+    fontWeight: "800",
+    fontVariant: ["tabular-nums"],
+    lineHeight: 30,
   },
   identityRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 14,
   },
   avatarWrap: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: "rgba(255,255,255,0.18)",
+    width: 96,
+    height: 96,
+    borderRadius: 22,
+    padding: 5,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
     alignItems: "center",
     justifyContent: "center",
   },
   image: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
+    width: "100%",
+    height: "100%",
+    borderRadius: 17,
+  },
+  avatarFallback: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 34,
+    fontWeight: "800",
   },
   identityTextWrap: {
     flex: 1,
     minWidth: 0,
   },
   name: {
-    fontSize: 23,
+    fontSize: 24,
     fontWeight: "900",
     color: "#fff",
     letterSpacing: -0.5,
-    lineHeight: 27,
+    lineHeight: 28,
   },
   subtitle: {
-    marginTop: 3,
+    marginTop: 4,
     fontSize: 13,
-    color: "rgba(255,255,255,0.9)",
-    lineHeight: 17,
+    color: "rgba(255,255,255,0.72)",
+    lineHeight: 18,
   },
-  badgeRow: {
-    marginTop: 8,
+  pillRow: {
+    marginTop: 10,
     flexDirection: "row",
+    alignItems: "center",
     flexWrap: "wrap",
     gap: 6,
   },
-  badge: {
+  pill: {
     maxWidth: "100%",
     borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 5,
+    backgroundColor: PILL_BG,
+    borderWidth: 1,
+    borderColor: PILL_BORDER,
   },
-  badgeText: {
+  pillText: {
     color: "#fff",
     fontSize: 11,
     fontWeight: "700",
     maxWidth: 170,
+  },
+  ageText: {
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 11,
+    fontWeight: "600",
+    fontVariant: ["tabular-nums"],
+  },
+  hairline: {
+    position: "absolute",
+    left: 24,
+    right: 24,
+    bottom: 0,
+    height: 1,
+    backgroundColor: "rgba(217,249,157,0.5)",
   },
 });
