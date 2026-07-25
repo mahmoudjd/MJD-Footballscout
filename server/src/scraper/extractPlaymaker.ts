@@ -116,7 +116,7 @@ export async function extractPlayersFromPlayMakerStats(name: string): Promise<Pl
         const playerLinks: string[] = [];
 
         $(".zz-search-main > .zz-search-results > .player > div")
-            .slice(0, 3)
+            .slice(0, 5)
             .each((_, el) => {
                 const href = $(el).find('a[href^="/player/"]').attr("href");
                 if (href) {
