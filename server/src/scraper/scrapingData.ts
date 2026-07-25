@@ -39,7 +39,7 @@ export async function extractPlayerData(name: string, one = false): Promise<Play
             return players ? players : [];
         }
 
-        const urlsToAnalyse = Array.from(new Set(urlsBesoccer)).slice(0, 3);
+        const urlsToAnalyse = Array.from(new Set(urlsBesoccer)).slice(0, 5);
         logger.info(`Analyzing the first ${urlsToAnalyse.length} URLs.`);
 
         const results = await Promise.all(
