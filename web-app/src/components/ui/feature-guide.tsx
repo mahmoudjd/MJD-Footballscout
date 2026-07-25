@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { OutlineIcons } from "@/components/icons/outline-icons"
 import { SolidIcons } from "@/components/icons/solid-icons"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { hasSeenHelpGuide, markHelpGuideAsSeen } from "@/lib/cookies"
 import { cn } from "@/lib/cn"
 import { Text } from "@/components/ui/text"
 
@@ -34,38 +33,22 @@ interface FeatureGuideProps {
 }
 
 export function FeatureGuide({
-  guideId,
   title,
   description,
   sections,
   triggerLabel = "Help",
 }: FeatureGuideProps) {
+  // The guide is opt-in via the Help button — it never auto-opens, so it can't
+  // block the page a user came to use.
   const [open, setOpen] = useState(false)
   const [activeSection, setActiveSection] = useState(sections[0]?.id || "overview")
-  const [initialized, setInitialized] = useState(false)
-
-  useEffect(() => {
-    if (!hasSeenHelpGuide(guideId)) {
-      setOpen(true)
-    }
-    setInitialized(true)
-  }, [guideId])
-
-  const markAsSeen = () => {
-    markHelpGuideAsSeen(guideId)
-    setOpen(false)
-  }
-
-  const reopenGuide = () => {
-    setOpen(true)
-  }
 
   return (
     <>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button type="button" onClick={reopenGuide} variant="outline" size="sm">
+            <Button type="button" onClick={() => setOpen(true)} variant="outline" size="sm">
               <OutlineIcons.QuestionMarkCircleIcon
                 className="h-4 w-4 text-emerald-700"
                 aria-hidden="true"
@@ -126,17 +109,8 @@ export function FeatureGuide({
           ) : null}
 
           <DialogFooter>
-            <Button type="button" onClick={() => setOpen(false)} variant="outline" size="md">
-              Close
-            </Button>
-            <Button
-              type="button"
-              onClick={markAsSeen}
-              disabled={!initialized}
-              variant="primary"
-              size="md"
-            >
-              Got it, do not auto-show
+            <Button type="button" onClick={() => setOpen(false)} variant="primary" size="md">
+              Got it
             </Button>
           </DialogFooter>
         </DialogContent>

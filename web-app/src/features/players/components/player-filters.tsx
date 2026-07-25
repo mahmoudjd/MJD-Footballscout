@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react"
+import React, { memo, useMemo, useState } from "react"
 import { SolidIcons } from "@/components/icons/solid-icons"
 import { OutlineIcons } from "@/components/icons/outline-icons"
 import { Select } from "@/components/ui/select"
@@ -127,6 +127,23 @@ const PlayerFilters = memo(function PlayerFilters({
     [nationalities],
   )
 
+  // Count of active advanced filters, shown on the collapse toggle so users know
+  // there are hidden constraints without expanding the panel.
+  const advancedActiveCount = useMemo(() => {
+    return [
+      minAge,
+      maxAge,
+      minElo,
+      maxElo,
+      minValue,
+      maxValue,
+      sortBy !== "default" ? "sort" : "",
+      sortOrder !== "desc" ? "order" : "",
+    ].filter((value) => value !== "" && value !== undefined).length
+  }, [minAge, maxAge, minElo, maxElo, minValue, maxValue, sortBy, sortOrder])
+
+  const [showAdvanced, setShowAdvanced] = useState(false)
+
   return (
     <TooltipProvider>
       <div className="w-full space-y-4">
@@ -222,10 +239,31 @@ const PlayerFilters = memo(function PlayerFilters({
           </div>
 
           <div>
-            <Text as="p" variant="overline" className="text-stone-500">
-              Advanced Filters & Sorting
-            </Text>
-            <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Button
+              type="button"
+              onClick={() => setShowAdvanced((prev) => !prev)}
+              variant="outline"
+              size="sm"
+              aria-expanded={showAdvanced}
+              aria-controls="advanced-filters"
+              className="w-full justify-between sm:w-auto"
+            >
+              <span className="flex items-center gap-2">
+                <OutlineIcons.AdjustmentsVerticalIcon className="h-4 w-4" aria-hidden="true" />
+                {showAdvanced ? "Fewer filters" : "More filters"}
+                {advancedActiveCount > 0 ? (
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1.5 text-[11px] font-bold text-white tabular-nums">
+                    {advancedActiveCount}
+                  </span>
+                ) : null}
+              </span>
+              <OutlineIcons.ChevronDownIcon
+                className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
+                aria-hidden="true"
+              />
+            </Button>
+            {showAdvanced ? (
+            <div id="advanced-filters" className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-1 rounded-xl border border-stone-200 bg-white/80 p-3">
                 <FilterLabel
                   label="Min Age"
@@ -372,6 +410,7 @@ const PlayerFilters = memo(function PlayerFilters({
                 />
               </div>
             </div>
+            ) : null}
           </div>
         </div>
       </div>
