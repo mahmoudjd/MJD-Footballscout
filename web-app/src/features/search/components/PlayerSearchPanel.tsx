@@ -22,7 +22,9 @@ import { searchGuideSections } from "@/features/search/components/search-guide"
 import { queryKeys } from "@/lib/react-query/query-keys"
 
 export function PlayerSearchPanel() {
-  const { data: players, error, isError } = usePlayersQuery()
+  // A failed background players load only degrades local filtering — the server
+  // search still works, so we never throw it up to the global error page.
+  const { data: players } = usePlayersQuery()
   const [name, setName] = useState("")
   const [showServerResults, setShowServerResults] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
@@ -49,7 +51,6 @@ export function PlayerSearchPanel() {
     mutate,
     data: serverResults,
     isPending,
-    error: searchingError,
     isError: isSearchingError,
   } = usePlayerSearchMutation()
 
@@ -81,14 +82,6 @@ export function PlayerSearchPanel() {
       onSuccess: () => queryClient.refetchQueries({ queryKey: queryKeys.players.all }),
     })
   }, [name, mutate, loggedIn, router, queryClient, toast])
-
-  if (isError && error) {
-    throw error
-  }
-
-  if (isSearchingError && searchingError) {
-    throw searchingError
-  }
 
   const results: PlayerType[] = showServerResults ? (serverResults ?? []) : localResults
 
@@ -165,7 +158,20 @@ export function PlayerSearchPanel() {
         </Panel>
       )}
 
-      {hasSearched && results.length === 0 && !isPending ? (
+      {isSearchingError && !isPending ? (
+        <Panel tone="soft">
+          <StatusState
+            tone="error"
+            title="Search is temporarily unavailable"
+            description="The search service could not be reached. Please try again."
+            action={
+              <Button type="button" onClick={handleSearch} variant="primary" size="md">
+                Try again
+              </Button>
+            }
+          />
+        </Panel>
+      ) : hasSearched && results.length === 0 && !isPending ? (
         <Panel tone="soft">
           <StatusState
             tone="empty"

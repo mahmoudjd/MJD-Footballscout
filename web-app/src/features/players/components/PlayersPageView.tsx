@@ -46,7 +46,7 @@ export default function PlayersPageView() {
   const isAdmin = session?.user?.role === "admin"
   const toast = useToast()
 
-  const { data: players, isLoading, isError, error } = usePlayersQuery()
+  const { data: players, isLoading, isError, isFetching, refetch } = usePlayersQuery()
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState<PageSize>(DEFAULT_PAGE_SIZE)
   const [playerToDeleteId, setPlayerToDeleteId] = useState<string | null>(null)
@@ -181,9 +181,42 @@ export default function PlayersPageView() {
     return Array.from(new Set(all)).sort((a, b) => a.localeCompare(b))
   }, [players])
 
-  if (isError) {
-    throw error
-  }
+  // Removable chips for every active filter, so scouts can see and clear
+  // individual constraints without opening the (now collapsible) filter panel.
+  const activeFilterChips: Array<{ key: string; label: string; onRemove: () => void }> = [
+    selectedPosition && {
+      key: "position",
+      label: `Position: ${selectedPosition}`,
+      onRemove: () => setSelectedPosition(""),
+    },
+    selectedAgeGroup && {
+      key: "ageGroup",
+      label: `Age: ${selectedAgeGroup}`,
+      onRemove: () => setSelectedAgeGroup(""),
+    },
+    selectedNationality && {
+      key: "nationality",
+      label: `Nation: ${selectedNationality}`,
+      onRemove: () => setSelectedNationality(""),
+    },
+    clubQuery && { key: "club", label: `Club: ${clubQuery}`, onRemove: () => setClubQuery("") },
+    minAge && { key: "minAge", label: `Min age: ${minAge}`, onRemove: () => setMinAge("") },
+    maxAge && { key: "maxAge", label: `Max age: ${maxAge}`, onRemove: () => setMaxAge("") },
+    minElo && { key: "minElo", label: `Min ELO: ${minElo}`, onRemove: () => setMinElo("") },
+    maxElo && { key: "maxElo", label: `Max ELO: ${maxElo}`, onRemove: () => setMaxElo("") },
+    minValue && { key: "minValue", label: `Min value: ${minValue}`, onRemove: () => setMinValue("") },
+    maxValue && { key: "maxValue", label: `Max value: ${maxValue}`, onRemove: () => setMaxValue("") },
+    sortBy !== "default" && {
+      key: "sortBy",
+      label: `Sort: ${sortBy}`,
+      onRemove: () => setSortBy("default"),
+    },
+    sortOrder !== "desc" && {
+      key: "sortOrder",
+      label: "Order: ascending",
+      onRemove: () => setSortOrder("desc"),
+    },
+  ].filter((chip): chip is { key: string; label: string; onRemove: () => void } => Boolean(chip))
 
   return (
     <PageContainer className="space-y-6" size="wide">
@@ -251,29 +284,67 @@ export default function PlayersPageView() {
         />
       </Panel>
 
-      <Panel
-        tone="soft"
-        className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
-      >
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <Chip tone="amber" className="gap-1">
-            <OutlineIcons.ChartBarIcon className="h-3.5 w-3.5" aria-hidden="true" />
-            {filteredPlayers.length} matched
-          </Chip>
-          <Chip tone="neutral" className="gap-1">
-            <OutlineIcons.ArrowPathIcon className="h-3.5 w-3.5" aria-hidden="true" />
-            Showing {pagination.firstItemIndex}-{pagination.lastItemIndex}
-          </Chip>
-          {hasActiveFilters ? <Chip tone="amber">{activeFilterCount} active filters</Chip> : null}
+      <Panel tone="soft" className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <Chip tone="amber" className="gap-1">
+              <OutlineIcons.ChartBarIcon className="h-3.5 w-3.5" aria-hidden="true" />
+              {filteredPlayers.length} matched
+            </Chip>
+            <Chip tone="neutral" className="gap-1">
+              <OutlineIcons.ArrowPathIcon className="h-3.5 w-3.5" aria-hidden="true" />
+              Showing {pagination.firstItemIndex}-{pagination.lastItemIndex}
+            </Chip>
+            {hasActiveFilters ? <Chip tone="amber">{activeFilterCount} active filters</Chip> : null}
+          </div>
+          <Text as="p" variant="caption" tone="muted">
+            Open profiles directly from rows, and use quick actions for admin maintenance.
+          </Text>
         </div>
-        <Text as="p" variant="caption" tone="muted">
-          Open profiles directly from rows, and use quick actions for admin maintenance.
-        </Text>
+
+        {activeFilterChips.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2 border-t border-emerald-950/8 pt-3">
+            {activeFilterChips.map((chip) => (
+              <button
+                key={chip.key}
+                type="button"
+                onClick={chip.onRemove}
+                className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 transition-colors hover:border-emerald-300 hover:bg-emerald-100 focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:outline-none"
+                aria-label={`Remove filter ${chip.label}`}
+              >
+                {chip.label}
+                <OutlineIcons.XMarkIcon className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            ))}
+            <Button type="button" onClick={resetFilters} variant="ghost" size="sm" className="text-xs">
+              Clear all
+            </Button>
+          </div>
+        ) : null}
       </Panel>
 
       <Panel className="overflow-hidden p-0">
         {isLoading ? (
           <PlayersTableSkeleton rows={Math.max(3, itemsPerPage)} />
+        ) : isError ? (
+          <div className="p-5">
+            <StatusState
+              tone="error"
+              title="Could not load players"
+              description="The player service is currently unreachable. Your filters are kept — try again."
+              action={
+                <Button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  variant="primary"
+                  size="md"
+                >
+                  {isFetching ? "Retrying…" : "Try again"}
+                </Button>
+              }
+            />
+          </div>
         ) : pagination.currentPlayers.length === 0 ? (
           <div className="p-5">
             <StatusState
