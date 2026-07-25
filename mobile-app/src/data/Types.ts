@@ -260,6 +260,17 @@ export interface PlayerHistoryResponse {
   alerts: PlayerHistoryAlert[];
 }
 
+export interface SimilarPlayerItem {
+  player: PlayerType;
+  similarityScore: number;
+  reasons: string[];
+}
+
+export interface SimilarPlayersResponse {
+  sourcePlayerId: string;
+  items: SimilarPlayerItem[];
+}
+
 export type RecruitmentStage =
   | "discovered"
   | "video_review"

@@ -28,6 +28,7 @@ import {
   PlayerReportsResponse,
   PlayerType,
   ScoutingDecision,
+  SimilarPlayerItem,
   Title,
   Transfer,
 } from "../data/Types";
@@ -35,7 +36,7 @@ import { Link, useNavigation } from "expo-router";
 import {
   deletePlayer,
   deleteScoutingReport,
-  getAllPlayers,
+  getSimilarPlayers,
   getPlayerHistory,
   getPlayerReports,
   updatePlayer,
@@ -48,7 +49,8 @@ import AppSelect from "@/src/components/ui/AppSelect";
 import AppButton from "@/src/components/ui/AppButton";
 import PressableScale from "@/src/components/ui/PressableScale";
 import AnimatedEntrance from "@/src/components/ui/AnimatedEntrance";
-import { accentSoft, accentSoftText, numeric, onTint, radius, shadow, spacing } from "@/src/constants/Theme";
+import AnimatedBar from "@/src/components/ui/AnimatedBar";
+import { accentSoft, accentSoftText, numeric, radius, shadow, spacing } from "@/src/constants/Theme";
 import { getPlayerDisplayName as displayNameOf } from "@/src/utils/playerDisplay";
 
 type Props = {
@@ -73,19 +75,10 @@ const PROFILE_TABS: Array<{
   { key: "overview", label: "Overview", icon: "grid-outline" },
   { key: "attributes", label: "Attributes", icon: "speedometer-outline" },
   { key: "career", label: "Career", icon: "trail-sign-outline" },
+  { key: "similar", label: "Similar", icon: "people-outline" },
   { key: "scouting", label: "Scouting", icon: "clipboard-outline" },
   { key: "history", label: "History", icon: "pulse-outline" },
-  { key: "similar", label: "Similar", icon: "people-outline" },
 ];
-
-function getPositionGroup(position: string | undefined) {
-  const p = position || "";
-  if (p.includes("Forward")) return "Forward";
-  if (p.includes("Midfielder")) return "Midfielder";
-  if (p.includes("Defender")) return "Defender";
-  if (p.includes("Goalkeeper")) return "Goalkeeper";
-  return "Other";
-}
 
 function safeArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? (value as T[]) : [];
@@ -160,7 +153,7 @@ const PlayerProfile = ({ person }: Props) => {
   const [player, setPlayer] = useState<PlayerType>(normalizePlayer(person));
   const [activeTab, setActiveTab] = useState<ProfileTabKey>("overview");
 
-  const [allPlayers, setAllPlayers] = useState<PlayerType[]>([]);
+  const [similarItems, setSimilarItems] = useState<SimilarPlayerItem[]>([]);
   const [isLoadingSimilar, setIsLoadingSimilar] = useState(false);
   const [reportsData, setReportsData] = useState<PlayerReportsResponse | null>(null);
   const [historyData, setHistoryData] = useState<PlayerHistoryResponse | null>(null);
@@ -242,37 +235,29 @@ const PlayerProfile = ({ person }: Props) => {
     loadScoutingData();
   }, [loadScoutingData]);
 
-  const loadSimilarPool = useCallback(async () => {
+  // Similar players come from the backend similarity engine (score + reasons),
+  // matching the web profile rather than a local heuristic.
+  const loadSimilar = useCallback(async () => {
+    if (!isAuthenticated || !session) return;
     try {
       setIsLoadingSimilar(true);
-      const data = await getAllPlayers();
-      setAllPlayers(data);
+      const data = await runAuthorizedRequest({
+        session,
+        refreshSession,
+        request: (token) => getSimilarPlayers(token, playerId, 6),
+      });
+      setSimilarItems(data.items);
     } catch (error) {
       console.error(error);
-      setAllPlayers([]);
+      setSimilarItems([]);
     } finally {
       setIsLoadingSimilar(false);
     }
-  }, []);
+  }, [isAuthenticated, session, refreshSession, playerId]);
 
   useEffect(() => {
-    loadSimilarPool();
-  }, [loadSimilarPool]);
-
-  // Similar players: same position group, ranked by closest ELO, then value.
-  const similarPlayers = useMemo(() => {
-    const group = getPositionGroup(player.position);
-    const baseElo = typeof player.elo === "number" ? player.elo : 0;
-    return allPlayers
-      .filter((entry) => entry._id !== player._id && getPositionGroup(entry.position) === group)
-      .map((entry) => ({
-        entry,
-        diff: Math.abs((typeof entry.elo === "number" ? entry.elo : 0) - baseElo),
-      }))
-      .sort((a, b) => a.diff - b.diff)
-      .slice(0, 6)
-      .map((item) => item.entry);
-  }, [allPlayers, player._id, player.position, player.elo]);
+    loadSimilar();
+  }, [loadSimilar]);
 
   useEffect(() => {
     if (!ownReport) {
@@ -424,10 +409,10 @@ const PlayerProfile = ({ person }: Props) => {
 
   const renderOverviewTab = () => (
     <View style={[styles.sectionCard, { backgroundColor: palette.card, borderColor: palette.border }]}>
-      <View style={styles.sectionHeadingRow}>
-        <Ionicons name="information-circle-outline" size={17} color={palette.tint} />
-        <Text style={[styles.heading, { color: palette.text }]}>Details</Text>
-      </View>
+      <Text style={[styles.heading, { color: palette.text }]}>Complete Player Details</Text>
+      <Text style={[styles.headingSubtitle, { color: palette.notification }]}>
+        All available profile information is shown here at a glance.
+      </Text>
       <ProfileInfo player={player} />
     </View>
   );
@@ -702,53 +687,86 @@ const PlayerProfile = ({ person }: Props) => {
         <Text style={[styles.heading, { color: palette.text }]}>Similar Players</Text>
       </View>
       <Text style={[styles.similarSubtitle, { color: palette.notification }]}>
-        Same position ({getPositionGroup(player.position)}), ranked by closest ELO rating.
+        Data-based matches ranked by profile similarity. The reasons explain each score.
       </Text>
 
       {isLoadingSimilar ? (
         <SectionSkeleton rows={5} isDark={isDark} />
-      ) : similarPlayers.length === 0 ? (
+      ) : similarItems.length === 0 ? (
         <Text style={{ color: palette.notification }}>No similar players found.</Text>
       ) : (
         <View style={styles.similarList}>
-          {similarPlayers.map((sp, index) => (
-            <AnimatedEntrance key={sp._id} delay={index * 70}>
-            <Link href={`/${sp._id}`} asChild>
-              {/* Flattened style: <Link asChild>'s Slot rejects array styles. */}
-              <PressableScale
-                scaleTo={0.98}
-                style={StyleSheet.flatten([
-                  styles.similarRow,
-                  { borderColor: palette.border, backgroundColor: palette.background },
-                ])}
-              >
-                <View style={styles.similarRowInner}>
-                  <Image
-                    source={sp.image || undefined}
-                    style={[styles.similarAvatar, { backgroundColor: palette.surfaceSoft }]}
-                    contentFit="cover"
-                    cachePolicy="memory-disk"
-                    transition={160}
+          {similarItems.map((item, index) => {
+            const sp = item.player;
+            const match = Math.round(item.similarityScore);
+            const matchColor = match >= 85 ? "#059669" : match >= 70 ? "#65a30d" : "#d97706";
+            return (
+              <AnimatedEntrance key={sp._id} delay={index * 70}>
+                <View
+                  style={[styles.matchCard, { borderColor: palette.border, backgroundColor: palette.background }]}
+                >
+                  <View style={styles.matchTopRow}>
+                    <View style={[styles.matchBadge, { backgroundColor: `${matchColor}1f` }]}>
+                      <Text style={[styles.matchBadgeText, { color: matchColor }]}>{match}% Match</Text>
+                    </View>
+                    <Text style={[styles.profileFitLabel, { color: palette.notification }]}>Profile Fit</Text>
+                  </View>
+
+                  <AnimatedBar
+                    progress={match}
+                    color={matchColor}
+                    trackColor={isDark ? "rgba(255,255,255,0.08)" : "rgba(6,78,59,0.08)"}
+                    height={8}
+                    delay={index * 70}
                   />
-                  <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={[styles.similarName, { color: palette.text }]} numberOfLines={1}>
-                      {displayNameOf(sp)}
-                    </Text>
-                    <Text style={[styles.similarMeta, { color: palette.notification }]} numberOfLines={1}>
-                      {sp.currentClub || sp.country || "Unknown"} · {sp.position}
-                    </Text>
+
+                  <View style={styles.matchIdentityRow}>
+                    <Image
+                      source={sp.image || undefined}
+                      style={[styles.similarAvatar, { backgroundColor: palette.surfaceSoft }]}
+                      contentFit="cover"
+                      cachePolicy="memory-disk"
+                      transition={160}
+                    />
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <Text style={[styles.similarName, { color: palette.text }]} numberOfLines={1}>
+                        {displayNameOf(sp)}
+                      </Text>
+                      <Text style={[styles.similarMeta, { color: palette.notification }]} numberOfLines={1}>
+                        {sp.currentClub || sp.country || "Unknown"}
+                      </Text>
+                      <Text style={[styles.similarMeta, { color: palette.notification }]} numberOfLines={1}>
+                        {sp.position} · {typeof sp.age === "number" ? `${sp.age}y` : "–"} · ELO{" "}
+                        {typeof sp.elo === "number" ? sp.elo : "–"}
+                      </Text>
+                    </View>
+                    <Link href={`/${sp._id}`} asChild>
+                      <PressableScale
+                        scaleTo={0.96}
+                        style={StyleSheet.flatten([styles.viewProfileBtn, { borderColor: palette.border }])}
+                      >
+                        <Text style={[styles.viewProfileText, { color: palette.text }]}>View</Text>
+                        <Ionicons name="chevron-forward" size={13} color={palette.text} />
+                      </PressableScale>
+                    </Link>
                   </View>
-                  <View style={[styles.similarElo, { backgroundColor: palette.tint }]}>
-                    <Text style={[styles.similarEloText, numeric, { color: onTint(isDark) }]}>
-                      {typeof sp.elo === "number" ? sp.elo : "–"}
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={16} color={palette.notification} />
+
+                  {item.reasons.length > 0 ? (
+                    <View style={styles.reasonRow}>
+                      {item.reasons.map((reason) => (
+                        <View
+                          key={reason}
+                          style={[styles.reasonChip, { borderColor: palette.border, backgroundColor: palette.card }]}
+                        >
+                          <Text style={[styles.reasonText, { color: palette.notification }]}>{reason}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ) : null}
                 </View>
-              </PressableScale>
-            </Link>
-            </AnimatedEntrance>
-          ))}
+              </AnimatedEntrance>
+            );
+          })}
         </View>
       )}
     </View>
@@ -1007,8 +1025,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   heading: {
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: "800",
+  },
+  headingSubtitle: {
+    fontSize: 12.5,
+    lineHeight: 17,
+    marginTop: 3,
+    marginBottom: 14,
   },
   summaryGrid: {
     marginTop: 2,
@@ -1114,21 +1138,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   similarList: {
-    gap: 8,
-  },
-  similarRow: {
-    borderWidth: 1,
-    borderRadius: radius.md,
-    padding: 8,
-  },
-  similarRowInner: {
-    flexDirection: "row",
-    alignItems: "center",
     gap: 10,
   },
   similarAvatar: {
-    width: 44,
-    height: 44,
+    width: 46,
+    height: 46,
     borderRadius: radius.sm,
   },
   similarName: {
@@ -1140,16 +1154,63 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: "500",
   },
-  similarElo: {
-    borderRadius: radius.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    minWidth: 40,
-    alignItems: "center",
+  matchCard: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 12,
+    gap: 10,
   },
-  similarEloText: {
+  matchTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  matchBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 11,
+    paddingVertical: 4,
+  },
+  matchBadgeText: {
+    fontSize: 12.5,
+    fontWeight: "800",
+    fontVariant: ["tabular-nums"],
+  },
+  profileFitLabel: {
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "600",
+  },
+  matchIdentityRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 11,
+  },
+  viewProfileBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  viewProfileText: {
+    fontSize: 12.5,
+    fontWeight: "800",
+  },
+  reasonRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+  },
+  reasonChip: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+  },
+  reasonText: {
+    fontSize: 11,
+    fontWeight: "600",
   },
   skeletonWrap: {
     gap: 8,
