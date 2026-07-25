@@ -5,6 +5,7 @@ import {
   AuthResponse,
   ComparePlayersResponse,
   PlayerHistoryResponse,
+  SimilarPlayersResponse,
   PlayerHighlightsResponse,
   PlayerReportsResponse,
   ScoutingReport,
@@ -363,6 +364,12 @@ export async function deleteScoutingReport(accessToken: string, reportId: string
 
 export async function getPlayerHistory(accessToken: string, playerId: string, limit = 30) {
   return requestJson<PlayerHistoryResponse>(`/players/${playerId}/history?limit=${limit}`, {
+    accessToken,
+  });
+}
+
+export async function getSimilarPlayers(accessToken: string, playerId: string, limit = 6) {
+  return requestJson<SimilarPlayersResponse>(`/players/${playerId}/similar?limit=${limit}`, {
     accessToken,
   });
 }
