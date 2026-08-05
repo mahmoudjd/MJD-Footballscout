@@ -17,3 +17,9 @@ logs/
 .gitignore
 
 .DS_Store
+
+# securKeys
+.env.*
+!.env.example
+*.pem
+id_rsa*
