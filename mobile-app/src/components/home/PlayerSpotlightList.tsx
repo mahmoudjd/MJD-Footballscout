@@ -5,6 +5,7 @@ import { Link } from "expo-router";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
 import PressableScale from "@/src/components/ui/PressableScale";
+import { usePlayerHrefBuilder } from "@/src/utils/usePlayerHref";
 import { PlayerHighlightItem } from "@/src/data/Types";
 import { radius, shadow, spacing, typography } from "@/src/constants/Theme";
 
@@ -22,6 +23,7 @@ export default function PlayerSpotlightList({ title, players, emptyText }: Props
   // Amber ELO badge, matching the web PlayerSpotlightList.
   const eloBadgeBg = isDark ? "rgba(245,158,11,0.18)" : "rgba(245,158,11,0.12)";
   const eloBadgeText = isDark ? "#fbbf24" : "#b45309";
+  const buildHref = usePlayerHrefBuilder();
 
   return (
     <View
@@ -43,7 +45,7 @@ export default function PlayerSpotlightList({ title, players, emptyText }: Props
       ) : (
         <View style={styles.list}>
           {players.slice(0, 4).map((player) => (
-            <Link key={player._id} href={`/${player._id}`} asChild>
+            <Link key={player._id} href={buildHref(player._id)} asChild>
               {/* Style must be flattened, not an array: <Link asChild> renders
                   through a Slot that rejects array `style` props on its child. */}
               <PressableScale

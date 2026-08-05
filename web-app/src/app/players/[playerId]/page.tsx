@@ -7,7 +7,7 @@ interface ProfilePageProps {
 }
 
 export const metadata: Metadata = {
-  title: "Player Profile",
+  title: "Player Profile | Football Scout",
   description: "Review player information, attributes, history, and scouting reports.",
 }
 

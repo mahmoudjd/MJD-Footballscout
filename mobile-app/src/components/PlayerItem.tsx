@@ -7,6 +7,7 @@ import Colors from "../constants/Colors";
 import { AppContext } from "../context/AppContext";
 import { Link } from "expo-router";
 import PressableScale from "@/src/components/ui/PressableScale";
+import { usePlayerHrefBuilder } from "@/src/utils/usePlayerHref";
 import { getPlayerDisplayName, safeDecodeURIComponent } from "@/src/utils/playerDisplay";
 import { numeric, radius, shadow, spacing } from "@/src/constants/Theme";
 
@@ -62,9 +63,10 @@ const PlayerItem = ({ player }: Props) => {
   const eloBarColor = getEloBarColor(eloProgress);
   const eloTextColor = isDark ? "#34d399" : "#047857";
   const secondary = player.currentClub || player.country || "Unknown";
+  const buildHref = usePlayerHrefBuilder();
 
   return (
-    <Link href={`/${player._id}`} asChild>
+    <Link href={buildHref(player._id)} asChild>
       {/* Style must be flattened, not an array: <Link asChild> renders through a
           Slot that rejects array `style` props on its child. */}
       <PressableScale
