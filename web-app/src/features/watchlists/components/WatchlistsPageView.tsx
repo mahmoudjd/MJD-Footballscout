@@ -54,13 +54,22 @@ export function WatchlistsPageView() {
   const playersQuery = usePlayersQuery(isLoggedIn)
   const watchlists = useMemo(() => watchlistsQuery.data ?? [], [watchlistsQuery.data])
 
-  const invalidateWatchlistQueries = async () => {
-    await queryClient.invalidateQueries({ queryKey: queryKeys.watchlists.all })
+  const invalidateWatchlistQueries = async (watchlistId?: string) => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.watchlists.all }),
+      ...(watchlistId
+        ? [
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.watchlists.detail(watchlistId),
+            }),
+          ]
+        : []),
+    ])
   }
 
   const createWatchlistMutation = useCreateWatchlistMutation({
     onSuccess: async (created) => {
-      await invalidateWatchlistQueries()
+      await invalidateWatchlistQueries(created._id)
       setSelectedWatchlistId(created._id)
       setNewName("")
       setNewDescription("")
@@ -71,7 +80,7 @@ export function WatchlistsPageView() {
 
   const updateWatchlistMutation = useUpdateWatchlistMutation({
     onSuccess: async () => {
-      await invalidateWatchlistQueries()
+      await invalidateWatchlistQueries(selectedWatchlistId)
       toast.success("Watchlist updated")
     },
     onError: () => toast.error("Failed to update watchlist"),
@@ -79,7 +88,7 @@ export function WatchlistsPageView() {
 
   const deleteWatchlistMutation = useDeleteWatchlistMutation({
     onSuccess: async () => {
-      await invalidateWatchlistQueries()
+      await invalidateWatchlistQueries(selectedWatchlistId)
       setSelectedWatchlistId("")
       toast.success("Watchlist deleted")
     },
@@ -88,7 +97,7 @@ export function WatchlistsPageView() {
 
   const addPlayerMutation = useAddPlayerToWatchlistMutation({
     onSuccess: async () => {
-      await invalidateWatchlistQueries()
+      await invalidateWatchlistQueries(selectedWatchlistId)
       setSelectedPlayerId("")
       toast.success("Player added")
     },
@@ -97,7 +106,7 @@ export function WatchlistsPageView() {
 
   const removePlayerMutation = useRemovePlayerFromWatchlistMutation({
     onSuccess: async () => {
-      await invalidateWatchlistQueries()
+      await invalidateWatchlistQueries(selectedWatchlistId)
       toast.success("Player removed")
     },
     onError: () => toast.error("Failed to remove player"),
@@ -105,7 +114,7 @@ export function WatchlistsPageView() {
 
   const reorderMutation = useReorderWatchlistPlayersMutation({
     onSuccess: async () => {
-      await invalidateWatchlistQueries()
+      await invalidateWatchlistQueries(selectedWatchlistId)
     },
     onError: () => toast.error("Failed to reorder players"),
   })

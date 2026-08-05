@@ -118,93 +118,17 @@ function RootLayoutNav() {
                 name="(tabs)"
                 options={{ title: "Back", headerShown: false }}
               />
-              <Stack.Screen
-                name="settings"
-                options={{
-                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
-                  headerStyle: {
-                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
-                  },
-
-                  title: "Settings",
-                  presentation: "modal",
-                }}
-              />
-              {/* Auth screens render their own branded card with an in-card
-                  back button, so the native header would be a redundant second
-                  bar and is intentionally hidden. */}
+              {/* Everything else (player detail, Compare, Recruitment, Watchlists,
+                  Help, Profile, Settings) now lives inside the tab stacks so the
+                  native bottom tab bar stays visible. Only the auth screens remain
+                  at the root — on-demand gated flows shown without the tab bar.
+                  They render their own branded card with an in-card back button,
+                  so the native header is intentionally hidden. */}
               <Stack.Screen name="login" options={{ headerShown: false }} />
               <Stack.Screen name="signup" options={{ headerShown: false }} />
               <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
               <Stack.Screen name="reset-password" options={{ headerShown: false }} />
               <Stack.Screen name="verify-email" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="[_id]"
-                options={{
-                  headerShown: true,
-                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
-                  headerStyle: {
-                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
-                  },
-                  title: "Profile",
-                }}
-              />
-              <Stack.Screen
-                name="profile"
-                options={{
-                  headerShown: true,
-                  headerTitleAlign: "center",
-                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
-                  headerStyle: {
-                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
-                  },
-                  title: "My Account",
-                }}
-              />
-              <Stack.Screen
-                name="compare"
-                options={{
-                  headerShown: true,
-                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
-                  headerStyle: {
-                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
-                  },
-                  title: "Compare",
-                }}
-              />
-              <Stack.Screen
-                name="recruitment"
-                options={{
-                  headerShown: true,
-                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
-                  headerStyle: {
-                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
-                  },
-                  title: "Recruitment",
-                }}
-              />
-              <Stack.Screen
-                name="help"
-                options={{
-                  headerShown: true,
-                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
-                  headerStyle: {
-                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
-                  },
-                  title: "Help center",
-                }}
-              />
-              <Stack.Screen
-                name="watchlists-screen"
-                options={{
-                  headerShown: true,
-                  headerTintColor: Colors[isDark ? "dark" : "light"].text,
-                  headerStyle: {
-                    backgroundColor: isDark ? Colors.dark.primary : "#fff",
-                  },
-                  title: "Watchlists",
-                }}
-              />
               </Stack>
             </ThemeProvider>
             <StatusBar style={isDark ? "light" : "dark"} />

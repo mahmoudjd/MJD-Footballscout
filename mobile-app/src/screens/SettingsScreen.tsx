@@ -30,10 +30,10 @@ type QuickLink = {
   icon: keyof typeof Ionicons.glyphMap;
   group: QuickLinkGroup;
   href:
-    | "/compare"
-    | "/recruitment"
-    | "/watchlists-screen"
-    | "/help";
+    | "/account/compare"
+    | "/account/recruitment"
+    | "/account/watchlists"
+    | "/account/help";
 };
 
 // Home, Search, Players and Watchlists already live in the tab bar, so the
@@ -44,28 +44,28 @@ const quickLinks: QuickLink[] = [
     subtitle: "Rank candidates side by side across key metrics",
     icon: "git-compare-outline",
     group: "Analysis",
-    href: "/compare",
+    href: "/account/compare",
   },
   {
     title: "Watchlists",
     subtitle: "Track and organise your target players",
     icon: "heart-outline",
     group: "Scouting tools",
-    href: "/watchlists-screen",
+    href: "/account/watchlists",
   },
   {
     title: "Recruitment",
     subtitle: "Manage targets through your scouting pipeline",
     icon: "briefcase-outline",
     group: "Scouting tools",
-    href: "/recruitment",
+    href: "/account/recruitment",
   },
   {
     title: "Help center",
     subtitle: "Workflow guidance and answers to common questions",
     icon: "help-buoy-outline",
     group: "Support",
-    href: "/help",
+    href: "/account/help",
   },
 ];
 
@@ -148,7 +148,7 @@ export default function SettingsScreen() {
             accessibilityRole={isAuthenticated ? "button" : undefined}
             accessibilityLabel={isAuthenticated ? "Manage your account" : undefined}
             disabled={!isAuthenticated}
-            onPress={() => router.push("/profile" as never)}
+            onPress={() => router.push("/account/profile" as never)}
             style={styles.profileRow}
           >
             <View style={[styles.avatar, { backgroundColor: accentSoft(isDark) }]}>

@@ -24,22 +24,39 @@ import { queryKeys } from "@/lib/react-query/query-keys"
 import { Spinner } from "@/components/common/spinner"
 import { ActionLink } from "@/components/ui/action-link"
 
+const DeferredTabLoading = () => (
+  <Panel>
+    <StatusState tone="loading" title="Loading section" />
+  </Panel>
+)
+
 const Attributes = dynamic(
   () => import("@/features/profile/components/profile-components/attributes"),
+  { loading: DeferredTabLoading, ssr: false },
 )
 const Transfers = dynamic(
   () => import("@/features/profile/components/profile-components/Transfers"),
+  { loading: DeferredTabLoading, ssr: false },
 )
-const Titles = dynamic(() => import("@/features/profile/components/profile-components/Titles"))
-const Awards = dynamic(() => import("@/features/profile/components/profile-components/awards"))
+const Titles = dynamic(() => import("@/features/profile/components/profile-components/Titles"), {
+  loading: DeferredTabLoading,
+  ssr: false,
+})
+const Awards = dynamic(() => import("@/features/profile/components/profile-components/awards"), {
+  loading: DeferredTabLoading,
+  ssr: false,
+})
 const ScoutingReports = dynamic(
   () => import("@/features/profile/components/profile-components/ScoutingReports"),
+  { loading: DeferredTabLoading, ssr: false },
 )
 const PlayerHistory = dynamic(
   () => import("@/features/profile/components/profile-components/PlayerHistory"),
+  { loading: DeferredTabLoading, ssr: false },
 )
 const SimilarPlayers = dynamic(
   () => import("@/features/profile/components/profile-components/SimilarPlayers"),
+  { loading: DeferredTabLoading, ssr: false },
 )
 
 const dateTimeFormatter = new Intl.DateTimeFormat("en-GB", {
@@ -92,7 +109,7 @@ export function PlayerProfilePageView({ playerId }: PlayerProfilePageViewProps) 
 
   const { mutateAsync: updatePlayerMutation, isPending: isUpdating } = useUpdatePlayerMutation({
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: queryKeys.players.detail(playerId) })
+      await queryClient.invalidateQueries({ queryKey: queryKeys.players.detail(playerId) })
       toast.success(`${player?.name} data updated successfully.`)
     },
     onError: () => {

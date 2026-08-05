@@ -153,7 +153,7 @@ export default function RecruitmentScreen() {
   );
 
   if (!isAuthReady || (isAuthenticated && loading)) return <LoadingState withTopInset />;
-  if (!isAuthenticated) return <AuthRequiredState withTopInset callbackUrl="/recruitment" message="Sign in to manage your recruitment pipeline." />;
+  if (!isAuthenticated) return <AuthRequiredState withTopInset callbackUrl="/account/recruitment" message="Sign in to manage your recruitment pipeline." />;
 
   return <ScreenContainer edgeToEdge style={styles.screen}>
     <ScrollView contentInsetAdjustmentBehavior="automatic" style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

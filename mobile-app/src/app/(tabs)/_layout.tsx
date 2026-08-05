@@ -35,7 +35,7 @@ export default function TabLayout() {
           right after the Home overview. Then find (Players) → build (Squad Builder,
           i.e. the shadow-team route) → more. Analysis (Compare), Recruitment and
           Watchlists live in the More hub. */}
-      <NativeTabs.Trigger name="index">
+      <NativeTabs.Trigger name="(home)">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           sf={{ default: "house", selected: "house.fill" }}

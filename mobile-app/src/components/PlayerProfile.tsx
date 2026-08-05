@@ -33,6 +33,7 @@ import {
   Transfer,
 } from "../data/Types";
 import { Link, useNavigation } from "expo-router";
+import { usePlayerHrefBuilder } from "@/src/utils/usePlayerHref";
 import {
   deletePlayer,
   deleteScoutingReport,
@@ -148,6 +149,7 @@ const defaultReportForm: ReportFormState = {
 const PlayerProfile = ({ person }: Props) => {
   const navigation = useNavigation();
   const { isDark } = useContext(AppContext);
+  const buildPlayerHref = usePlayerHrefBuilder();
   const { session, isAuthenticated, isAdmin, refreshSession } = useAuth();
   const [isLoading, setLoading] = useState<boolean>(false);
   const [player, setPlayer] = useState<PlayerType>(normalizePlayer(person));
@@ -740,7 +742,7 @@ const PlayerProfile = ({ person }: Props) => {
                         {typeof sp.elo === "number" ? sp.elo : "–"}
                       </Text>
                     </View>
-                    <Link href={`/${sp._id}`} asChild>
+                    <Link href={buildPlayerHref(sp._id)} asChild>
                       <PressableScale
                         scaleTo={0.96}
                         style={StyleSheet.flatten([styles.viewProfileBtn, { borderColor: palette.border }])}
@@ -820,12 +822,13 @@ const PlayerProfile = ({ person }: Props) => {
   }
 
   return (
-    <SafeAreaView edges={["left", "right", "bottom"]} style={{ flex: 1, backgroundColor: palette.background }}>
+    <SafeAreaView edges={["left", "right"]} style={{ flex: 1, backgroundColor: palette.background }}>
       <AppBackground />
 
       <ScrollView
-        style={[styles.profilePage, { backgroundColor: palette.background }]}
+        style={styles.profilePage}
         contentContainerStyle={styles.profileContent}
+        contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
       >
         <HeaderProfile player={player} />
