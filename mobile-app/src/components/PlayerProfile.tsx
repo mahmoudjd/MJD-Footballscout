@@ -822,12 +822,13 @@ const PlayerProfile = ({ person }: Props) => {
   }
 
   return (
-    <SafeAreaView edges={["left", "right", "bottom"]} style={{ flex: 1, backgroundColor: palette.background }}>
+    <SafeAreaView edges={["left", "right"]} style={{ flex: 1, backgroundColor: palette.background }}>
       <AppBackground />
 
       <ScrollView
-        style={[styles.profilePage, { backgroundColor: palette.background }]}
+        style={styles.profilePage}
         contentContainerStyle={styles.profileContent}
+        contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
       >
         <HeaderProfile player={player} />

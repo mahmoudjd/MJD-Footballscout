@@ -1,4 +1,4 @@
-import { Stack, router, useLocalSearchParams, useNavigation } from "expo-router";
+import { Stack, router, useLocalSearchParams, useNavigation, useSegments } from "expo-router";
 import { View, Text, Pressable } from "react-native";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { PlayerType } from "@/src/data/Types";
@@ -19,6 +19,11 @@ const ProfileScreen = () => {
   const { _id, id } = useLocalSearchParams<{ _id?: string | string[]; id?: string | string[] }>();
   const { isDark } = useContext(AppContext);
   const navigation = useNavigation();
+  const segments = useSegments();
+  // The tab this profile was opened in ("(home)" | "search" | "playerList").
+  // Everything that returns from this screen must stay in that tab.
+  const tab = segments[1] ?? "(home)";
+  const tabRoot = `/${tab}`;
   const { session, isAuthenticated, isAuthReady, refreshSession } = useAuth();
   const resolvedPlayerId = useMemo(() => {
     const rawId = Array.isArray(id) ? id[0] : id;
@@ -26,9 +31,11 @@ const ProfileScreen = () => {
     const raw = rawId || rawFallback;
     return typeof raw === "string" ? raw : "";
   }, [_id, id]);
+  // Return to THIS tab's copy of the player after login (not the root /:id route,
+  // which always resolves to the Home tab and would drop the user out of context).
   const loginCallback = useMemo(
-    () => (resolvedPlayerId ? `/${resolvedPlayerId}` : "/"),
-    [resolvedPlayerId],
+    () => (resolvedPlayerId ? `${tabRoot}/${resolvedPlayerId}` : tabRoot),
+    [resolvedPlayerId, tabRoot],
   );
 
   const [player, setPlayer] = useState<PlayerType | null>(null);
@@ -37,12 +44,16 @@ const ProfileScreen = () => {
   const colorKey = isDark ? "dark" : "light";
 
   const handleBack = useCallback(() => {
+    // Normal case: pop within this tab's stack (profile -> list, or similar
+    // player -> previous player). When there is no back entry — e.g. login
+    // replaced this screen in via loginCallback — fall back to THIS tab's list,
+    // never a hardcoded other tab.
     if (navigation.canGoBack()) {
       navigation.goBack();
       return;
     }
-    router.replace("/(tabs)/playerList");
-  }, [navigation]);
+    router.replace(tabRoot as never);
+  }, [navigation, tabRoot]);
 
   useEffect(() => {
     if (isAuthReady && !isAuthenticated) {

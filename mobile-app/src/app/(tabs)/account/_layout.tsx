@@ -11,7 +11,8 @@ import { headerOptions } from "@/src/utils/navHeader";
 export default function AccountLayout() {
   const { isDark } = useContext(AppContext);
   return (
-    <Stack screenOptions={headerOptions(isDark)}>
+    <Stack screenOptions={{ ...headerOptions(isDark), headerBackTitle: "More" }}>
+      {/* Header hidden — Settings has its own in-content header. */}
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="compare" options={{ title: "Compare" }} />
       <Stack.Screen name="recruitment" options={{ title: "Recruitment" }} />
