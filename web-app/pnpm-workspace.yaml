@@ -1,3 +1,7 @@
+# pnpm 11 treats skipped dependency build scripts as a hard error. sharp and
+# @tailwindcss/oxide ship prebuilt binaries, so their build scripts are
+# intentionally not run — that must not fail the install.
+strictDepBuilds: false
 ignoredBuiltDependencies:
   - "@tailwindcss/oxide"
   - sharp

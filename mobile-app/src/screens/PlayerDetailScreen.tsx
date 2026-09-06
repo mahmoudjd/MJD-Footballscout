@@ -1,4 +1,4 @@
-import { Stack, router, useLocalSearchParams, useNavigation, useSegments } from "expo-router";
+import { Stack, router, useLocalSearchParams, useNavigation } from "expo-router";
 import { View, Text, Pressable } from "react-native";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { PlayerType } from "@/src/data/Types";
@@ -14,15 +14,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AppBackground from "@/src/components/ui/AppBackground";
 import { getPlayerDisplayName } from "@/src/utils/playerDisplay";
 import { Ionicons } from "@expo/vector-icons";
+import { useTabSegment } from "@/src/utils/usePlayerHref";
 
 const ProfileScreen = () => {
   const { _id, id } = useLocalSearchParams<{ _id?: string | string[]; id?: string | string[] }>();
   const { isDark } = useContext(AppContext);
   const navigation = useNavigation();
-  const segments = useSegments();
   // The tab this profile was opened in ("(home)" | "search" | "playerList").
   // Everything that returns from this screen must stay in that tab.
-  const tab = segments[1] ?? "(home)";
+  const tab = useTabSegment();
   const tabRoot = `/${tab}`;
   const { session, isAuthenticated, isAuthReady, refreshSession } = useAuth();
   const resolvedPlayerId = useMemo(() => {
