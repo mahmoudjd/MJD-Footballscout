@@ -10,6 +10,9 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string(),
     GOOGLE_CLIENT_ID: z.string(),
   },
+  // CI builds the app without secrets: validation would fail on placeholders
+  // that prove nothing. Vercel builds with the real values and validates.
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   runtimeEnv: {
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXT_PUBLIC_API_HOST: process.env.NEXT_PUBLIC_API_HOST,

@@ -1,42 +1,36 @@
 name: Server CI/CD
 
 on:
+  pull_request:
+    branches: [main]
+    paths: ['server/**', '.github/workflows/server-ci.yml']
   push:
-    paths:
-      - '../../server'
-    branches:
-      - main
+    branches: [main]
+    paths: ['server/**', '.github/workflows/server-ci.yml']
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: ./server
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '24'
-
-      - name: Install dependencies
-        working-directory: ./server
-        run: npm install
-
-      - name: Run tests
-        working-directory: ./server
-        run: npm test
-
-      - name: Build project
-        working-directory: ./server
-        run: npm run build
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
 
       - name: Deploy to Render
+        if: github.event_name == 'push'
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
         run: |
-          curl -X POST \
+          curl -fsS -X POST \
             -H "Authorization: Bearer $RENDER_API_KEY" \
             -H "Content-Type: application/json" \
             https://mjd-football-server.onrender.com
