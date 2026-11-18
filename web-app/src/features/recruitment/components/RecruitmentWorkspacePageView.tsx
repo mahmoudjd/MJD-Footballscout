@@ -108,7 +108,7 @@ function PipelineCard({
   const deadline = formatDeadline(candidate.deadline)
   const detailsChanged = assignee !== candidate.assignee || notes !== candidate.notes
   return (
-    <article className="group overflow-hidden rounded-2xl border border-emerald-950/10 bg-white shadow-[0_16px_32px_-26px_rgba(15,50,36,0.52)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-800/20 hover:shadow-[0_22px_38px_-26px_rgba(15,50,36,0.48)] motion-reduce:transform-none">
+    <article className="group overflow-hidden rounded-2xl border border-emerald-950/10 bg-white shadow-[0_16px_32px_-26px_rgba(10,15,41,0.52)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-800/20 hover:shadow-[0_22px_38px_-26px_rgba(10,15,41,0.48)] motion-reduce:transform-none">
       <div className="p-3.5">
         <div className="flex min-w-0 items-start gap-3">
           {player ? (

@@ -60,7 +60,7 @@ interface AccountFactProps {
 
 function AccountFact({ label, value, icon: Icon }: AccountFactProps) {
   return (
-    <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-emerald-950/8 bg-white/80 p-3.5 shadow-[0_14px_28px_-25px_rgba(15,50,36,0.5)]">
+    <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-emerald-950/8 bg-white/80 p-3.5 shadow-[0_14px_28px_-25px_rgba(10,15,41,0.5)]">
       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
         <Icon className="h-4.5 w-4.5" aria-hidden="true" />
       </span>
@@ -375,7 +375,7 @@ export function AccountProfilePageView() {
 
   return (
     <PageContainer size="wide" className="space-y-5">
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-emerald-950 via-emerald-900 to-emerald-700 p-5 text-white shadow-[0_30px_70px_-34px_rgba(6,78,59,0.72)] sm:p-7 lg:p-8">
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-emerald-950 via-emerald-900 to-emerald-700 p-5 text-white shadow-[0_30px_70px_-34px_rgba(20,27,66,0.72)] sm:p-7 lg:p-8">
         <div
           className="pointer-events-none absolute -top-28 -right-16 h-72 w-72 rounded-full bg-lime-300/12"
           aria-hidden="true"
@@ -434,7 +434,7 @@ export function AccountProfilePageView() {
       </section>
 
       <Tabs defaultValue={activeTab} onValueChange={changeTab}>
-        <div className="sticky top-17 z-30 rounded-2xl border border-emerald-950/8 bg-[#f5f7f4]/92 p-1.5 shadow-[0_18px_36px_-30px_rgba(15,50,36,0.55)] backdrop-blur-lg sm:top-20">
+        <div className="sticky top-17 z-30 rounded-2xl border border-emerald-950/8 bg-[#f4f6fb]/92 p-1.5 shadow-[0_18px_36px_-30px_rgba(10,15,41,0.55)] backdrop-blur-lg sm:top-20">
           <TabsList className="grid w-full grid-cols-3 gap-1.5 border-0 bg-transparent p-0">
             <TabsTrigger value="overview" className="gap-2 rounded-xl">
               <UserCircleIcon className="h-4 w-4" aria-hidden="true" />

@@ -1,5 +1,6 @@
 const DEFAULT_PLAYER_IMAGE = "/mjd-logo.png"
 const ALLOWED_REMOTE_HOSTS = new Set([
+  "media.api-sports.io",
   "cdn.resfu.com",
   "www.playmakerstats.com",
   "www.besoccer.com",

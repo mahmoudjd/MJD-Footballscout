@@ -21,7 +21,7 @@ const toneClasses: Record<ChipTone, string> = {
   danger: "border-red-200 bg-red-50 text-red-700",
   success: "border-emerald-200 bg-emerald-100 text-emerald-800",
   neutral:
-    "border-emerald-950/10 bg-white text-stone-700 shadow-[0_5px_14px_-12px_rgba(15,50,36,0.45)]",
+    "border-emerald-950/10 bg-white text-stone-700 shadow-[0_5px_14px_-12px_rgba(10,15,41,0.45)]",
 }
 
 const sizeClasses: Record<ChipSize, string> = {

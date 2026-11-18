@@ -9,6 +9,7 @@ import {
     getLinkPlaymakerstats,
     extractPlayersFromPlayMakerStats
 } from "./extractPlaymaker";
+import {extractPlayerFromApiFootball, extractPlayersFromApiFootball} from "./extractApiFootball";
 import type {PlayerTypeSchemaWithoutID, Title} from "../modules/players/player.model";
 import {z} from "zod";
 import {convert, normalizeName} from "./utils";
@@ -17,6 +18,13 @@ import logger from "../logger/logger";
 import {normalizePosition} from "./position";
 
 type PlayerTypeSchema = z.infer<typeof PlayerTypeSchemaWithoutID>;
+
+/**
+ * Scraping BeSoccer/Playmakerstats breaches their terms and database rights,
+ * so a public deployment uses only the licensed API-Football source. The
+ * scrapers stay available behind SCRAPERS_ENABLED=true for local development.
+ */
+export const scrapersEnabled = () => process.env.SCRAPERS_ENABLED === "true";
 
 export async function extractPlayerData(name: string, one = false): Promise<PlayerTypeSchema[]> {
     try {
@@ -28,6 +36,8 @@ export async function extractPlayerData(name: string, one = false): Promise<Play
             const player = await extractWithName(convertedName);
             return player ? [player] : [];
         }
+
+        if (!scrapersEnabled()) return await extractPlayersFromApiFootball(convertedName);
 
         const urlsBesoccer = await getLinksBesoccer(convertedName);
         logger.info(`Founded Besoccer-Links: ${urlsBesoccer.length}`);
@@ -59,6 +69,7 @@ export async function extractPlayerData(name: string, one = false): Promise<Play
 export async function extractWithName(name: string): Promise<PlayerTypeSchema | undefined> {
     try {
         const normalizedName = normalizeName(name);
+        if (!scrapersEnabled()) return await extractPlayerFromApiFootball(normalizedName);
         logger.debug(`Extract URLs for: ${normalizedName}`);
 
         const [urlBesoccer, urlPlaymaker] = await Promise.all([

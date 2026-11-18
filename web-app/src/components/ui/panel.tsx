@@ -10,10 +10,10 @@ interface PanelProps {
 
 const toneClasses: Record<NonNullable<PanelProps["tone"]>, string> = {
   default:
-    "bg-white/96 border border-emerald-950/8 shadow-[0_24px_55px_-38px_rgba(15,50,36,0.32)] backdrop-blur-[1px]",
+    "bg-white/96 border border-emerald-950/8 shadow-[0_24px_55px_-38px_rgba(10,15,41,0.32)] backdrop-blur-[1px]",
   glass:
     "bg-white/14 border border-white/30 text-white shadow-[0_20px_42px_-24px_rgba(15,23,42,0.55)] backdrop-blur-sm",
-  soft: "bg-linear-to-br from-[#f8faf7] via-white to-emerald-50/35 border border-emerald-950/8 shadow-[0_18px_36px_-28px_rgba(15,50,36,0.28)]",
+  soft: "bg-linear-to-br from-[#f7f8fc] via-white to-emerald-50/35 border border-emerald-950/8 shadow-[0_18px_36px_-28px_rgba(10,15,41,0.28)]",
 }
 
 const spacingClasses: Record<NonNullable<PanelProps["spacing"]>, string> = {

@@ -78,7 +78,7 @@ type QuickStatProps = {
 
 function QuickStatCard({ label, value, icon: Icon }: QuickStatProps) {
   return (
-    <article className="min-w-0 rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white to-emerald-50/55 p-3.5 shadow-[0_18px_34px_-28px_rgba(15,50,36,0.4)] sm:p-4">
+    <article className="min-w-0 rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white to-emerald-50/55 p-3.5 shadow-[0_18px_34px_-28px_rgba(10,15,41,0.4)] sm:p-4">
       <div className="flex items-center gap-2">
         <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 shadow-inner">
           <Icon className="h-4 w-4" aria-hidden="true" />

@@ -59,7 +59,7 @@ function assignmentFor(assignments: ShadowTeamAssignmentType[], slotId: string) 
 
 function MetricCard({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className="rounded-2xl border border-emerald-950/8 bg-white/85 p-4 shadow-[0_16px_28px_-26px_rgba(15,50,36,0.5)]">
+    <div className="rounded-2xl border border-emerald-950/8 bg-white/85 p-4 shadow-[0_16px_28px_-26px_rgba(10,15,41,0.5)]">
       <Text as="p" variant="caption" tone="muted" className="font-semibold tracking-wide uppercase">
         {label}
       </Text>
@@ -94,7 +94,7 @@ function PitchSlot({
       className={cn(
         "absolute z-10 flex w-[5.4rem] -translate-x-1/2 -translate-y-1/2 touch-manipulation flex-col items-center rounded-2xl border px-1.5 py-1.5 text-center shadow-lg transition-[background-color,border-color,color,box-shadow,transform] focus-visible:ring-3 focus-visible:ring-lime-300 focus-visible:outline-none sm:w-[6.5rem] sm:px-2 sm:py-2",
         selected
-          ? "scale-105 border-lime-300 bg-emerald-950 text-white shadow-[0_16px_30px_-16px_rgba(6,78,59,0.9)]"
+          ? "scale-105 border-lime-300 bg-emerald-950 text-white shadow-[0_16px_30px_-16px_rgba(20,27,66,0.9)]"
           : primary
             ? "border-white/70 bg-white/95 text-emerald-950 hover:border-lime-300 hover:bg-lime-50"
             : "border-dashed border-white/70 bg-emerald-950/72 text-white hover:bg-emerald-950/88",

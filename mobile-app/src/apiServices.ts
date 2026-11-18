@@ -92,8 +92,25 @@ async function requestJson<T>(path: string, options: RequestOptions = {}): Promi
   return payload as T;
 }
 
-export async function getAllPlayers(accessToken?: string) {
-  return requestJson<PlayerType[]>("/players", { accessToken });
+// Several screens (Search on every focus, Compare, Watchlists, Recruitment, filters)
+// need the full list; share one request for a short window instead of refetching.
+// ponytail: module-level 30s cache; move to a query library if staleness rules grow.
+const PLAYERS_TTL_MS = 30_000;
+let playersCache: { at: number; promise: Promise<PlayerType[]> } | null = null;
+
+export function invalidatePlayersCache() {
+  playersCache = null;
+}
+
+export async function getAllPlayers(_accessToken?: string) {
+  if (!playersCache || Date.now() - playersCache.at > PLAYERS_TTL_MS) {
+    const promise = requestJson<PlayerType[]>("/players");
+    playersCache = { at: Date.now(), promise };
+    promise.catch(() => {
+      if (playersCache?.promise === promise) playersCache = null;
+    });
+  }
+  return playersCache.promise;
 }
 
 export async function getPlayersHighlights() {
@@ -140,6 +157,7 @@ export async function searchPlayers(name: string) {
 }
 
 export async function saveSearchedPlayer(accessToken: string, player: SearchPlayerType) {
+  invalidatePlayersCache();
   return requestJson<PlayerType>("/players", {
     method: "POST",
     accessToken,
@@ -152,6 +170,7 @@ export async function fetchPlayer(id: string, accessToken: string) {
 }
 
 export async function updatePlayer(id: string, accessToken: string) {
+  invalidatePlayersCache();
   return requestJson<PlayerType>(`/players/${id}`, {
     method: "PUT",
     accessToken,
@@ -159,6 +178,7 @@ export async function updatePlayer(id: string, accessToken: string) {
 }
 
 export async function deletePlayer(id: string, accessToken: string) {
+  invalidatePlayersCache();
   return requestJson<void>(`/players/${id}`, {
     method: "DELETE",
     accessToken,
@@ -166,6 +186,7 @@ export async function deletePlayer(id: string, accessToken: string) {
 }
 
 export async function updateAllPlayers(accessToken: string) {
+  invalidatePlayersCache();
   return requestJson<{ message: string }>(`/update-players`, {
     method: "PUT",
     accessToken,

@@ -615,7 +615,7 @@ export default function PlayerList() {
             currentPage={currentPage}
             isLoading={isPageLoading}
           />
-      ) : null}
+      ) : undefined}
     />
   );
 }

@@ -29,11 +29,24 @@ import {
 } from "./scouting.controller";
 import { getAuthenticatedUserId, getRouteParam } from "../../shared/http";
 import { requireRole } from "../../middleware/role-middleware";
+import { createRateLimiter } from "../../middleware/rate-limit";
 
 const createPlayersRouter = (context: AppContext) => {
   const router = express.Router();
   router.use(createFeatureRequestLogger("players"));
   const activeAuthMiddleware = createActiveAuthMiddleware(context);
+  // Each search scrapes external sites live, so cap it per client and overall.
+  // ponytail: the global cap lets one abuser exhaust search for everyone; add
+  // auth on /search (clients already gate it in the UI) if that ever happens.
+  const searchRateLimiter = createRateLimiter({ windowMs: 10 * 60 * 1000, max: 20 });
+  const searchGlobalRateLimiter = createRateLimiter({
+    windowMs: 10 * 60 * 1000,
+    max: 300,
+    keyGenerator: () => "global",
+  });
+
+  // PUT /players/:id also scrapes live per request.
+  const refreshRateLimiter = createRateLimiter({ windowMs: 10 * 60 * 1000, max: 30 });
 
   router.get("/players", async (req: Request, res: Response) => {
     try {
@@ -258,6 +271,7 @@ const createPlayersRouter = (context: AppContext) => {
   router.put(
     "/players/:id",
     activeAuthMiddleware,
+    refreshRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       const playerId = getRouteParam(req.params.id);
       try {
@@ -270,7 +284,7 @@ const createPlayersRouter = (context: AppContext) => {
     },
   );
 
-  router.post("/search", async (req: Request, res: Response): Promise<any> => {
+  router.post("/search", searchRateLimiter, searchGlobalRateLimiter, async (req: Request, res: Response): Promise<any> => {
     const { name } = req.body;
     try {
       if (

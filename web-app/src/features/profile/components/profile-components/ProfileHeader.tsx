@@ -36,7 +36,7 @@ export default function ProfileHeader({
   const subtitle = safeDecode(fullName).trim()
 
   return (
-    <header className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-emerald-950 via-emerald-900 to-emerald-700 p-5 text-white shadow-[0_30px_70px_-34px_rgba(6,78,59,0.72)] sm:p-7">
+    <header className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-emerald-950 via-emerald-900 to-emerald-700 p-5 text-white shadow-[0_30px_70px_-34px_rgba(20,27,66,0.72)] sm:p-7">
       <div
         className="pointer-events-none absolute -top-24 -left-16 h-56 w-56 rounded-full bg-lime-300/12 blur-sm"
         aria-hidden="true"

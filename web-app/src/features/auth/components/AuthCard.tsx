@@ -12,7 +12,7 @@ export function AuthCard({ title, description, className, children }: AuthCardPr
   return (
     <section
       className={cn(
-        "relative mx-auto my-8 w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-3xl border border-emerald-950/10 bg-linear-to-br from-white via-white to-emerald-50/50 p-5 pt-7 shadow-[0_32px_70px_-36px_rgba(6,78,59,0.42)] sm:my-12 sm:p-8 sm:pt-10",
+        "relative mx-auto my-8 w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-3xl border border-emerald-950/10 bg-linear-to-br from-white via-white to-emerald-50/50 p-5 pt-7 shadow-[0_32px_70px_-36px_rgba(20,27,66,0.42)] sm:my-12 sm:p-8 sm:pt-10",
         className,
       )}
     >

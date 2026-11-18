@@ -28,7 +28,7 @@ export function SectionHeader({
   const toneClasses = {
     default: {
       container:
-        "border-emerald-950/8 bg-linear-to-br from-white via-white to-emerald-50/45 shadow-[0_24px_50px_-36px_rgba(15,50,36,0.38)]",
+        "border-emerald-950/8 bg-linear-to-br from-white via-white to-emerald-50/45 shadow-[0_24px_50px_-36px_rgba(10,15,41,0.38)]",
       iconWrap: "border-emerald-800/10 bg-emerald-100/70 text-emerald-800 shadow-inner",
       title: "text-emerald-950",
       description: "text-emerald-950/65",

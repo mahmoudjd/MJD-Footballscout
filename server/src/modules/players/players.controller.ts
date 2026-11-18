@@ -211,10 +211,11 @@ export async function createPlayer(context: AppContext, player: any) {
             throw new Error(`Failed to parse player data: ${JSON.stringify(safeData.error.issues, null, 2)}`);
         }
 
+        // Query with the validated data: raw input could carry operators like {$ne: null}.
         const existing = await context.players.findOne({
-            fullName: player.fullName,
-            born: player.born,
-            country: player.country,
+            fullName: safeData.data.fullName,
+            born: safeData.data.born,
+            country: safeData.data.country,
         });
 
         if (existing) {
@@ -412,7 +413,10 @@ export async function searchPlayers(context: AppContext, name: string) {
 export async function getPlayers(context: AppContext) {
     try {
         logger.debug("Fetching all players");
-        const players = await context.players.find().toArray();
+        // List views never render these per-player arrays; profiles load /players/:id.
+        const players = await context.players
+            .find({}, {projection: {transfers: 0, titles: 0, awards: 0, playerAttributes: 0}})
+            .toArray();
         if (players.length === 0) {
             logger.warn("No players found");
             return [];
@@ -554,7 +558,10 @@ export async function getPlayersHighlights(context: AppContext) {
 export async function updateAllPlayers(context: AppContext) {
     try {
         logger.info("Updating all players");
-        const players = await context.players.find().toArray();
+        // List views never render these per-player arrays; profiles load /players/:id.
+        const players = await context.players
+            .find({}, {projection: {transfers: 0, titles: 0, awards: 0, playerAttributes: 0}})
+            .toArray();
         if (!players || players.length === 0) {
             logger.warn("No players found for update");
             throw new Error("No players found");

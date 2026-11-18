@@ -1,5 +1,5 @@
 import React, { forwardRef, useRef } from "react";
-import { Animated, Pressable, PressableProps, StyleProp, View, ViewStyle } from "react-native";
+import { Animated, Pressable, PressableProps, StyleProp, ViewStyle } from "react-native";
 import { useReducedMotion } from "@/src/utils/useReducedMotion";
 
 type Props = PressableProps & {
@@ -18,7 +18,7 @@ type Props = PressableProps & {
  * tactile micro-interaction the app was missing. Honours Reduce Motion.
  * Forwards its ref so it works as a child of <Link asChild>.
  */
-const PressableScale = forwardRef<View, Props>(function PressableScale(
+const PressableScale = forwardRef<React.ComponentRef<typeof Pressable>, Props>(function PressableScale(
   { scaleTo = 0.96, style, containerStyle, children, onPressIn, onPressOut, ...rest },
   ref,
 ) {

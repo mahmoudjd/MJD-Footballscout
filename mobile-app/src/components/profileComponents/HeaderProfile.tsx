@@ -12,7 +12,7 @@ type Props = {
 
 // Brand hero gradient — mirrors the web profile header (emerald-950 → 900 → 700)
 // so the profile reads the same on both platforms, independent of position.
-const HERO_GRADIENT = ["#022c22", "#064e3b", "#047857"] as const;
+const HERO_GRADIENT = ["#0a0f29", "#141b42", "#283373"] as const;
 const LIME = "#d9f99d"; // lime-200 accent, matches the web overline/hairline
 const PILL_BG = "rgba(255,255,255,0.12)";
 const PILL_BORDER = "rgba(255,255,255,0.16)";

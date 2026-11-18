@@ -468,7 +468,7 @@ export default function CompareScreen() {
                 >
                   <Text style={{ color: Colors[colorKey].tint, fontWeight: "700" }}>Show more players</Text>
                 </Pressable>
-              ) : null
+              ) : undefined
             }
           />
         </>

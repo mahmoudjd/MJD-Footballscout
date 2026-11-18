@@ -400,7 +400,7 @@ export default function AccountProfileScreen() {
       >
         {/* Hero header — mirrors the web Account Center hero */}
         <CardSurface style={styles.heroShell} padding={0} radius={26}>
-          <LinearGradient colors={["#022c22", "#064e3b", "#047857"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+          <LinearGradient colors={["#0a0f29", "#141b42", "#283373"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
             <View style={styles.heroTopRow}>
               <View style={styles.heroAvatarWrap}>
                 <Text style={styles.heroAvatarText}>{displayName.charAt(0).toUpperCase() || "A"}</Text>
@@ -446,7 +446,7 @@ export default function AccountProfileScreen() {
           style={[
             styles.segmentBar,
             {
-              backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,33,24,0.045)",
+              backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,15,41,0.045)",
               borderColor: colors.border,
             },
           ]}
@@ -1079,7 +1079,7 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     borderWidth: 3,
-    borderColor: "#064e3b",
+    borderColor: "#141b42",
     backgroundColor: BRAND.lime,
   },
   heroIdentity: {

@@ -34,7 +34,7 @@ import {
 import { UserRole } from "../../shared/auth";
 import { AuthenticatedRequest } from "../../shared/auth";
 import { createActiveAuthMiddleware } from "../../middleware/auth-middleware";
-import { createRateLimiter } from "../../middleware/rate-limit";
+import { createRateLimiter, getClientIp } from "../../middleware/rate-limit";
 import { createOneTimeToken, hashOneTimeToken } from "./auth-tokens";
 import {
   createAuthSession,
@@ -166,8 +166,25 @@ export default function createAuthRouter(context: AppContext) {
   // Credential + TOTP guessing goes through /login; the reset/verification
   // routes are limited to curb email bombing.
   const loginRateLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10 });
+  // Per target account, so rotating IPs can't brute-force one password.
+  // 20 = 10 attempts × 2 calls (the web login probes /login before the real sign-in).
+  const loginAccountRateLimiter = createRateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    keyGenerator: (req) =>
+      typeof req.body?.email === "string"
+        ? `email:${req.body.email.trim().toLowerCase()}`
+        : `ip:${getClientIp(req)}`,
+  });
   const emailAbuseRateLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
   const registerRateLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 10 });
+  // Password/TOTP-checking account actions: caps guessing with a stolen access token.
+  const accountActionRateLimiter = createRateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    keyGenerator: (req) =>
+      `user:${(req as AuthenticatedRequest).user?.userId ?? getClientIp(req)}`,
+  });
 
   const emailService = createEmailService(context.config.env);
   const passwordResetResponse = {
@@ -297,7 +314,7 @@ export default function createAuthRouter(context: AppContext) {
     },
   );
 
-  router.post("/login", loginRateLimiter, async (req: Request, res: Response): Promise<any> => {
+  router.post("/login", loginRateLimiter, loginAccountRateLimiter, async (req: Request, res: Response): Promise<any> => {
     try {
       const input: UserLoginInput = UserLoginInputSchema.parse(req.body);
       const user = await findUserByEmail(context, input.email);
@@ -532,6 +549,7 @@ export default function createAuthRouter(context: AppContext) {
 
   router.post(
     "/verify-email",
+    loginRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       try {
         const { token } = VerifyEmailInputSchema.parse(req.body);
@@ -864,6 +882,7 @@ export default function createAuthRouter(context: AppContext) {
   router.post(
     "/mfa/enable",
     activeAuthMiddleware,
+    accountActionRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       try {
         const userId = (req as AuthenticatedRequest).user?.userId;
@@ -921,6 +940,7 @@ export default function createAuthRouter(context: AppContext) {
   router.post(
     "/mfa/disable",
     activeAuthMiddleware,
+    accountActionRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       try {
         const userId = (req as AuthenticatedRequest).user?.userId;
@@ -977,6 +997,7 @@ export default function createAuthRouter(context: AppContext) {
   router.post(
     "/change-password",
     activeAuthMiddleware,
+    accountActionRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       try {
         const userId = (req as AuthenticatedRequest).user?.userId;
@@ -1041,6 +1062,7 @@ export default function createAuthRouter(context: AppContext) {
   router.delete(
     "/me",
     activeAuthMiddleware,
+    accountActionRateLimiter,
     async (req: Request, res: Response): Promise<any> => {
       try {
         const userId = (req as AuthenticatedRequest).user?.userId;

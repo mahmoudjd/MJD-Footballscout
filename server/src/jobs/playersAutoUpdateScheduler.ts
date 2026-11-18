@@ -17,7 +17,8 @@ function parseHours(value: string | undefined, fallbackHours: number): number {
 }
 
 export function startPlayersAutoUpdateScheduler(context: AppContext) {
-    const enabled = parseBoolean(process.env.PLAYERS_AUTO_UPDATE_ENABLED, true);
+    // Off by default: every player refresh spends API-Football quota.
+    const enabled = parseBoolean(process.env.PLAYERS_AUTO_UPDATE_ENABLED, false);
     if (!enabled) {
         logger.info("[scheduler] Players auto-update disabled.");
         return () => undefined;

@@ -37,10 +37,10 @@ const Header = () => {
   const moreActive = secondaryNavLinks.some((link) => isActive(link.href))
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-emerald-950/10 bg-[#f8faf7]/90 text-emerald-950 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-emerald-950/10 bg-[#f7f8fc]/90 text-emerald-950 backdrop-blur-xl">
       <div
         className={cn(
-          "mx-auto flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 lg:px-8",
+          "mx-auto flex h-14 w-full items-center sm:h-16 justify-between gap-4 px-4 sm:px-6 lg:px-8",
           appShellWidthClassName,
         )}
       >
@@ -52,7 +52,7 @@ const Header = () => {
           <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-emerald-950">
             <Image src="/mjd-logo.png" alt="MJD Football Scout" width={40} height={40} priority />
           </span>
-          <span className="hidden sm:block">
+          <span className="block">
             <Text
               as="span"
               weight="bold"
@@ -80,15 +80,17 @@ const Header = () => {
                 key={link.href}
                 href={resolveNavHref(link, isAuthed)}
                 aria-current={active ? "page" : undefined}
+                title={link.label}
                 className={cn(
-                  "inline-flex min-h-10 touch-manipulation items-center gap-1.5 rounded-lg px-3 py-2 transition-colors focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none",
+                  "inline-flex min-h-10 touch-manipulation items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 transition-colors focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none",
                   active
                     ? "bg-emerald-950 text-white"
                     : "text-emerald-950/75 hover:bg-emerald-950/5 hover:text-emerald-950",
                 )}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
-                <Text as="span" tone="inherit">
+                {/* md–xl: icon-only for inactive links so the nav fits; label stays for screen readers */}
+                <Text as="span" tone="inherit" className={active ? undefined : "sr-only xl:not-sr-only"}>
                   {link.label}
                 </Text>
               </Link>
@@ -102,7 +104,7 @@ const Header = () => {
                 type="button"
                 aria-label="More sections"
                 className={cn(
-                  "inline-flex min-h-10 touch-manipulation items-center gap-1.5 rounded-lg px-3 py-2 transition-colors focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none",
+                  "inline-flex min-h-10 touch-manipulation items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 transition-colors focus-visible:ring-2 focus-visible:ring-lime-400 focus-visible:outline-none",
                   moreActive
                     ? "bg-emerald-950 text-white"
                     : "text-emerald-950/75 hover:bg-emerald-950/5 hover:text-emerald-950",
@@ -135,7 +137,7 @@ const Header = () => {
         </nav>
 
         {/* Account */}
-        <div className="hidden shrink-0 items-center md:flex">
+        <div className="flex shrink-0 items-center">
           {isAuthed ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -177,7 +179,7 @@ const Header = () => {
           ) : (
             <Link
               href="/login"
-              className="inline-flex min-h-10 touch-manipulation items-center rounded-lg bg-lime-300 px-4 py-2 text-sm font-bold text-emerald-950 transition-colors hover:bg-lime-200 focus-visible:ring-2 focus-visible:ring-lime-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="inline-flex min-h-10 touch-manipulation items-center rounded-full bg-lime-300 px-4 py-2 text-sm font-bold text-emerald-950 transition-colors hover:bg-lime-200 focus-visible:ring-2 focus-visible:ring-lime-500 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               Login
             </Link>

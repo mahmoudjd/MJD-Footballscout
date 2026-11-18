@@ -9,6 +9,8 @@ export const env = createEnv({
     NEXTAUTH_SECRET: z.string().min(32, "NEXTAUTH_SECRET muss mindestens 32 Zeichen lang sein"),
     GOOGLE_CLIENT_SECRET: z.string(),
     GOOGLE_CLIENT_ID: z.string(),
+    // Shared with the API server; lets it trust the browser IP/location we forward.
+    PROXY_SHARED_SECRET: z.string().min(32).optional(),
   },
   // CI builds the app without secrets: validation would fail on placeholders
   // that prove nothing. Vercel builds with the real values and validates.
@@ -18,5 +20,6 @@ export const env = createEnv({
     NEXT_PUBLIC_API_HOST: process.env.NEXT_PUBLIC_API_HOST,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    PROXY_SHARED_SECRET: process.env.PROXY_SHARED_SECRET,
   },
 })

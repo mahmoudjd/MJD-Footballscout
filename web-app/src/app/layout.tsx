@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Archivo } from "next/font/google"
 import "./globals.css"
 
 import Header from "@/components/layout/header/header"
@@ -6,6 +7,8 @@ import { MobileTabBar } from "@/components/layout/header/mobile-tab-bar"
 import { Footer } from "@/components/layout/footer"
 import { Providers } from "./providers"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+
+const archivo = Archivo({ subsets: ["latin"], variable: "--font-archivo", display: "swap" })
 
 export const metadata: Metadata = {
   title: {
@@ -25,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={archivo.variable}>
       <body className="min-h-screen font-sans antialiased">
         <a
           href="#main-content"

@@ -18,7 +18,7 @@ const footerLinks = [
 
 export function Footer() {
   return (
-    <footer className="hidden w-full border-t border-emerald-950/10 bg-[#f8faf7] md:block">
+    <footer className="hidden w-full border-t border-emerald-950/10 bg-[#f7f8fc] md:block">
       <div
         className={cn(
           "mx-auto flex min-h-20 w-full items-center justify-between gap-6 px-4 py-4 text-xs text-stone-500 sm:px-6 sm:text-sm lg:px-8",

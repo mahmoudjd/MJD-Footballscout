@@ -84,7 +84,7 @@ export default function Transfers({ transfers }: Props) {
                 ) : null}
               </div>
 
-              <div className="min-w-0 flex-1 rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white to-emerald-50/35 p-4 shadow-[0_16px_30px_-26px_rgba(15,50,36,0.38)]">
+              <div className="min-w-0 flex-1 rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white to-emerald-50/35 p-4 shadow-[0_16px_30px_-26px_rgba(10,15,41,0.38)]">
                 <div className="flex items-center gap-2 text-sm text-emerald-950/55">
                   <OutlineIcons.CalendarIcon
                     className="h-5 w-5 text-emerald-700"

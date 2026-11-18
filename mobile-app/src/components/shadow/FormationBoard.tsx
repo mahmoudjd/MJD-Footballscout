@@ -69,7 +69,7 @@ export default function FormationBoard({
                 <Text
                   style={[
                     styles.slotLabel,
-                    { color: selected ? "rgba(255,255,255,0.75)" : primary ? "rgba(10,33,24,0.6)" : "rgba(255,255,255,0.75)" },
+                    { color: selected ? "rgba(255,255,255,0.75)" : primary ? "rgba(10,15,41,0.6)" : "rgba(255,255,255,0.75)" },
                   ]}
                 >
                   {slot.shortLabel}
@@ -85,7 +85,7 @@ export default function FormationBoard({
                     />
                     <Text
                       numberOfLines={1}
-                      style={[styles.slotPlayerName, { color: selected ? "#ffffff" : "#0a2118" }]}
+                      style={[styles.slotPlayerName, { color: selected ? "#ffffff" : "#0a0f29" }]}
                     >
                       {getPlayerDisplayName(primary)}
                     </Text>
@@ -238,6 +238,6 @@ const styles = StyleSheet.create({
   altBadgeText: {
     fontSize: 9,
     fontWeight: "900",
-    color: "#0a2118",
+    color: "#0a0f29",
   },
 });

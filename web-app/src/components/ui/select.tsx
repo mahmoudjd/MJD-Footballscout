@@ -51,7 +51,7 @@ export function Select({
   const toneClasses = {
     default: {
       trigger:
-        "border-emerald-950/15 bg-white text-emerald-950 shadow-[0_9px_22px_-18px_rgba(15,50,36,0.42)] data-[placeholder]:text-stone-500 hover:border-emerald-900/30",
+        "border-emerald-950/15 bg-white text-emerald-950 shadow-[0_9px_22px_-18px_rgba(10,15,41,0.42)] data-[placeholder]:text-stone-500 hover:border-emerald-900/30",
       icon: "text-stone-500",
       content: "border-emerald-950/10 bg-white",
       scroll: "bg-white text-stone-600",
@@ -94,7 +94,7 @@ export function Select({
           position="popper"
           sideOffset={6}
           className={cn(
-            "z-50 max-h-72 w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-1rem)] overflow-hidden rounded-2xl border p-1 shadow-[0_24px_55px_-28px_rgba(15,50,36,0.42)]",
+            "z-50 max-h-72 w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-1rem)] overflow-hidden rounded-2xl border p-1 shadow-[0_24px_55px_-28px_rgba(10,15,41,0.42)]",
             toneClasses.content,
             contentClassName,
           )}

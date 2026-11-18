@@ -25,7 +25,7 @@ export function StatTile({ label, value, className, tone = "default" }: StatTile
   return (
     <div
       className={cn(
-        "rounded-2xl border p-4 shadow-[0_18px_34px_-28px_rgba(15,50,36,0.42)]",
+        "rounded-2xl border p-4 shadow-[0_18px_34px_-28px_rgba(10,15,41,0.42)]",
         toneClasses.container,
         className,
       )}

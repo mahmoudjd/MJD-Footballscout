@@ -10,7 +10,7 @@ interface InfoItemProps {
 }
 
 const baseClassName =
-  "group min-w-0 flex items-start gap-3 rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white to-emerald-50/35 p-4 shadow-[0_16px_30px_-26px_rgba(15,50,36,0.38)]"
+  "group min-w-0 flex items-start gap-3 rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white to-emerald-50/35 p-4 shadow-[0_16px_30px_-26px_rgba(10,15,41,0.38)]"
 
 const ProfileInfoItem = ({ icon, label, value, href }: InfoItemProps) => {
   const content = (
@@ -39,7 +39,7 @@ const ProfileInfoItem = ({ icon, label, value, href }: InfoItemProps) => {
         rel="noopener noreferrer"
         className={cn(
           baseClassName,
-          "touch-manipulation transition-[border-color,background-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-700/25 hover:bg-emerald-50/60 hover:shadow-[0_20px_38px_-26px_rgba(6,78,59,0.42)] focus-visible:ring-2 focus-visible:ring-lime-500/70 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none motion-reduce:transition-none",
+          "touch-manipulation transition-[border-color,background-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-700/25 hover:bg-emerald-50/60 hover:shadow-[0_20px_38px_-26px_rgba(20,27,66,0.42)] focus-visible:ring-2 focus-visible:ring-lime-500/70 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none motion-reduce:transition-none",
         )}
       >
         {content}

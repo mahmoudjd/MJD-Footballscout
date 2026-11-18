@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import type { Request } from "express";
 import type { AppContext } from "../../context/types";
 import type { User } from "./user.model";
+import { getClientIp, isTrustedProxy } from "../../middleware/rate-limit";
 
 const firstHeader = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value?.split(",")[0]?.trim();
@@ -49,18 +50,16 @@ export function describeLoginContext(req: Request) {
   const userAgent = req.get("user-agent") || undefined;
   const bodyDeviceId = typeof req.body?.deviceId === "string" ? req.body.deviceId : undefined;
   const clientDeviceId = (req.get("x-client-device-id") || bodyDeviceId)?.trim().slice(0, 200);
-  const ip =
-    firstHeader(req.headers["cf-connecting-ip"] as string | string[] | undefined) ||
-    firstHeader(req.headers["x-forwarded-for"] as string | string[] | undefined) ||
-    req.ip ||
-    undefined;
-  const country =
-    firstHeader(req.headers["cf-ipcountry"] as string | string[] | undefined) ||
-    firstHeader(req.headers["x-vercel-ip-country"] as string | string[] | undefined) ||
-    firstHeader(req.headers["x-country-code"] as string | string[] | undefined);
-  const city = decodeHeader(
-    firstHeader(req.headers["x-vercel-ip-city"] as string | string[] | undefined),
-  );
+  const ip = getClientIp(req);
+  // Location headers are client-settable, so only our own proxy may supply them.
+  const trusted = isTrustedProxy(req);
+  const country = trusted
+    ? firstHeader(req.headers["x-vercel-ip-country"] as string | string[] | undefined) ||
+      firstHeader(req.headers["x-country-code"] as string | string[] | undefined)
+    : undefined;
+  const city = trusted
+    ? decodeHeader(firstHeader(req.headers["x-vercel-ip-city"] as string | string[] | undefined))
+    : undefined;
   const location = [city, country].filter(Boolean).join(", ") || "Unknown location";
   const device = describeDevice(userAgent);
   const identity = clientDeviceId ? `client:${clientDeviceId}` : `agent:${device}`;
