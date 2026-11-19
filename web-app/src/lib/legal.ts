@@ -6,7 +6,7 @@ export const LEGAL = {
   // Production web origin — also the Universal Link / App Link domain.
   webUrl: "https://mjd-football-scout.vercel.app",
   // Data-protection / support contact shown in the policies (store requirement).
-  contactEmail: "info@mjd-apps.com",
+  contactEmail: "support@mjd-apps.de",
   // Last substantive update to the policies (YYYY-MM-DD).
   effectiveDate: "2026-10-08",
 } as const

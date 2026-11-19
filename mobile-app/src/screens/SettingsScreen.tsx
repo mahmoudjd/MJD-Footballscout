@@ -1,6 +1,6 @@
 import React from "react";
 import { router } from "expo-router";
-import { ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { Linking, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
@@ -13,13 +13,14 @@ import AppButton from "@/src/components/ui/AppButton";
 import PressableScale from "@/src/components/ui/PressableScale";
 import { accentSoft, accentSoftText } from "@/src/constants/Theme";
 import * as WebBrowser from "expo-web-browser";
-import { LEGAL_URLS } from "@/src/constants/legal";
+import { LEGAL_URLS, SUPPORT_EMAIL } from "@/src/constants/legal";
 
 const legalLinks: { title: string; icon: keyof typeof Ionicons.glyphMap; url: string }[] = [
   { title: "Privacy Policy", icon: "shield-checkmark-outline", url: LEGAL_URLS.privacy },
   { title: "Terms of Service", icon: "document-text-outline", url: LEGAL_URLS.terms },
   { title: "Cookie Policy", icon: "information-circle-outline", url: LEGAL_URLS.cookies },
   { title: "Impressum", icon: "business-outline", url: LEGAL_URLS.impressum },
+  { title: "Contact support", icon: "mail-outline", url: `mailto:${SUPPORT_EMAIL}` },
 ];
 
 type QuickLinkGroup = "Analysis" | "Scouting tools" | "Support";
@@ -275,9 +276,13 @@ export default function SettingsScreen() {
                 scaleTo={0.98}
                 accessibilityRole="button"
                 accessibilityLabel={item.title}
-                accessibilityHint={`Opens ${item.title} in your browser`}
+                accessibilityHint={
+                  item.url.startsWith("mailto:") ? `Emails ${SUPPORT_EMAIL}` : `Opens ${item.title} in your browser`
+                }
                 style={[styles.linkItem, { borderColor: colors.border, backgroundColor: colors.background }]}
-                onPress={() => WebBrowser.openBrowserAsync(item.url)}
+                onPress={() =>
+                  item.url.startsWith("mailto:") ? Linking.openURL(item.url) : WebBrowser.openBrowserAsync(item.url)
+                }
               >
                 <View style={styles.linkMain}>
                   <View style={[styles.linkIconWrap, { backgroundColor: accentSoft(isDark) }]}>
@@ -287,7 +292,7 @@ export default function SettingsScreen() {
                     <Text style={[styles.linkTitle, { color: colors.text }]}>{item.title}</Text>
                   </View>
                 </View>
-                <Ionicons name="open-outline" size={16} color={colors.notification} />
+                <Ionicons name={item.url.startsWith("mailto:") ? "mail-open-outline" : "open-outline"} size={16} color={colors.notification} />
               </PressableScale>
             ))}
           </View>

@@ -1,5 +1,6 @@
-// Mirrors web-app/src/lib/legal.ts — keep the URLs in sync.
+// Mirrors web-app/src/lib/legal.ts — keep the URLs and SUPPORT_EMAIL in sync.
 export const WEB_URL = "https://mjd-football-scout.vercel.app";
+export const SUPPORT_EMAIL = "support@mjd-apps.de";
 
 export const LEGAL_URLS = {
   privacy: `${WEB_URL}/privacy`,

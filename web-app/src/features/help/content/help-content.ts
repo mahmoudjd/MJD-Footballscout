@@ -200,6 +200,22 @@ export const faqGroups: FaqGroup[] = [
 
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: "3.1",
+    date: "2026-11-19",
+    title: "Floodlight Redesign",
+    summary:
+      "A fresh midnight-navy and volt look across web and mobile, faster player search and stronger account protection.",
+    highlights: [
+      "Enjoy the new Floodlight design with a midnight-navy and volt palette, new typography and pill-shaped navigation on web and mobile.",
+      "Get up to seven players per search, with collapsible filters and clearer inline errors on the players page.",
+      "Open player profiles faster, with the mobile profile now matching the web design.",
+      "See your real device and location in sign-in emails — and only one email per sign-in.",
+      "Stay safer with rate limits on sign-in, MFA and password changes, rotating refresh tokens and hardened security headers.",
+      "Reach us at support@mjd-apps.de — now linked from Settings and Help in the mobile app and in every email.",
+    ],
+    featured: true,
+  },
+  {
     version: "3.0",
     date: "2026-07-19",
     title: "Complete Scouting Workspace",
@@ -222,6 +238,6 @@ export const releaseNotes: ReleaseNote[] = [
       "Use Squad Builder and the Recruitment Workspace free of charge — every scouting tool is included for all signed-in users.",
       "Protect new registrations with email verification, expiring one-time links, transactional security notifications and TOTP multi-factor authentication with recovery codes.",
     ],
-    featured: true,
+    featured: false,
   },
 ]
