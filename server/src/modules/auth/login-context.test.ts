@@ -21,9 +21,11 @@ test("describeDevice renders a friendly browser-on-OS label", () => {
 });
 
 test("creates a stable device fingerprint and reads trusted proxy location headers", () => {
+  process.env.PROXY_SHARED_SECRET = "test-proxy-secret";
   const request = {
     body: { deviceId: "device-12345678" },
     headers: {
+      "x-proxy-secret": "test-proxy-secret",
       "x-forwarded-for": "203.0.113.7, 10.0.0.1",
       "x-vercel-ip-country": "DE",
       "x-vercel-ip-city": "Berlin",
@@ -36,4 +38,22 @@ test("creates a stable device fingerprint and reads trusted proxy location heade
   assert.equal(first.fingerprint, second.fingerprint);
   assert.equal(first.location, "Berlin, DE");
   assert.equal(first.ip, "203.0.113.7");
+});
+
+test("ignores spoofed IP/location headers without the proxy secret", () => {
+  process.env.PROXY_SHARED_SECRET = "test-proxy-secret";
+  const request = {
+    body: {},
+    headers: {
+      "x-proxy-secret": "wrong-proxy-secret",
+      "x-forwarded-for": "6.6.6.6",
+      "cf-connecting-ip": "6.6.6.6",
+      "x-vercel-ip-country": "DE",
+    },
+    get: () => undefined,
+    ip: "198.51.100.4",
+  } as any;
+  const context = describeLoginContext(request);
+  assert.equal(context.ip, "198.51.100.4");
+  assert.equal(context.location, "Unknown location");
 });

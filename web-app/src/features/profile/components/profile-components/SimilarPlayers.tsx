@@ -82,7 +82,7 @@ export default function SimilarPlayers({ playerId }: SimilarPlayersProps) {
         {data.items.map(({ player, similarityScore, reasons }) => (
           <article
             key={player._id}
-            className="min-w-0 rounded-2xl border border-emerald-950/10 bg-linear-to-br from-white to-emerald-50/45 p-3.5 shadow-[0_18px_36px_-30px_rgba(15,50,36,0.4)] sm:p-4"
+            className="min-w-0 rounded-2xl border border-emerald-950/10 bg-linear-to-br from-white to-emerald-50/45 p-3.5 shadow-[0_18px_36px_-30px_rgba(10,15,41,0.4)] sm:p-4"
           >
             <div className="mb-3 flex items-center justify-between gap-3">
               <Chip tone={similarityScore >= 75 ? "success" : "amber"}>

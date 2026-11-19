@@ -2,6 +2,28 @@
 
 Meaningful changes to MJD Football Scout are documented here. The in-app version is available under **Help → What’s New**.
 
+## v3.1 — 2026-11-19
+
+### Added
+
+- Support contact (support@mjd-apps.de) in mobile Settings and Help, and in every transactional email (also as Reply-To).
+
+### Changed
+
+- Floodlight redesign: midnight navy + volt palette, Archivo font, pill buttons and navigation on web and mobile.
+- Player search returns up to seven players; collapsible filters and inline errors on the players page.
+- Mobile player profile aligned with the web design; faster profile loading.
+- Transactional emails are sent from no-reply@mjd-apps.de.
+
+### Security
+
+- Rate limits on auth, MFA, password change, account deletion, email verification and live player refresh.
+- Refresh-token rotation, JWT hardening and web security headers.
+
+### Fixed
+
+- Sign-in emails show the real device and location and are sent only once per login.
+
 ## v3.0 — 2026-07-18
 
 ### Added

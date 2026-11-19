@@ -56,7 +56,7 @@ export function MobileTabBar() {
       <div className="fixed inset-x-0 bottom-0 z-40 px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden">
         <nav
           aria-label="Mobile tab navigation"
-          className="mx-auto flex w-full max-w-xl items-center justify-between rounded-3xl border border-emerald-950/10 bg-[#f8faf7]/95 px-2 py-2 shadow-[0_18px_40px_rgba(15,50,36,0.16)] backdrop-blur-xl"
+          className="mx-auto flex w-full max-w-xl items-center justify-between rounded-3xl border border-emerald-950/10 bg-[#f7f8fc]/95 px-2 py-2 shadow-[0_18px_40px_rgba(10,15,41,0.16)] backdrop-blur-xl"
         >
           {mobileTabLinks.map((tab) => {
             const Icon = OutlineIcons[tab.icon]

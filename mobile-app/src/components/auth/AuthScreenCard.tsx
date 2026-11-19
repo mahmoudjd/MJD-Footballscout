@@ -51,7 +51,7 @@ export default function AuthScreenCard({ icon, eyebrow, title, subtitle, footer,
             <Text style={[styles.brand, { color: colors.text }]}>MJD FootballScout</Text>
           </View>
 
-          <GlassSurface style={styles.card} fallbackStyle={{ shadowColor: isDark ? "#000" : "#0f3224" }}>
+          <GlassSurface style={styles.card} fallbackStyle={{ shadowColor: isDark ? "#000" : "#0a0f29" }}>
             <View style={[styles.iconWrap, { backgroundColor: isDark ? "rgba(201,226,101,0.10)" : "rgba(215,255,69,0.24)" }]}>
               <Ionicons name={icon} size={23} color={colors.tint} />
             </View>

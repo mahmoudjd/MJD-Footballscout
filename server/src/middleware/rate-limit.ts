@@ -1,19 +1,30 @@
+import { timingSafeEqual } from "crypto";
 import { Request, Response, NextFunction, RequestHandler } from "express";
 
 const firstHeader = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value?.split(",")[0]?.trim();
 
 /**
- * Real client IP behind Cloudflare / Vercel proxies. `req.ip` alone would be
- * the proxy address, so every request would share one bucket.
+ * True when the request comes from our own Next.js server, which proves it with
+ * PROXY_SHARED_SECRET. Only then may it vouch for the browser's IP/location via
+ * x-forwarded-for etc. — any other client can set those headers to anything.
+ */
+export function isTrustedProxy(req: Request) {
+  const secret = process.env.PROXY_SHARED_SECRET;
+  const given = firstHeader(req.headers["x-proxy-secret"] as string | string[] | undefined);
+  if (!secret || !given || given.length !== secret.length) return false;
+  return timingSafeEqual(Buffer.from(given), Buffer.from(secret));
+}
+
+/**
+ * Client IP for rate limiting / login context. `req.ip` honours `trust proxy`
+ * (set in index.ts), so it's the address the hosting proxy saw — not spoofable.
  */
 export function getClientIp(req: Request) {
-  return (
-    firstHeader(req.headers["cf-connecting-ip"] as string | string[] | undefined) ||
-    firstHeader(req.headers["x-forwarded-for"] as string | string[] | undefined) ||
-    req.ip ||
-    "unknown"
-  );
+  const forwarded = isTrustedProxy(req)
+    ? firstHeader(req.headers["x-forwarded-for"] as string | string[] | undefined)
+    : undefined;
+  return forwarded || req.ip || "unknown";
 }
 
 interface RateLimitOptions {

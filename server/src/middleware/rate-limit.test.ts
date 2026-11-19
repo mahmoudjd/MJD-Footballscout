@@ -52,3 +52,19 @@ test("window slides: old hits expire", () => {
     }, 30);
   });
 });
+
+test("spoofed forwarding headers cannot open fresh buckets", () => {
+  const limiter = createRateLimiter({ windowMs: 60_000, max: 1 });
+  const hit = (spoof: string) => {
+    let nexted = false;
+    const req = {
+      headers: { "x-forwarded-for": spoof, "cf-connecting-ip": spoof },
+      ip: "7.7.7.7",
+    } as unknown as Request;
+    const res = { setHeader() {}, status() { return this; }, json() { return this; } } as unknown as Response;
+    limiter(req, res, () => { nexted = true; });
+    return nexted;
+  };
+  assert.equal(hit("10.0.0.1"), true);
+  assert.equal(hit("10.0.0.2"), false);
+});

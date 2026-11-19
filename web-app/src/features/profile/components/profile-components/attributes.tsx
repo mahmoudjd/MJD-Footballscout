@@ -89,7 +89,7 @@ export default function Attributes({ attributes }: Props) {
 
   return (
     <section className="space-y-5">
-      <div className="grid gap-4 rounded-3xl border border-emerald-950/8 bg-linear-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white shadow-[0_26px_55px_-34px_rgba(6,78,59,0.7)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-6">
+      <div className="grid gap-4 rounded-3xl border border-emerald-950/8 bg-linear-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white shadow-[0_26px_55px_-34px_rgba(20,27,66,0.7)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-6">
         <div className="min-w-0">
           <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-lime-200/20 bg-white/10 px-3 py-1.5 text-xs font-bold text-lime-100">
             <SparklesIcon className="h-4 w-4" aria-hidden="true" />
@@ -143,7 +143,7 @@ export default function Attributes({ attributes }: Props) {
           return (
             <article
               key={`${attribute.name}-${index}`}
-              className="group min-w-0 overflow-hidden rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white via-white to-emerald-50/45 p-4 shadow-[0_18px_36px_-28px_rgba(15,50,36,0.42)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-700/20 hover:shadow-[0_24px_42px_-28px_rgba(6,78,59,0.42)] motion-reduce:transform-none motion-reduce:transition-none"
+              className="group min-w-0 overflow-hidden rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white via-white to-emerald-50/45 p-4 shadow-[0_18px_36px_-28px_rgba(10,15,41,0.42)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-700/20 hover:shadow-[0_24px_42px_-28px_rgba(20,27,66,0.42)] motion-reduce:transform-none motion-reduce:transition-none"
             >
               <div className="flex min-w-0 items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">

@@ -34,7 +34,7 @@ export function DialogContent({ className, children, size = "md", ...props }: Di
       <DialogPrimitive.Overlay className="fixed inset-0 z-[80] bg-emerald-950/55 backdrop-blur-[3px] transition-opacity data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
       <DialogPrimitive.Content
         className={cn(
-          "fixed top-1/2 left-1/2 z-[90] max-h-[85vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-3xl border border-emerald-950/10 bg-white p-6 shadow-[0_36px_80px_-32px_rgba(6,45,32,0.56)] focus-visible:outline-none",
+          "fixed top-1/2 left-1/2 z-[90] max-h-[85vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-3xl border border-emerald-950/10 bg-white p-6 shadow-[0_36px_80px_-32px_rgba(10,15,41,0.56)] focus-visible:outline-none",
           contentSizeClasses[size],
           className,
         )}

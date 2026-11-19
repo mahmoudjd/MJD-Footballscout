@@ -17,8 +17,8 @@ export default function StatTile({ label, value }: Props) {
   // Web StatTile: subtle white -> emerald-50 gradient in light mode.
   const gradient: [string, string] = isDark
     ? [colors.card, colors.surfaceSoft]
-    : ["#ffffff", "#ecfdf5"];
-  const valueColor = isDark ? "#ecfdf5" : "#022c22";
+    : ["#ffffff", "#eef1fb"];
+  const valueColor = isDark ? "#eef1fb" : "#0a0f29";
 
   return (
     <View style={[styles.wrap, shadow(isDark).sm, { borderColor: colors.border }]}>

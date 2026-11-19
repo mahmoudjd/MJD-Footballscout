@@ -89,7 +89,7 @@ const PlayerTableRow = memo(
                 alt=""
                 width={52}
                 height={52}
-                className="h-13 w-13 rounded-2xl border border-emerald-950/10 bg-stone-100 object-cover shadow-[0_10px_24px_-18px_rgba(15,50,36,0.65)]"
+                className="h-13 w-13 rounded-2xl border border-emerald-950/10 bg-stone-100 object-cover shadow-[0_10px_24px_-18px_rgba(10,15,41,0.65)]"
                 sizes="52px"
               />
               <span

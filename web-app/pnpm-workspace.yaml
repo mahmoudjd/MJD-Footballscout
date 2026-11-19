@@ -5,3 +5,8 @@ strictDepBuilds: false
 ignoredBuiltDependencies:
   - "@tailwindcss/oxide"
   - sharp
+
+# Security: force patched transitive build deps (via next > styled-jsx > @babel/core).
+overrides:
+  browserslist: ">=4.28.7"
+  baseline-browser-mapping: ">=2.11.0"

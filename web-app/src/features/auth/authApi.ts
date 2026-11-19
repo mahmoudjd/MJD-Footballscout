@@ -46,6 +46,9 @@ function clientContextHeaders(context?: ClientContext) {
   if (context.forwardedFor) headers["x-forwarded-for"] = context.forwardedFor
   if (context.country) headers["x-country-code"] = context.country
   if (context.city) headers["x-vercel-ip-city"] = context.city
+  // Server-side only (clientContext is built in auth.ts): proves to the API that
+  // these forwarded headers come from us, not from a spoofing client.
+  if (env.PROXY_SHARED_SECRET) headers["x-proxy-secret"] = env.PROXY_SHARED_SECRET
   return headers
 }
 

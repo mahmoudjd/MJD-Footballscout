@@ -7,8 +7,8 @@ import { AppContext } from "@/src/context/AppContext";
 export default function AppBackground() {
   const { isDark } = useContext(AppContext);
   const gradientColors: [string, string, string] = isDark
-    ? ["#0e1510", Colors.dark.background, "#151f18"]
-    : ["#f7f9f6", Colors.light.background, "#edf2ec"];
+    ? ["#080b1a", Colors.dark.background, "#121834"]
+    : ["#f7f8fc", Colors.light.background, "#eceff7"];
 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
@@ -24,18 +24,18 @@ export default function AppBackground() {
         style={[
           styles.glow,
           styles.glowTopRight,
-          { backgroundColor: isDark ? "rgba(23,82,57,0.24)" : "rgba(10,33,24,0.07)" },
+          { backgroundColor: isDark ? "rgba(69,88,173,0.22)" : "rgba(10,15,41,0.07)" },
         ]}
       />
       <View
         style={[
           styles.glow,
           styles.glowBottom,
-          { backgroundColor: isDark ? "rgba(201,226,101,0.03)" : "rgba(125,168,77,0.07)" },
+          { backgroundColor: isDark ? "rgba(201,226,101,0.03)" : "rgba(69,88,173,0.08)" },
         ]}
       />
-      <View style={[styles.pitchLine, styles.pitchLineOne, { borderColor: isDark ? "rgba(201,226,101,0.02)" : "rgba(10,33,24,0.025)" }]} />
-      <View style={[styles.pitchLine, styles.pitchLineTwo, { borderColor: isDark ? "rgba(201,226,101,0.015)" : "rgba(10,33,24,0.02)" }]} />
+      <View style={[styles.pitchLine, styles.pitchLineOne, { borderColor: isDark ? "rgba(201,226,101,0.02)" : "rgba(10,15,41,0.025)" }]} />
+      <View style={[styles.pitchLine, styles.pitchLineTwo, { borderColor: isDark ? "rgba(201,226,101,0.015)" : "rgba(10,15,41,0.02)" }]} />
     </View>
   );
 }

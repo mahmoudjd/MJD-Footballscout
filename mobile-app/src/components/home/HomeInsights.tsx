@@ -152,7 +152,7 @@ export default function HomeInsights() {
             { backgroundColor: Colors[colorKey].tint },
           ]}
         >
-          <View style={[styles.heroSearchIcon, { backgroundColor: isDark ? "rgba(10,33,24,0.14)" : "rgba(255,255,255,0.16)" }]}>
+          <View style={[styles.heroSearchIcon, { backgroundColor: isDark ? "rgba(10,15,41,0.14)" : "rgba(255,255,255,0.16)" }]}>
             <Ionicons name="search" size={20} color={onTint(isDark)} />
           </View>
           <View style={styles.heroSearchText}>
@@ -161,7 +161,7 @@ export default function HomeInsights() {
               Find any player by name
             </Text>
           </View>
-          <View style={[styles.heroSearchCta, { backgroundColor: isDark ? "rgba(10,33,24,0.16)" : "rgba(255,255,255,0.18)" }]}>
+          <View style={[styles.heroSearchCta, { backgroundColor: isDark ? "rgba(10,15,41,0.16)" : "rgba(255,255,255,0.18)" }]}>
             <Ionicons name="arrow-forward" size={18} color={onTint(isDark)} />
           </View>
         </PressableScale>

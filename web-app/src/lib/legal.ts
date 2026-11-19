@@ -6,20 +6,18 @@ export const LEGAL = {
   // Production web origin — also the Universal Link / App Link domain.
   webUrl: "https://mjd-football-scout.vercel.app",
   // Data-protection / support contact shown in the policies (store requirement).
-  contactEmail: "info@mjd-apps.com",
-  // Legal entity or operator name. TODO: replace with your registered name/company if applicable.
-  operator: "MJD Football Scout",
+  contactEmail: "support@mjd-apps.de",
   // Last substantive update to the policies (YYYY-MM-DD).
-  effectiveDate: "2026-07-22",
+  effectiveDate: "2026-10-08",
 } as const
 
 // Impressum / legal-notice details (§ 5 DDG, § 18 MStV — mandatory in Germany).
+// Also the data controller named in the privacy policy (Art. 13(1)(a) GDPR).
 // A "ladungsfähige Anschrift" (real physical address, no P.O. box) is legally required.
-// TODO: replace every placeholder below with your real details before publishing.
 export const IMPRESSUM = {
-  name: "[DEIN VOLLSTÄNDIGER NAME]",
-  street: "[STRASSE HAUSNUMMER]",
-  postalCity: "[PLZ ORT]",
+  name: "Mahmoud Al Jarad",
+  street: "Heuduckstr. 43",
+  postalCity: "66117 Saarbrücken",
   country: "Deutschland",
   email: LEGAL.contactEmail,
   phone: "", // optional, e.g. "+49 ..." — leave "" to hide

@@ -2,7 +2,7 @@ import { TextStyle, ViewStyle } from "react-native";
 import Colors from "@/src/constants/Colors";
 
 /**
- * Design tokens for the "Bold & Sporty" direction.
+ * Design tokens for the "Floodlight" direction (midnight navy + volt lime).
  *
  * Central source of truth for spacing, radii, typography, shadows and the
  * theme-aware colour helpers. Screens/components should compose these instead
@@ -10,7 +10,7 @@ import Colors from "@/src/constants/Colors";
  * reads as one system in both light and dark mode.
  */
 
-const ink = "#0a2118";
+const ink = "#0a0f29";
 const lime = "#d7ff45";
 
 export const BRAND = { ink, lime } as const;
@@ -67,7 +67,7 @@ type ShadowLevels = Record<"sm" | "md" | "lg", ViewStyle>;
 
 /** Soft, elevation-driven shadow presets. */
 export function shadow(isDark: boolean): ShadowLevels {
-  const color = isDark ? "#000000" : "#0f3224";
+  const color = isDark ? "#000000" : "#0a0f29";
   return {
     sm: {
       shadowColor: color,
@@ -103,7 +103,7 @@ export function onTint(isDark: boolean): string {
 
 /** Soft, brand-tinted background for subtle badges/pills. */
 export function accentSoft(isDark: boolean): string {
-  return isDark ? "rgba(201,226,101,0.14)" : "rgba(10,33,24,0.06)";
+  return isDark ? "rgba(201,226,101,0.14)" : "rgba(10,15,41,0.06)";
 }
 
 /** Readable text colour for content placed on an `accentSoft` background. */

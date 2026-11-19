@@ -1,4 +1,4 @@
-const ink = "#0a2118";
+const ink = "#0a0f29";
 const lime = "#d7ff45";
 // Desaturated lime for dark mode: the full-saturation brand lime is used on
 // large fills (buttons, badges, hero banners) and reads as glaring neon on
@@ -8,33 +8,33 @@ const limeSoft = "#c9e265";
 export default {
   light: {
     primary: ink,
-    background: "#f2f5f1",
+    background: "#f4f6fb",
     card: "#ffffff",
-    surfaceSoft: "#e9efe9",
-    text: "#10251c",
-    notification: "#617069",
-    border: "rgba(10,33,24,0.09)",
+    surfaceSoft: "#e8ecf6",
+    text: "#0d1226",
+    notification: "#626b85",
+    border: "rgba(10,15,41,0.09)",
     tint: ink,
     accent: lime,
     accentText: ink,
-    tabIconDefault: "#748078",
+    tabIconDefault: "#7a829b",
     tabIconSelected: ink,
   },
   // Dark surfaces are lifted off near-black and the text is softened off
   // near-white: ~18:1 contrast on true black causes halation/eye strain; the
   // comfortable range is ~11-14:1.
   dark: {
-    primary: "#151d17",
-    background: "#111813",
-    card: "#1a231c",
-    surfaceSoft: "#242e26",
-    text: "#e7ece7",
+    primary: "#11162f",
+    background: "#0b0f22",
+    card: "#151b36",
+    surfaceSoft: "#1f2645",
+    text: "#e6e9f4",
     border: "rgba(201,226,101,0.12)",
-    notification: "#a0aaa1",
+    notification: "#9ba3bd",
     tint: limeSoft,
     accent: limeSoft,
     accentText: ink,
-    tabIconDefault: "#8d998f",
+    tabIconDefault: "#8a93ad",
     tabIconSelected: limeSoft,
   },
 };

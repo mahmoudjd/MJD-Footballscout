@@ -53,7 +53,7 @@ const PlayersTable = memo(
             return (
               <article
                 key={player._id}
-                className="group relative overflow-hidden rounded-3xl border border-emerald-950/9 bg-linear-to-br from-white via-white to-emerald-50/45 p-4 shadow-[0_18px_38px_-30px_rgba(15,50,36,0.48)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-emerald-700/20 hover:shadow-[0_24px_44px_-30px_rgba(15,50,36,0.5)] motion-reduce:transform-none"
+                className="group relative overflow-hidden rounded-3xl border border-emerald-950/9 bg-linear-to-br from-white via-white to-emerald-50/45 p-4 shadow-[0_18px_38px_-30px_rgba(10,15,41,0.48)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-emerald-700/20 hover:shadow-[0_24px_44px_-30px_rgba(10,15,41,0.5)] motion-reduce:transform-none"
               >
                 <div
                   className="absolute top-0 right-0 h-24 w-24 rounded-bl-full bg-lime-200/20"
@@ -65,7 +65,7 @@ const PlayersTable = memo(
                     alt=""
                     width={64}
                     height={64}
-                    className="h-16 w-16 shrink-0 rounded-2xl border border-emerald-950/10 bg-stone-100 object-cover shadow-[0_12px_26px_-18px_rgba(15,50,36,0.65)]"
+                    className="h-16 w-16 shrink-0 rounded-2xl border border-emerald-950/10 bg-stone-100 object-cover shadow-[0_12px_26px_-18px_rgba(10,15,41,0.65)]"
                     sizes="64px"
                   />
                   <div className="min-w-0 flex-1">

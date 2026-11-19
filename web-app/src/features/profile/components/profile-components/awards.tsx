@@ -17,7 +17,7 @@ export default function Awards({ awards }: AwardProps) {
         {awards.map((award, idx) => (
           <div
             key={`${award.name}-${award.number}-${idx}`}
-            className="flex items-center gap-3 rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white to-lime-50/40 p-4 shadow-[0_16px_30px_-26px_rgba(15,50,36,0.38)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-700/20 hover:shadow-[0_20px_38px_-28px_rgba(6,78,59,0.4)] motion-reduce:transform-none motion-reduce:transition-none"
+            className="flex items-center gap-3 rounded-2xl border border-emerald-950/8 bg-linear-to-br from-white to-lime-50/40 p-4 shadow-[0_16px_30px_-26px_rgba(10,15,41,0.38)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-700/20 hover:shadow-[0_20px_38px_-28px_rgba(20,27,66,0.4)] motion-reduce:transform-none motion-reduce:transition-none"
           >
             <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lime-200/70 text-emerald-900">
               <SolidIcons.StarIcon className="h-5 w-5" aria-hidden="true" />

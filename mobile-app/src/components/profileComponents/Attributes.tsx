@@ -15,7 +15,7 @@ type Props = {
 };
 
 // Mirrors the web hero gradient + lime accents used across the profile.
-const HERO_GRADIENT = ["#022c22", "#064e3b", "#065f46"] as const;
+const HERO_GRADIENT = ["#0a0f29", "#141b42", "#283373"] as const;
 const LIME = "#d9f99d";
 
 const attributeIcons: Record<string, React.ComponentProps<typeof Ionicons>["name"]> = {
@@ -134,7 +134,7 @@ const Attributes = ({ attributes }: Props) => {
                   <AnimatedBar
                     progress={attr.score}
                     color={tone.fg}
-                    trackColor={isDark ? "rgba(255,255,255,0.08)" : "rgba(6,78,59,0.08)"}
+                    trackColor={isDark ? "rgba(255,255,255,0.08)" : "rgba(20,27,66,0.08)"}
                     height={10}
                     delay={index * 70}
                   />
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.4,
   },
   heroSubtitle: {
-    color: "rgba(236,253,245,0.72)",
+    color: "rgba(238,241,251,0.72)",
     fontSize: 12.5,
     lineHeight: 17,
     marginTop: 6,
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   topAttrLabel: {
-    color: "rgba(236,253,245,0.75)",
+    color: "rgba(238,241,251,0.75)",
     fontSize: 12,
     fontWeight: "600",
   },
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#bef264",
   },
   topAttrBadgeText: {
-    color: "#022c22",
+    color: "#0a0f29",
     fontSize: 12,
     fontWeight: "900",
     fontVariant: ["tabular-nums"],
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     borderColor: "#bef264",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(2,44,34,0.6)",
+    backgroundColor: "rgba(10,15,41,0.6)",
   },
   overallInner: {
     alignItems: "center",

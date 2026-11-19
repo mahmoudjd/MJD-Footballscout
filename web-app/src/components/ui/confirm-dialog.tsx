@@ -37,7 +37,7 @@ export function ConfirmDialog({
         <AlertDialog.Overlay className="fixed inset-0 z-50 bg-emerald-950/55 backdrop-blur-sm transition-opacity motion-reduce:transition-none" />
         <AlertDialog.Content
           className={cn(
-            "fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-3xl border border-emerald-950/10 bg-white p-6 shadow-[0_34px_80px_-30px_rgba(6,78,59,0.52)] sm:p-7",
+            "fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-3xl border border-emerald-950/10 bg-white p-6 shadow-[0_34px_80px_-30px_rgba(20,27,66,0.52)] sm:p-7",
           )}
         >
           <AlertDialog.Title asChild>

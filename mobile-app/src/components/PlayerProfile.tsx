@@ -717,7 +717,7 @@ const PlayerProfile = ({ person }: Props) => {
                   <AnimatedBar
                     progress={match}
                     color={matchColor}
-                    trackColor={isDark ? "rgba(255,255,255,0.08)" : "rgba(6,78,59,0.08)"}
+                    trackColor={isDark ? "rgba(255,255,255,0.08)" : "rgba(20,27,66,0.08)"}
                     height={8}
                     delay={index * 70}
                   />
@@ -870,7 +870,7 @@ const PlayerProfile = ({ person }: Props) => {
         </View>
 
         {/* Segmented section control — sits inline in the middle of the page. */}
-        <View style={[styles.segmentBar, { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,33,24,0.045)", borderColor: palette.border }]}>
+        <View style={[styles.segmentBar, { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,15,41,0.045)", borderColor: palette.border }]}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}

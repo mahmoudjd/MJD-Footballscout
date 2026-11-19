@@ -54,7 +54,7 @@ export function HelpPageView() {
             <Link
               key={item.href}
               href={item.href}
-              className="group flex min-w-0 touch-manipulation items-start gap-3 rounded-2xl border border-emerald-950/10 bg-white p-4 shadow-[0_18px_36px_-30px_rgba(15,50,36,0.4)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-700/25 hover:shadow-[0_20px_38px_-28px_rgba(15,50,36,0.5)] focus-visible:ring-2 focus-visible:ring-lime-500 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none"
+              className="group flex min-w-0 touch-manipulation items-start gap-3 rounded-2xl border border-emerald-950/10 bg-white p-4 shadow-[0_18px_36px_-30px_rgba(10,15,41,0.4)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-emerald-700/25 hover:shadow-[0_20px_38px_-28px_rgba(10,15,41,0.5)] focus-visible:ring-2 focus-visible:ring-lime-500 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none"
             >
               <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800 transition-colors group-hover:bg-lime-200">
                 <Icon className="h-5 w-5" aria-hidden="true" />
@@ -173,7 +173,7 @@ export function HelpPageView() {
                   <details
                     key={item.id}
                     id={item.id}
-                    className="group scroll-mt-28 rounded-2xl border border-emerald-950/10 bg-emerald-50/35 open:bg-white open:shadow-[0_16px_30px_-26px_rgba(15,50,36,0.45)]"
+                    className="group scroll-mt-28 rounded-2xl border border-emerald-950/10 bg-emerald-50/35 open:bg-white open:shadow-[0_16px_30px_-26px_rgba(10,15,41,0.45)]"
                   >
                     <summary className="flex min-h-12 cursor-pointer touch-manipulation list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 font-bold text-emerald-950 transition-colors hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-lime-500 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
                       <span className="min-w-0 text-pretty">{item.question}</span>

@@ -73,8 +73,8 @@ export function HomePageView() {
         </section>
       </ImageBackground>
 
-      <section className="relative border-t border-emerald-950/8 bg-[#f5f7f4] px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,60,44,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(18,60,44,0.035)_1px,transparent_1px)] [mask-image:linear-gradient(to_bottom,black,transparent_85%)] bg-[size:48px_48px]" />
+      <section className="relative border-t border-emerald-950/8 bg-[#f4f6fb] px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(20,27,66,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(20,27,66,0.035)_1px,transparent_1px)] [mask-image:linear-gradient(to_bottom,black,transparent_85%)] bg-[size:48px_48px]" />
         <div className={cn("relative mx-auto", appShellWidthClassName)}>
           <div className="mb-8 max-w-2xl">
             <p className="text-xs font-bold tracking-[0.18em] text-emerald-700 uppercase">

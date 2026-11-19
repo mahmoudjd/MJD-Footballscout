@@ -109,8 +109,11 @@ export default function PlayersPageView() {
 
   const totalPlayersCount = players?.length ?? 0
 
-  const headerDescription =
-    filteredPlayers.length === 0
+  const headerDescription = isLoading
+    ? "Loading the player database…"
+    : isError
+      ? "Player data is unavailable right now."
+      : filteredPlayers.length === 0
       ? `No players match your current criteria. ${totalPlayersCount} records are available in total.`
       : `Showing ${pagination.firstItemIndex}-${pagination.lastItemIndex} of ${filteredPlayers.length} filtered players from ${totalPlayersCount} total records.`
 
@@ -227,7 +230,9 @@ export default function PlayersPageView() {
         badge={
           hasActiveFilters
             ? `${activeFilterCount} filters active`
-            : `${filteredPlayers.length} found`
+            : isLoading || isError
+              ? undefined
+              : `${filteredPlayers.length} found`
         }
         right={
           <div className="flex items-center gap-2">

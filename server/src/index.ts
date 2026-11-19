@@ -31,6 +31,9 @@ async function startServer() {
     const context = await createContext({ mongoURI: MONGOURI });
 
     const server = express();
+    // Render terminates TLS in front of us: trust exactly that one hop so req.ip
+    // is the real client and a client-supplied X-Forwarded-For can't override it.
+    server.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS ?? 1));
 
     server.use(cors({
         origin: process.env.NODE_ENV === "production" ? (process.env.CLIENT_URL || "_") : "*",

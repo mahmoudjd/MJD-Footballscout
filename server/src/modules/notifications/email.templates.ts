@@ -12,8 +12,11 @@ export type EmailTemplate = {
   securityNotice?: string;
 };
 
+// Mails go out from the no-reply EMAIL_FROM; replies and contact go here.
+export const SUPPORT_EMAIL = "support@mjd-apps.de";
+
 const accountSecurityNotice =
-  "If you did not make this change, reset your password immediately and contact support.";
+  `If you did not make this change, reset your password immediately and contact ${SUPPORT_EMAIL}.`;
 
 export const emailTemplates = {
   newDeviceLogin: (details: {
@@ -140,6 +143,6 @@ export const emailTemplates = {
       "Your MJD Football Scout account was deactivated and can no longer be used to sign in.",
     ],
     securityNotice:
-      "If you did not deactivate your account, contact support immediately.",
+      `If you did not deactivate your account, contact ${SUPPORT_EMAIL} immediately.`,
   }),
 };

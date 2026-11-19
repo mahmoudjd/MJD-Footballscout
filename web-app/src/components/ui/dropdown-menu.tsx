@@ -40,7 +40,7 @@ export function DropdownMenuContent({
       <DropdownMenuPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 z-50 min-w-52 overflow-hidden rounded-2xl border p-1.5 shadow-[0_22px_50px_-26px_rgba(15,50,36,0.48)]",
+          "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 z-50 min-w-52 overflow-hidden rounded-2xl border p-1.5 shadow-[0_22px_50px_-26px_rgba(10,15,41,0.48)]",
           contentToneClasses[tone],
           className,
         )}

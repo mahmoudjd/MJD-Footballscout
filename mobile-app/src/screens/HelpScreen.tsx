@@ -1,12 +1,13 @@
 import React from "react";
 import { router } from "expo-router";
-import { LayoutAnimation, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
+import { LayoutAnimation, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { AppContext } from "@/src/context/AppContext";
 import ScreenContainer from "@/src/components/ui/ScreenContainer";
 import PageHeaderCard from "@/src/components/ui/PageHeaderCard";
 import CardSurface from "@/src/components/ui/CardSurface";
+import { SUPPORT_EMAIL } from "@/src/constants/legal";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -160,7 +161,15 @@ export default function HelpScreen() {
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Still need help?</Text>
           </View>
           <Text style={[styles.groupDescription, { color: colors.notification }]}>
-            For account or data questions, reach the team from the web app's contact page. Your data stays in sync across web and mobile.
+            For account or data questions, email{" "}
+            <Text
+              accessibilityRole="link"
+              style={{ color: colors.tint, fontWeight: "700" }}
+              onPress={() => Linking.openURL(`mailto:${SUPPORT_EMAIL}`)}
+            >
+              {SUPPORT_EMAIL}
+            </Text>
+            . Your data stays in sync across web and mobile.
           </Text>
         </CardSurface>
       </ScrollView>
