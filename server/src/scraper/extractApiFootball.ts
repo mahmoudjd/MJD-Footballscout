@@ -121,6 +121,11 @@ interface ApiFootballPlayer {
     photo?: string;
 }
 
+/** `/players/profiles` wraps each hit as `{player: {...}}`; accept both shapes. */
+export function unwrapProfile(item: ApiFootballPlayer | {player?: ApiFootballPlayer}): ApiFootballPlayer {
+    return (item as {player?: ApiFootballPlayer}).player ?? (item as ApiFootballPlayer);
+}
+
 interface ApiFootballTransfer {
     date?: string;
     type?: string;
@@ -250,7 +255,10 @@ async function loadPlayerDetails(profile: ApiFootballPlayer): Promise<PlayerType
  */
 export async function extractPlayersFromApiFootball(name: string): Promise<PlayerTypeSchema[]> {
     const search = name.trim();
-    if (!isApiFootballConfigured()) return [];
+    if (!isApiFootballConfigured()) {
+        logger.warn("Player search skipped: API_FOOTBALL_KEY is not set and SCRAPERS_ENABLED is not 'true'.");
+        return [];
+    }
 
     // The API rejects shorter search terms outright.
     if (search.length < 4) {
@@ -258,7 +266,8 @@ export async function extractPlayersFromApiFootball(name: string): Promise<Playe
         return [];
     }
 
-    const profiles = await request<ApiFootballPlayer>("/players/profiles", {search});
+    const profiles = (await request<ApiFootballPlayer | {player?: ApiFootballPlayer}>("/players/profiles", {search}))
+        .map(unwrapProfile);
     if (profiles.length === 0) {
         logger.info(`API-Football found no profile for '${search}'.`);
         return [];

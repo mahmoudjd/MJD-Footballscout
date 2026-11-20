@@ -1,6 +1,7 @@
 import {describe, it} from "node:test";
 import assert from "node:assert/strict";
 import {
+    unwrapProfile,
     mapPlayer,
     mapTransfers,
     mapTrophies,
@@ -146,5 +147,15 @@ describe("mapPlayer", () => {
         assert.equal(player.number, 0);
         assert.equal(player.height, 0);
         assert.equal(player.weight, 0);
+    });
+});
+
+describe("unwrapProfile", () => {
+    it("unwraps the {player} envelope /players/profiles returns", () => {
+        assert.equal(unwrapProfile({player: {id: 7, name: "Cristiano Ronaldo"}}).id, 7);
+    });
+
+    it("passes a flat profile through", () => {
+        assert.equal(unwrapProfile({id: 7, name: "Cristiano Ronaldo"}).id, 7);
     });
 });
