@@ -284,6 +284,11 @@ const createPlayersRouter = (context: AppContext) => {
     },
   );
 
+  // Banner text for the search pages, toggled from Render without a client release.
+  router.get("/search/status", (_req: Request, res: Response) => {
+    res.json({ notice: process.env.SEARCH_NOTICE?.trim() || null });
+  });
+
   router.post("/search", searchRateLimiter, searchGlobalRateLimiter, async (req: Request, res: Response): Promise<any> => {
     const { name } = req.body;
     try {

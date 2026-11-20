@@ -3,7 +3,10 @@
 import { useState, useCallback, useMemo } from "react"
 import { convert } from "@/lib/convert"
 import { usePlayersQuery } from "@/features/players/hooks/usePlayersQuery"
-import { usePlayerSearchMutation } from "@/features/search/hooks/usePlayerSearchMutation"
+import {
+  usePlayerSearchMutation,
+  useSearchNoticeQuery,
+} from "@/features/search/hooks/usePlayerSearchMutation"
 import { useDebounce } from "@/lib/hooks/useDebounce"
 import type { PlayerType } from "@/lib/types/type"
 import { SearchResultsList } from "@/features/search/components/search-results-list"
@@ -35,6 +38,7 @@ export function PlayerSearchPanel() {
   const { data: session } = useSession()
   const toast = useToast()
   const loggedIn = !!session?.user?.email
+  const { data: searchNotice } = useSearchNoticeQuery()
 
   const localResults = useMemo(() => {
     if (!players || debouncedName.length === 0) return []
@@ -104,6 +108,12 @@ export function PlayerSearchPanel() {
           />
         }
       />
+
+      {searchNotice ? (
+        <Panel tone="soft">
+          <StatusState tone="error" title="Player search is limited" description={searchNotice} />
+        </Panel>
+      ) : null}
 
       <Panel tone="soft" className="space-y-3">
         <form

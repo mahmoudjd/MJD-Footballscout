@@ -149,6 +149,10 @@ export async function getPlayersStats() {
   return requestJson<PlayerStatsResponse>("/players/stats");
 }
 
+export async function getSearchNotice() {
+  return (await requestJson<{ notice: string | null }>("/search/status")).notice;
+}
+
 export async function searchPlayers(name: string) {
   return requestJson<SearchPlayerType[]>("/search", {
     method: "POST",
