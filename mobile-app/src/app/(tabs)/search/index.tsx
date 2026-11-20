@@ -17,7 +17,7 @@ import { AppContext } from "@/src/context/AppContext";
 import Colors from "@/src/constants/Colors";
 import SearchField from "@/src/components/SearchField";
 import { convert } from "@/src/convert";
-import { getAllPlayers, saveSearchedPlayer, searchPlayers } from "@/src/apiServices";
+import { getAllPlayers, getSearchNotice, saveSearchedPlayer, searchPlayers } from "@/src/apiServices";
 import ScreenContainer from "@/src/components/ui/ScreenContainer";
 import { useAuth } from "@/src/context/AuthContext";
 import { runAuthorizedRequest } from "@/src/utils/runAuthorizedRequest";
@@ -86,6 +86,7 @@ export default function SearchScreen() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isRemoteSearching, setIsRemoteSearching] = useState(false);
   const [recent, setRecent] = useState<string[]>(recentSearches);
+  const [searchNotice, setSearchNotice] = useState<string | null>(null);
 
   const localResults = useMemo<SearchPlayerType[]>(() => {
     const term = convert(searchTerm.trim()).toLowerCase();
@@ -118,6 +119,7 @@ export default function SearchScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchPlayers();
+      getSearchNotice().then(setSearchNotice).catch(() => setSearchNotice(null));
     }, [fetchPlayers]),
   );
 
@@ -245,6 +247,13 @@ export default function SearchScreen() {
         contentContainerStyle={styles.resultsContent}
         showsVerticalScrollIndicator={false}
       >
+        {searchNotice ? (
+          <View style={[styles.noticeBox, { borderColor: "#f59e0b", backgroundColor: colors.card }]}>
+            <Ionicons name="warning-outline" size={16} color="#f59e0b" />
+            <Text style={{ color: colors.text, fontWeight: "600", flex: 1 }}>{searchNotice}</Text>
+          </View>
+        ) : null}
+
         {validationMessage ? (
           <View style={[styles.noticeBox, { borderColor: "#ef4444", backgroundColor: colors.card }]}>
             <Ionicons name="alert-circle-outline" size={16} color="#ef4444" />
